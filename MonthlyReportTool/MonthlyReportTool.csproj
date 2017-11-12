@@ -46,7 +46,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="API\EXCEL.cs" />
+    <Compile Include="API\Office\Excel\BugAnalysisSheet.cs" />
+    <Compile Include="API\Office\Excel\CodeReviewSheet.cs" />
+    <Compile Include="API\Office\Excel\ContentSheet.cs" />
+    <Compile Include="API\Office\Excel\FeatureSheet.cs" />
+    <Compile Include="API\Office\Excel\BacklogSheet.cs" />
+    <Compile Include="API\Office\Excel\CommitmentSheet.cs" />
+    <Compile Include="API\Office\Excel\WorkloadSheet.cs" />
+    <Compile Include="API\Office\Excel\OverviewSheet.cs" />
+    <Compile Include="API\Office\Excel\HomeSheet.cs" />
+    <Compile Include="API\Office\Excel\ExcelSheetBase.cs" />
+    <Compile Include="API\Office\Excel\IExcelSheet.cs" />
+    <Compile Include="API\Office\Excel\Utility.cs" />
     <Compile Include="API\PPT.cs" />
     <Compile Include="API\TFS\Agile\IterationEntity.cs" />
     <Compile Include="API\TFS\TeamProject\Project.cs" />
@@ -103,8 +114,6 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="API\Office\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

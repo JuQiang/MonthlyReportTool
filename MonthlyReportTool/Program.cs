@@ -17,7 +17,7 @@ namespace MonthlyReportTool
             //    Console.WriteLine(API.TFS.Agile.Iteration.GetProjectIterations(prj.Name));
             //    Console.WriteLine("======================");
             //}
-            API.EXCEL.BuildIterationReports();
+            API.Office.Excel.Utility.BuildIterationReports();
 
             //var features = API.TFS.Utils.GetAllFeaturesByIterations("TTP\\FYQ4\\Sprint35");
 

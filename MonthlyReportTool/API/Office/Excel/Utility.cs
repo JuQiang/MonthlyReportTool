@@ -75,12 +75,12 @@ namespace MonthlyReportTool.API.Office.Excel
             var sheetSuggestion = (ExcelInterop.Worksheet)sheets.Add(Missing.Value, sheetBugAnalysis);
             nativeResources.Add(sheetSuggestion);
             sheetSuggestion.Name = "改进建议";
-            BuildSuggestionSheet(sheetSuggestion);
+            (new SuggestionSheet(sheetSuggestion)).Build();
 
             var sheetPeoplePerformance = (ExcelInterop.Worksheet)sheets.Add(Missing.Value, sheetSuggestion);
             nativeResources.Add(sheetPeoplePerformance);
             sheetPeoplePerformance.Name = "人员考评结果";
-            BuildPeoplePerformanceSheet(sheetPeoplePerformance);
+            (new PerformanceSheet(sheetPeoplePerformance)).Build();
 
             sheets.Select();//选择所有的sheet
 
@@ -109,16 +109,104 @@ namespace MonthlyReportTool.API.Office.Excel
             bigrangeFont.Name = "微软雅黑";
             bigrangeFont.Size = 11;
         }
-       
-        private static void BuildSuggestionSheet(ExcelInterop.Worksheet sheet)
-        {
 
+        public static int BuildFormalTable(ExcelInterop.Worksheet sheet, int row, string title, string description,
+            string startCol, string endCol, List<string> colnames, List<string> mergedInfo,int rowCount)
+        {
+            ExcelInterop.Range tableTitleRange = sheet.Range[sheet.Cells[row, startCol], sheet.Cells[row, endCol]];
+            Utility.AddNativieResource(tableTitleRange);
+            tableTitleRange.Merge();
+            tableTitleRange.RowHeight = 20;
+            sheet.Cells[row, startCol] = title;
+            var tableTitleFont = tableTitleRange.Font;
+            Utility.AddNativieResource(tableTitleFont);
+            tableTitleFont.Bold = true;
+            tableTitleFont.Size = 12;
+
+            row++;
+
+            ExcelInterop.Range tableDescriptionRange = sheet.Range[sheet.Cells[row, startCol], sheet.Cells[row, endCol]];
+            Utility.AddNativieResource(tableDescriptionRange);
+            tableDescriptionRange.Merge();
+            
+            sheet.Cells[row, startCol] = description;
+            var lines = description.Split(new char[] { '\r', '\n' },StringSplitOptions.RemoveEmptyEntries);
+            tableDescriptionRange.RowHeight = 20*(lines.Length+0);
+
+            row++;
+            for (int i = 0; i < colnames.Count; i++)
+            {
+                string[] cols = mergedInfo[i].Split(new char[] { ',' });
+                ExcelInterop.Range colRange = sheet.Range[sheet.Cells[row,cols[0]], sheet.Cells[row, cols[1]]];
+                Utility.AddNativieResource(colRange);
+                colRange.RowHeight = 20;
+                colRange.Merge();
+                sheet.Cells[row, cols[0]] = colnames[i];
+
+                var border = colRange.Borders;
+                Utility.AddNativieResource(border);
+                border.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
+            }
+
+            BuildFormalTableHeader(sheet, row, startCol, row, endCol);
+
+            row++;
+            for (int i = 0; i < rowCount; i++)
+            {
+                for (int j = 0; j < colnames.Count; j++)
+                {
+                    string[] cols = mergedInfo[j].Split(new char[] { ',' });
+                    ExcelInterop.Range colRange = sheet.Range[sheet.Cells[row + i, cols[0]], sheet.Cells[row + i, cols[1]]];
+                    Utility.AddNativieResource(colRange);
+                    colRange.RowHeight = 20;
+                    colRange.Merge();
+
+                    sheet.Cells[row + i, cols[0]] = String.Format("数据行:{0}，列{1}", row + i, j + 1);
+
+                    var border = colRange.Borders;
+                    Utility.AddNativieResource(border);
+                    border.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
+                }
+            }
+
+            return row + rowCount + 1;
         }
 
-        private static void BuildPeoplePerformanceSheet(ExcelInterop.Worksheet sheet)
+        public static void BuildFormalTableHeader(ExcelInterop.Worksheet sheet,int startRow, string startCol, int endRow, string endCol)
         {
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, startCol], sheet.Cells[endRow, endCol]];
+            Utility.AddNativieResource(range);
+            range.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignCenter;
+            range.VerticalAlignment = ExcelInterop.XlVAlign.xlVAlignCenter;
+            range.WrapText = true;
 
+            var borders = range.Borders;
+            Utility.AddNativieResource(borders);
+            borders.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
+
+            var interior = range.Interior;
+            Utility.AddNativieResource(interior);
+            interior.Color = System.Drawing.Color.DarkGray.ToArgb();
         }
 
+        public static void BuildFormalSheetTitle(ExcelInterop.Worksheet sheet, int startRow, string startCol, int endRow, string endCol,string title, int columnWidth=16)
+        {
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, startCol], sheet.Cells[endRow, endCol]];
+
+            Utility.AddNativieResource(range);
+            range.ColumnWidth = columnWidth;
+            range.RowHeight = 40;
+            range.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignCenter;
+            range.Merge();
+            sheet.Cells[startRow, startCol] = title;
+            var titleFont = range.Font;
+            Utility.AddNativieResource(titleFont);
+            titleFont.Bold = true;
+            titleFont.Size = 20;
+
+            ExcelInterop.Range colA = sheet.Cells[1, "A"] as ExcelInterop.Range;
+            Utility.AddNativieResource(colA);
+            colA.ColumnWidth = 2;
+        }
     }
 }

@@ -18,24 +18,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
         public void Build()
         {
-            #region 标题
-            ExcelInterop.Range titleRange = sheet.Range[sheet.Cells[2, "B"], sheet.Cells[2, "J"]];
-            Utility.AddNativieResource(titleRange);
-            titleRange.ColumnWidth = 10;
-            titleRange.RowHeight = 40;
-            titleRange.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignCenter;
-            titleRange.Merge();
-            sheet.Cells[2, "B"] = "项目整体说明";
-            var titleFont = titleRange.Font;
-            Utility.AddNativieResource(titleFont);
-            titleFont.Bold = true;
-            titleFont.Name = "微软雅黑";
-            titleFont.Size = 20;
-
-            ExcelInterop.Range colA = sheet.Cells[1, "A"] as ExcelInterop.Range;
-            Utility.AddNativieResource(colA);
-            colA.ColumnWidth = 2;
-            #endregion 标题
+            Utility.BuildFormalSheetTitle(sheet, 2, "B", 2, "J", "项目整体说明");
 
             #region 标题2
             ExcelInterop.Range title2Range = sheet.Range[sheet.Cells[4, "B"], sheet.Cells[4, "J"]];

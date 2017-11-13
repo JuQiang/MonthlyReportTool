@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ExcelInterop = Microsoft.Office.Interop.Excel;
 using Microsoft.Office.Core;
+using MonthlyReportTool.API.TFS.WorkItem;
 
 namespace MonthlyReportTool.API.Office.Excel
 {
@@ -24,32 +25,15 @@ namespace MonthlyReportTool.API.Office.Excel
             BuildTestTable();
             BuildPerformanceTestTable();
 
-            int startRow = BuildFailedTable();
-            startRow = BuildFailedReasonTable(startRow);
-            BuildExceptionTable(startRow);
+            List<CommitmentEntity> list = new List<CommitmentEntity>() {new CommitmentEntity(), new CommitmentEntity(), new CommitmentEntity(), new CommitmentEntity(), new CommitmentEntity(), new CommitmentEntity() };
+            int startRow = BuildFailedTable(12,list);
+            startRow = BuildFailedReasonTable(startRow,list);
+            BuildExceptionTable(startRow,list);
         }
 
         private void BuildTitle()
         {
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[2, "B"], sheet.Cells[2, "G"]];
-            Utility.AddNativieResource(range);
-            range.ColumnWidth = 8;
-            range.RowHeight = 40;
-            range.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignCenter;
-            range.Merge();
-            sheet.Cells[2, "B"] = "提交单统计分析";
-            var titleFont = range.Font;
-            Utility.AddNativieResource(titleFont);
-            titleFont.Bold = true;
-            titleFont.Size = 20;
-
-            ExcelInterop.Range colA = sheet.Cells[1, "A"] as ExcelInterop.Range;
-            Utility.AddNativieResource(colA);
-            colA.ColumnWidth = 2;
-
-            ExcelInterop.Range colall = sheet.Range[sheet.Cells[1, "B"], sheet.Cells[1, "I"]];
-            Utility.AddNativieResource(colall);
-            colall.ColumnWidth = 16;
+            Utility.BuildFormalSheetTitle(sheet, 2, "B", 2, "G", "提交单统计分析");
         }
         private void BuildSubTitle()
         {
@@ -194,235 +178,35 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.AddNativieResource(colFont);
             colFont.Bold = true;
         }
-        private int BuildFailedTable()
+        private int BuildFailedTable(int startRow, List<CommitmentEntity> list)
         {
-            ExcelInterop.Range tableTitleRange = sheet.Range[sheet.Cells[12, "B"], sheet.Cells[12, "G"]];
-            Utility.AddNativieResource(tableTitleRange);
-            tableTitleRange.Merge();
-            tableTitleRange.RowHeight = 20;
-            sheet.Cells[12, "B"] = "提交单打回次数及一次通过率，按人员统计";
-            var tableTitleFont = tableTitleRange.Font;
-            Utility.AddNativieResource(tableTitleFont);
-            tableTitleFont.Bold = true;
-            tableTitleFont.Size = 12;
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "提交单打回次数及一次通过率，按人员统计", "说明：一次通过率=一次通过数/提交单总数\r\n按一次通过率排序", "B", "G",
+                new List<string>() { "姓名", "一次通过数", "被打回一次数", "被打回两次数", "被打回两次以上数", "一次通过率" },
+                new List<string>() { "B,B", "C,C", "D,D", "E,E", "F,F", "G,G"},
+                list.Count);
 
-            ExcelInterop.Range tableDescriptionRange = sheet.Range[sheet.Cells[13, "B"], sheet.Cells[13, "G"]];
-            Utility.AddNativieResource(tableDescriptionRange);
-            tableDescriptionRange.Merge();
-            tableDescriptionRange.RowHeight = 40;
-            sheet.Cells[13, "B"] = "说明：一次通过率=一次通过数/提交单总数\r\n按一次通过率排序";
-
-            int failedCount = 20;
-            string[] cols = new string[] { "姓名", "一次通过数", "被打回一次数", "被打回两次数", "被打回两次以上数", "一次通过率"};
-            List<Tuple<string, string>> colsname = new List<Tuple<string, string>>(){
-                Tuple.Create<string,string>("B","B"),
-                Tuple.Create<string,string>("C","C"),
-                Tuple.Create<string,string>("D","D"),
-                Tuple.Create<string,string>("E","E"),
-                Tuple.Create<string,string>("F","F"),
-                Tuple.Create<string,string>("G","G"),
-            };
-
-            for (int i = 0; i < cols.Length; i++)
-            {
-                ExcelInterop.Range colRange = sheet.Range[sheet.Cells[14, colsname[i].Item1], sheet.Cells[14, colsname[i].Item2]];
-                Utility.AddNativieResource(colRange);
-                colRange.RowHeight = 20;
-                colRange.Merge();
-                sheet.Cells[14, colsname[i].Item1] = cols[i];
-
-                var border = colRange.Borders;
-                Utility.AddNativieResource(border);
-                border.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
-            }
-
-            ExcelInterop.Range tableRange = sheet.Range[sheet.Cells[14, "B"], sheet.Cells[14, "G"]];
-            Utility.AddNativieResource(tableRange);
-            tableRange.RowHeight = 20;
-            tableRange.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignCenter;
-
-            var interior = tableRange.Interior;
-            Utility.AddNativieResource(interior);
-            interior.Color = System.Drawing.Color.DarkGray.ToArgb();
-
-            var tableFont = tableRange.Font;
-            Utility.AddNativieResource(tableFont);
-            tableFont.Bold = true;
-
-            //TODO : 放入GIT
-            for (int i = 0; i < failedCount; i++)
-            {
-                for (int j = 0; j < cols.Length; j++)
-                {
-                    ExcelInterop.Range colRange = sheet.Range[sheet.Cells[15 + i, colsname[j].Item1], sheet.Cells[15 + i, colsname[j].Item2]];
-                    Utility.AddNativieResource(colRange);
-                    colRange.RowHeight = 20;
-                    colRange.Merge();
-                    if (j == cols.Length - 1)
-                    {
-                        sheet.Cells[15 + i, colsname[j].Item1] = String.Format("=IF(C{0}<>0,C{0}/(C{0}+D{0}+E{0}+F{0}),\"\")",15+i);
-                    }
-                    else
-                    {
-                        sheet.Cells[15 + i, colsname[j].Item1] = String.Format("数据行:{0}，列{1}", 19 + i, j + 1);
-                    }
-
-                    var border = colRange.Borders;
-                    Utility.AddNativieResource(border);
-                    border.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
-                }
-            }
-
-            return 14 + failedCount + 2;
+            return nextRow;
         }
 
-        private int BuildFailedReasonTable(int startRow)
+        private int BuildFailedReasonTable(int startRow, List<CommitmentEntity> list)
         {
-            ExcelInterop.Range tableTitleRange = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow, "H"]];
-            Utility.AddNativieResource(tableTitleRange);
-            tableTitleRange.Merge();
-            tableTitleRange.RowHeight = 20;
-            sheet.Cells[startRow, "B"] = "提交单打回原因分析";
-            var tableTitleFont = tableTitleRange.Font;
-            Utility.AddNativieResource(tableTitleFont);
-            tableTitleFont.Bold = true;
-            tableTitleFont.Size = 12;
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "提交单打回原因分析", "说明：", "B", "H",
+                new List<string>() { "提交单ID", "提交单类型", "打回次数", "打回原因", "功能负责人", "测试负责人" },
+                new List<string>() { "B,B", "C,C", "D,D", "E,F", "G,G", "H,H"},
+                list.Count);
 
-            ExcelInterop.Range tableDescriptionRange = sheet.Range[sheet.Cells[startRow + 1, "B"], sheet.Cells[startRow + 1, "H"]];
-            Utility.AddNativieResource(tableDescriptionRange);
-            tableDescriptionRange.Merge();
-            tableDescriptionRange.RowHeight = 20;
-            sheet.Cells[startRow + 1, "B"] = "说明：";
+            return nextRow;            
 
-            int reasonCount = 10;
-            string[] cols = new string[] { "提交单ID", "提交单类型", "打回次数", "打回原因", "功能负责人", "测试负责人" };
-            List<Tuple<string, string>> colsname = new List<Tuple<string, string>>(){
-                Tuple.Create<string,string>("B","B"),
-                Tuple.Create<string,string>("C","C"),
-                Tuple.Create<string,string>("D","D"),
-                Tuple.Create<string,string>("E","F"),
-                Tuple.Create<string,string>("G","G"),
-                Tuple.Create<string,string>("H","H"),
-            };
-
-            for (int i = 0; i < cols.Length; i++)
-            {
-                ExcelInterop.Range colRange = sheet.Range[sheet.Cells[startRow + 2, colsname[i].Item1], sheet.Cells[startRow + 2, colsname[i].Item2]];
-                Utility.AddNativieResource(colRange);
-                colRange.RowHeight = 20;
-                colRange.Merge();
-                sheet.Cells[startRow + 2, colsname[i].Item1] = cols[i];
-
-                var border = colRange.Borders;
-                Utility.AddNativieResource(border);
-                border.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
-            }
-
-            ExcelInterop.Range tableRange = sheet.Range[sheet.Cells[startRow + 2, "B"], sheet.Cells[startRow + 2, "H"]];
-            Utility.AddNativieResource(tableRange);
-            tableRange.RowHeight = 20;
-            tableRange.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignCenter;
-
-            var interior = tableRange.Interior;
-            Utility.AddNativieResource(interior);
-            interior.Color = System.Drawing.Color.DarkGray.ToArgb();
-
-            var tableFont = tableRange.Font;
-            Utility.AddNativieResource(tableFont);
-            tableFont.Bold = true;
-
-            //TODO : 放入GIT
-            for (int i = 0; i < reasonCount; i++)
-            {
-                for (int j = 0; j < cols.Length; j++)
-                {
-                    ExcelInterop.Range colRange = sheet.Range[sheet.Cells[startRow + 3 + i, colsname[j].Item1], sheet.Cells[startRow + 3 + i, colsname[j].Item2]];
-                    Utility.AddNativieResource(colRange);
-                    colRange.RowHeight = 20;
-                    colRange.Merge();
-                    sheet.Cells[startRow + 3 + i, colsname[j].Item1] = String.Format("数据行:{0}，列{1}", startRow + 3 + i, j + 1);
-
-                    var border = colRange.Borders;
-                    Utility.AddNativieResource(border);
-                    border.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
-                }
-            }
-
-            return startRow + 3 + reasonCount + 1;
         }
 
-        private void BuildExceptionTable(int startRow)
+        private int BuildExceptionTable(int startRow, List<CommitmentEntity> list)
         {
-            ExcelInterop.Range tableTitleRange = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow, "H"]];
-            Utility.AddNativieResource(tableTitleRange);
-            tableTitleRange.Merge();
-            tableTitleRange.RowHeight = 20;
-            sheet.Cells[startRow, "B"] = "提交单持续时间超过2周的异常分析";
-            var tableTitleFont = tableTitleRange.Font;
-            Utility.AddNativieResource(tableTitleFont);
-            tableTitleFont.Bold = true;
-            tableTitleFont.Size = 12;
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "提交单持续时间超过2周的异常分析", "说明：提交单状态从【提交测试】到【测试通过】这段时间超过2周的\r\n提交日期和测试通过时间比较", "B", "H",
+                new List<string>() { "提交单ID", "持续时间", "原因分析", "功能负责人", "测试负责人" },
+                new List<string>() { "B,B", "C,C", "D,F", "G,G", "H,H" },
+                list.Count);
 
-            ExcelInterop.Range tableDescriptionRange = sheet.Range[sheet.Cells[startRow + 1, "B"], sheet.Cells[startRow + 1, "H"]];
-            Utility.AddNativieResource(tableDescriptionRange);
-            tableDescriptionRange.Merge();
-            tableDescriptionRange.RowHeight = 40;
-            sheet.Cells[startRow + 1, "B"] = "说明：提交单状态从【提交测试】到【测试通过】这段时间超过2周的\r\n提交日期和测试通过时间比较";
-
-            int exceptionCount = 13;
-            string[] cols = new string[] { "提交单ID", "持续时间", "原因分析", "功能负责人","测试负责人" };
-            List<Tuple<string, string>> colsname = new List<Tuple<string, string>>(){
-                Tuple.Create<string,string>("B","B"),
-                Tuple.Create<string,string>("C","C"),
-                Tuple.Create<string,string>("D","F"),
-                Tuple.Create<string,string>("G","G"),
-                Tuple.Create<string,string>("H","H"),
-            };
-
-            for (int i = 0; i < cols.Length; i++)
-            {
-                ExcelInterop.Range colRange = sheet.Range[sheet.Cells[startRow + 2, colsname[i].Item1], sheet.Cells[startRow + 2, colsname[i].Item2]];
-                Utility.AddNativieResource(colRange);
-                colRange.RowHeight = 20;
-                colRange.Merge();
-                sheet.Cells[startRow + 2, colsname[i].Item1] = cols[i];
-
-                var border = colRange.Borders;
-                Utility.AddNativieResource(border);
-                border.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
-            }
-
-            ExcelInterop.Range tableRange = sheet.Range[sheet.Cells[startRow + 2, "B"], sheet.Cells[startRow + 2, "H"]];
-            Utility.AddNativieResource(tableRange);
-            tableRange.RowHeight = 20;
-            tableRange.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignCenter;
-
-            var interior = tableRange.Interior;
-            Utility.AddNativieResource(interior);
-            interior.Color = System.Drawing.Color.DarkGray.ToArgb();
-
-            var tableFont = tableRange.Font;
-            Utility.AddNativieResource(tableFont);
-            tableFont.Bold = true;
-
-            //TODO : 放入GIT
-            for (int i = 0; i < exceptionCount; i++)
-            {
-                for (int j = 0; j < cols.Length; j++)
-                {
-                    ExcelInterop.Range colRange = sheet.Range[sheet.Cells[startRow + 3 + i, colsname[j].Item1], sheet.Cells[startRow + 3 + i, colsname[j].Item2]];
-                    Utility.AddNativieResource(colRange);
-                    colRange.RowHeight = 20;
-                    colRange.Merge();
-                    sheet.Cells[startRow + 3 + i, colsname[j].Item1] = String.Format("数据行:{0}，列{1}", startRow + 3 + i, j + 1);
-
-                    var border = colRange.Borders;
-                    Utility.AddNativieResource(border);
-                    border.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
-                }
-            }
-
-            //return startRow + 3 + featuresCount + 2;
+            return nextRow;
         }
     }
 }

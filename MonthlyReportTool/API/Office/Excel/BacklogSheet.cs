@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ExcelInterop = Microsoft.Office.Interop.Excel;
 using Microsoft.Office.Core;
+using MonthlyReportTool.API.TFS.WorkItem;
 
 namespace MonthlyReportTool.API.Office.Excel
 {
@@ -22,29 +23,15 @@ namespace MonthlyReportTool.API.Office.Excel
             BuildSubTitle();
             BuildDescription();
 
-            BuildSummaryTable();
-            int startRow = BuildTable();
-            startRow = BuildDelayedTable(startRow);
-            BuildAbandonTable(startRow);
+            int startRow = BuildSummaryTable();
+            List<BacklogEntity> list = new List<BacklogEntity>() {new BacklogEntity(), new BacklogEntity(), new BacklogEntity(), new BacklogEntity(), new BacklogEntity() };
+            startRow = BuildDelayedTable(startRow,list);
+            startRow = BuildAbandonTable(startRow, list);
+            BuildTable(startRow, list);
         }
         private void BuildTitle()
         {
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[2, "B"], sheet.Cells[2, "O"]];
-            Utility.AddNativieResource(range);
-            range.ColumnWidth = 8;
-            range.RowHeight = 40;
-            range.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignCenter;
-            range.Merge();
-            sheet.Cells[2, "B"] = "Backlog统计分析";
-            var titleFont = range.Font;
-            Utility.AddNativieResource(titleFont);
-            titleFont.Bold = true;
-            titleFont.Name = "微软雅黑";
-            titleFont.Size = 20;
-
-            ExcelInterop.Range colA = sheet.Cells[1, "A"] as ExcelInterop.Range;
-            Utility.AddNativieResource(colA);
-            colA.ColumnWidth = 2;
+            Utility.BuildFormalSheetTitle(sheet, 2, "B", 2, "O", "Backlog统计分析");
         }
         private void BuildSubTitle()
         {
@@ -78,7 +65,7 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.AddNativieResource(tmpfont);
             tmpfont.Bold = true;
         }
-        private void BuildSummaryTable()
+        private int BuildSummaryTable()
         {
             var rb = sheet.Cells[1, "B"] as ExcelInterop.Range;
             rb.ColumnWidth = 10;
@@ -94,6 +81,8 @@ namespace MonthlyReportTool.API.Office.Excel
                 { "进行中数", "", "", "进行中数：【测试通过】、【测试接收】、【开发完成】、【进行中】、【提交确认】状态的Backlog数\r\n占比：进行中数/本迭代计划总数"},
                 { "未启动数", "", "", "未启动数：【已批准】、【提交评审】、【已承诺】、【新建】状态的Backlog数\r\n占比：未启动数/本迭代计划总数" },
                 { "拖期数", "", "", "拖期数：进行中数+未启动数\r\n占比：拖期数/本迭代计划总数"},
+                { "中止数", "", "", "中止数：本迭代中止的Backlog数\r\n占比：拖期数/本迭代计划总数"},
+                { "移除数", "", "", "移除数：本迭代移除的Backlog数\r\n占比：拖期数/本迭代计划总数"},
                 { "本迭代计划总数", "", "", "本迭代规划的所有backlog（包括上迭代拖期的）个数"},
                 { "提交数", "", "", "提交数：【已发布】、【提交测试】、【测试接收】状态的Backlog数\r\n占比：提交数/应提交数" },
                 { "未测试数", "", "", "未测试数：【进行中】、【开发完成】及其他状态的Backlog数\r\n占比：未测试数/应提交数"},
@@ -128,14 +117,18 @@ namespace MonthlyReportTool.API.Office.Excel
 
             BuildSummaryTableTitle();
 
-            sheet.Cells[7, "E"] = "=IF(D7<>0,D7/D11,\"\")";
-            sheet.Cells[8, "E"] = "=IF(D8<>0,D8/D11,\"\")";
-            sheet.Cells[9, "E"] = "=IF(D9<>0,D9/D11,\"\")";
-            sheet.Cells[10, "E"] = "=IF(D10<>0,D10/D11,\"\")";
-            sheet.Cells[11, "E"] = "'--";
-            sheet.Cells[12, "E"] = "=IF(D12<>0,D12/D14,\"\")";
-            sheet.Cells[13, "E"] = "=IF(D13<>0,D13/D14,\"\")";
-            sheet.Cells[14, "E"] = "'--";
+            sheet.Cells[7, "E"] = "=IF(D7<>0,D7/D13,\"\")";
+            sheet.Cells[8, "E"] = "=IF(D8<>0,D8/D13,\"\")";
+            sheet.Cells[9, "E"] = "=IF(D9<>0,D9/D13,\"\")";
+            sheet.Cells[10, "E"] = "=IF(D10<>0,D10/D13,\"\")";
+            sheet.Cells[11, "E"] = "=IF(D11<>0,D11/D13,\"\")";
+            sheet.Cells[12, "E"] = "=IF(D12<>0,D12/D13,\"\")";
+            sheet.Cells[13, "E"] = "'--";
+            sheet.Cells[14, "E"] = "=IF(D14<>0,D14/D16,\"\")";
+            sheet.Cells[15, "E"] = "=IF(D15<>0,D15/D16,\"\")";
+            sheet.Cells[16, "E"] = "'--";
+
+            return 18;
         }
 
         private void BuildSummaryTableTitle()
@@ -154,238 +147,36 @@ namespace MonthlyReportTool.API.Office.Excel
             colFont.Bold = true;
         }
 
-        private int BuildTable()
+        
+
+        private int BuildDelayedTable(int startRow, List<BacklogEntity> list)
         {
-            ExcelInterop.Range tableTitleRange = sheet.Range[sheet.Cells[16, "B"], sheet.Cells[16, "M"]];
-            Utility.AddNativieResource(tableTitleRange);
-            tableTitleRange.Merge();
-            tableTitleRange.RowHeight = 20;
-            sheet.Cells[16, "B"] = "本迭代backlog列表";
-            var tableTitleFont = tableTitleRange.Font;
-            Utility.AddNativieResource(tableTitleFont);
-            tableTitleFont.Bold = true;
-            tableTitleFont.Size = 12;
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "拖期backlog分析", "说明：分析每个拖期Backlog的原因、主要责任人、以及拖期改进措施、改进措施责任人", "B", "M",
+                new List<string>() { "ID", "关键应用", "模块", "backlog名称","拖期责任人", "拖期原因", "拖期改进措施", "措施负责人" },
+                new List<string>() { "B,B", "C,C","D,E", "F,J", "K,K", "L,O", "P,S","T,T" },
+                list.Count);
 
-            ExcelInterop.Range tableDescriptionRange = sheet.Range[sheet.Cells[17, "B"], sheet.Cells[17, "M"]];
-            Utility.AddNativieResource(tableDescriptionRange);
-            tableDescriptionRange.Merge();
-            tableDescriptionRange.RowHeight = 20;
-            sheet.Cells[17, "B"] = "说明：按关键应用、模块排序；非研发类的为无";
-            var tmpdesccharc = tableDescriptionRange.Characters[4, 10];
-
-            var tmpdescfont = tmpdesccharc.Font;
-            Utility.AddNativieResource(tmpdesccharc);
-            Utility.AddNativieResource(tmpdescfont);
-            tmpdescfont.Color = System.Drawing.Color.Red.ToArgb();
-
-            int featuresCount = 20;
-            string[] cols = new string[] { "ID", "关键应用", "模块", "backlog名称", "类别", "负责人", "状态" };
-            List<Tuple<string, string>> colsname = new List<Tuple<string, string>>(){
-                Tuple.Create<string,string>("B","B"),
-                Tuple.Create<string,string>("C","C"),
-                Tuple.Create<string,string>("D","E"),
-                Tuple.Create<string,string>("F","J"),
-                Tuple.Create<string,string>("K","K"),
-                Tuple.Create<string,string>("L","L"),
-                Tuple.Create<string,string>("M","M"),
-            };
-
-            for (int i = 0; i < cols.Length; i++)
-            {
-                ExcelInterop.Range colRange = sheet.Range[sheet.Cells[18, colsname[i].Item1], sheet.Cells[18, colsname[i].Item2]];
-                Utility.AddNativieResource(colRange);
-                colRange.RowHeight = 20;
-                colRange.Merge();
-                sheet.Cells[18, colsname[i].Item1] = cols[i];
-
-                var border = colRange.Borders;
-                Utility.AddNativieResource(border);
-                border.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
-            }
-
-            ExcelInterop.Range tableRange = sheet.Range[sheet.Cells[18, "B"], sheet.Cells[18, "M"]];
-            Utility.AddNativieResource(tableRange);
-            tableRange.RowHeight = 20;
-            tableRange.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignCenter;
-
-            var interior = tableRange.Interior;
-            Utility.AddNativieResource(interior);
-            interior.Color = System.Drawing.Color.DarkGray.ToArgb();
-
-            var tableFont = tableRange.Font;
-            Utility.AddNativieResource(tableFont);
-            tableFont.Name = "微软雅黑";
-            tableFont.Size = 11;
-            tableFont.Bold = true;
-
-            //TODO : 放入GIT
-            for (int i = 0; i < featuresCount; i++)
-            {
-                for (int j = 0; j < cols.Length; j++)
-                {
-                    ExcelInterop.Range colRange = sheet.Range[sheet.Cells[19 + i, colsname[j].Item1], sheet.Cells[19 + i, colsname[j].Item2]];
-                    Utility.AddNativieResource(colRange);
-                    colRange.RowHeight = 20;
-                    colRange.Merge();
-                    sheet.Cells[19 + i, colsname[j].Item1] = String.Format("数据行:{0}，列{1}", 19 + i, j + 1);
-
-                    var border = colRange.Borders;
-                    Utility.AddNativieResource(border);
-                    border.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
-                }
-            }
-
-            return 18 + featuresCount + 2;
+            return nextRow;
         }
 
-        private int BuildDelayedTable(int startRow)
+        private int BuildAbandonTable(int startRow, List<BacklogEntity> list)
         {
-            ExcelInterop.Range tableTitleRange = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow, "M"]];
-            Utility.AddNativieResource(tableTitleRange);
-            tableTitleRange.Merge();
-            tableTitleRange.RowHeight = 20;
-            sheet.Cells[startRow, "B"] = "拖期backlog分析";
-            var tableTitleFont = tableTitleRange.Font;
-            Utility.AddNativieResource(tableTitleFont);
-            tableTitleFont.Bold = true;
-            tableTitleFont.Size = 12;
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "移除/中止backlog分析", "说明：分析每个移除/中止Backlog的处理原因", "B", "M",
+                new List<string>() { "ID", "关键应用", "模块", "backlog名称", "负责人", "移除/中止原因分析" },
+                new List<string>() { "B,B", "C,C", "D,E", "F,J","K,K","L,O" },
+                list.Count);
 
-            ExcelInterop.Range tableDescriptionRange = sheet.Range[sheet.Cells[startRow + 1, "B"], sheet.Cells[startRow + 1, "M"]];
-            Utility.AddNativieResource(tableDescriptionRange);
-            tableDescriptionRange.Merge();
-            tableDescriptionRange.RowHeight = 20;
-            sheet.Cells[startRow + 1, "B"] = "说明：分析每个拖期Backlog的原因、主要责任人、以及拖期改进措施、改进措施责任人";
-
-            int featuresCount = 10;
-            string[] cols = new string[] { "ID", "backlog名称", "拖期责任人", "拖期原因", "拖期改进措施", "措施负责人" };
-            List<Tuple<string, string>> colsname = new List<Tuple<string, string>>(){
-                Tuple.Create<string,string>("B","B"),
-                Tuple.Create<string,string>("C","E"),
-                Tuple.Create<string,string>("F","F"),
-                Tuple.Create<string,string>("G","I"),
-                Tuple.Create<string,string>("J","L"),
-                Tuple.Create<string,string>("M","M"),
-            };
-
-            for (int i = 0; i < cols.Length; i++)
-            {
-                ExcelInterop.Range colRange = sheet.Range[sheet.Cells[startRow + 2, colsname[i].Item1], sheet.Cells[startRow + 2, colsname[i].Item2]];
-                Utility.AddNativieResource(colRange);
-                colRange.RowHeight = 20;
-                colRange.Merge();
-                sheet.Cells[startRow + 2, colsname[i].Item1] = cols[i];
-
-                var border = colRange.Borders;
-                Utility.AddNativieResource(border);
-                border.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
-            }
-
-            ExcelInterop.Range tableRange = sheet.Range[sheet.Cells[startRow + 2, "B"], sheet.Cells[startRow + 2, "M"]];
-            Utility.AddNativieResource(tableRange);
-            tableRange.RowHeight = 20;
-            tableRange.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignCenter;
-
-            var interior = tableRange.Interior;
-            Utility.AddNativieResource(interior);
-            interior.Color = System.Drawing.Color.DarkGray.ToArgb();
-
-            var tableFont = tableRange.Font;
-            Utility.AddNativieResource(tableFont);
-            tableFont.Name = "微软雅黑";
-            tableFont.Size = 11;
-            tableFont.Bold = true;
-
-            //TODO : 放入GIT
-            for (int i = 0; i < featuresCount; i++)
-            {
-                for (int j = 0; j < cols.Length; j++)
-                {
-                    ExcelInterop.Range colRange = sheet.Range[sheet.Cells[startRow + 3 + i, colsname[j].Item1], sheet.Cells[startRow + 3 + i, colsname[j].Item2]];
-                    Utility.AddNativieResource(colRange);
-                    colRange.RowHeight = 20;
-                    colRange.Merge();
-                    sheet.Cells[startRow + 3 + i, colsname[j].Item1] = String.Format("数据行:{0}，列{1}", startRow + 3 + i, j + 1);
-
-                    var border = colRange.Borders;
-                    Utility.AddNativieResource(border);
-                    border.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
-                }
-            }
-
-            return startRow + 3 + featuresCount + 2;
+            return nextRow;
         }
 
-        private int BuildAbandonTable(int startRow)
+        private int BuildTable(int startRow, List<BacklogEntity> list)
         {
-            ExcelInterop.Range tableTitleRange = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow, "M"]];
-            Utility.AddNativieResource(tableTitleRange);
-            tableTitleRange.Merge();
-            tableTitleRange.RowHeight = 20;
-            sheet.Cells[startRow, "B"] = "移除/中止backlog分析";
-            var tableTitleFont = tableTitleRange.Font;
-            Utility.AddNativieResource(tableTitleFont);
-            tableTitleFont.Bold = true;
-            tableTitleFont.Size = 12;
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代backlog列表", "说明：按关键应用、模块排序；非研发类的为无", "B", "M",
+                new List<string>() { "ID", "关键应用", "模块", "backlog名称", "类别", "负责人", "状态" },
+                new List<string>() { "B,B", "C,C", "D,E", "F,J", "K,K", "L,L", "M,M" },
+                list.Count);
 
-            ExcelInterop.Range tableDescriptionRange = sheet.Range[sheet.Cells[startRow + 1, "B"], sheet.Cells[startRow + 1, "M"]];
-            Utility.AddNativieResource(tableDescriptionRange);
-            tableDescriptionRange.Merge();
-            tableDescriptionRange.RowHeight = 20;
-            sheet.Cells[startRow + 1, "B"] = "说明：分析每个移除/中止Backlog的处理原因";
-
-            int featuresCount = 3;
-            string[] cols = new string[] { "ID", "backlog名称", "移除/中止原因分析", "负责人" };
-            List<Tuple<string, string>> colsname = new List<Tuple<string, string>>(){
-                Tuple.Create<string,string>("B","B"),
-                Tuple.Create<string,string>("C","F"),
-                Tuple.Create<string,string>("G","L"),
-                Tuple.Create<string,string>("M","M"),
-            };
-
-            for (int i = 0; i < cols.Length; i++)
-            {
-                ExcelInterop.Range colRange = sheet.Range[sheet.Cells[startRow + 2, colsname[i].Item1], sheet.Cells[startRow + 2, colsname[i].Item2]];
-                Utility.AddNativieResource(colRange);
-                colRange.RowHeight = 20;
-                colRange.Merge();
-                sheet.Cells[startRow + 2, colsname[i].Item1] = cols[i];
-
-                var border = colRange.Borders;
-                Utility.AddNativieResource(border);
-                border.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
-            }
-
-            ExcelInterop.Range tableRange = sheet.Range[sheet.Cells[startRow + 2, "B"], sheet.Cells[startRow + 2, "M"]];
-            Utility.AddNativieResource(tableRange);
-            tableRange.RowHeight = 20;
-            tableRange.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignCenter;
-
-            var interior = tableRange.Interior;
-            Utility.AddNativieResource(interior);
-            interior.Color = System.Drawing.Color.DarkGray.ToArgb();
-
-            var tableFont = tableRange.Font;
-            Utility.AddNativieResource(tableFont);
-            tableFont.Bold = true;
-
-            //TODO : 放入GIT
-            for (int i = 0; i < featuresCount; i++)
-            {
-                for (int j = 0; j < cols.Length; j++)
-                {
-                    ExcelInterop.Range colRange = sheet.Range[sheet.Cells[startRow + 3 + i, colsname[j].Item1], sheet.Cells[startRow + 3 + i, colsname[j].Item2]];
-                    Utility.AddNativieResource(colRange);
-                    colRange.RowHeight = 20;
-                    colRange.Merge();
-                    sheet.Cells[startRow + 3 + i, colsname[j].Item1] = String.Format("数据行:{0}，列{1}", startRow + 3 + i, j + 1);
-
-                    var border = colRange.Borders;
-                    Utility.AddNativieResource(border);
-                    border.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
-                }
-            }
-
-            return startRow + 3 + featuresCount + 2;
+            return nextRow;
         }
     }
 }

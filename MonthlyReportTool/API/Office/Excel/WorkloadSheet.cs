@@ -31,21 +31,7 @@ namespace MonthlyReportTool.API.Office.Excel
         }
         private void BuildTitle()
         {
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[2, "B"], sheet.Cells[2, "AG"]];
-            Utility.AddNativieResource(range);
-            range.ColumnWidth = 8;
-            range.RowHeight = 40;
-            range.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignCenter;
-            range.Merge();
-            sheet.Cells[2, "B"] = "工作量统计分析";
-            var titleFont = range.Font;
-            Utility.AddNativieResource(titleFont);
-            titleFont.Bold = true;
-            titleFont.Size = 20;
-
-            ExcelInterop.Range colA = sheet.Cells[1, "A"] as ExcelInterop.Range;
-            Utility.AddNativieResource(colA);
-            colA.ColumnWidth = 2;
+            Utility.BuildFormalSheetTitle(sheet, 2, "B", 2, "AG", "工作量统计分析");
         }
         private void BuildSubTitle()
         {
@@ -231,25 +217,9 @@ namespace MonthlyReportTool.API.Office.Excel
                 ExcelInterop.Range range = sheet.Range[sheet.Cells[tuple.Item1, tuple.Item2], sheet.Cells[tuple.Item3, tuple.Item4]];
                 Utility.AddNativieResource(range);
                 range.Merge();
-
-                //var border = range.Borders;
-                //Utility.AddNativieResource(border);
-                //border.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
             }
 
-
-            ExcelInterop.Range rangemini = sheet.Range[sheet.Cells[11, "B"], sheet.Cells[13, "AG"]];
-            rangemini.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignCenter;
-            rangemini.VerticalAlignment = ExcelInterop.XlVAlign.xlVAlignCenter;
-            rangemini.WrapText = true;
-
-            var bordermini = rangemini.Borders;
-            Utility.AddNativieResource(bordermini);
-            bordermini.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
-
-            var interior = rangemini.Interior;
-            Utility.AddNativieResource(interior);
-            interior.Color = System.Drawing.Color.DarkGray.ToArgb();
+            Utility.BuildFormalTableHeader(sheet, 11, "B", 13, "AG");
 
             int devWorkloadCount = 7;
             for (int i = 0; i < devWorkloadCount; i++)

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ExcelInterop = Microsoft.Office.Interop.Excel;
 using Microsoft.Office.Core;
 using System.Reflection;
+using System.IO;
 
 namespace MonthlyReportTool.API.Office.Excel
 {
@@ -18,6 +19,7 @@ namespace MonthlyReportTool.API.Office.Excel
         }
         public static void BuildIterationReports()
         {
+            WriteLog("================开始================");
             ExcelInterop.Application excel = new ExcelInterop.Application();
 
             excel.DisplayAlerts = false;
@@ -27,61 +29,41 @@ namespace MonthlyReportTool.API.Office.Excel
             ExcelInterop.Sheets sheets = workbook.Worksheets;
             nativeResources.Add(sheets);
 
-            var sheetHome = (ExcelInterop.Worksheet)sheets.Add();
-            nativeResources.Add(sheetHome);
-            sheetHome.Name = "首页及说明";
-            (new HomeSheet(sheetHome)).Build();
+            List<Tuple<string, Type>> allSheets = new List<Tuple<string, Type>>()
+            {
+                Tuple.Create<string, Type>("首页及说明",typeof(HomeSheet)),
+                Tuple.Create<string, Type>("目录",typeof(ContentSheet)),
+                Tuple.Create<string, Type>("项目整体说明",typeof(OverviewSheet)),
+                Tuple.Create<string, Type>("产品特性统计",typeof(FeatureSheet)),
+                Tuple.Create<string, Type>("Backlog统计",typeof(BacklogSheet)),
+                Tuple.Create<string, Type>("工作量统计",typeof(WorkloadSheet)),
+                Tuple.Create<string, Type>("提交单分析",typeof(CommitmentSheet)),
+                Tuple.Create<string, Type>("代码审查分析",typeof(CodeReviewSheet)),
+                Tuple.Create<string, Type>("Bug统计分析",typeof(BugAnalysisSheet)),
+                Tuple.Create<string, Type>("改进建议",typeof(SuggestionSheet)),
+                Tuple.Create<string, Type>("人员考评结果",typeof(PerformanceSheet)),
+            };
 
-            var sheetContent = (ExcelInterop.Worksheet)sheets.Add(Missing.Value, sheetHome);
-            nativeResources.Add(sheetContent);
-            sheetContent.Name = "目录";
-            (new HomeSheet(sheetContent)).Build();
+            ExcelInterop.Worksheet lastSheet = null;
+            for (int i = 0; i < allSheets.Count; i++)
+            {
+                ExcelInterop.Worksheet sheet;
 
-            var sheetOverview = (ExcelInterop.Worksheet)sheets.Add(Missing.Value, sheetContent);
-            nativeResources.Add(sheetOverview);
-            sheetOverview.Name = "项目整体说明";
-            (new OverviewSheet(sheetOverview)).Build();
+                if (lastSheet == null)sheet = (ExcelInterop.Worksheet)sheets.Add();else sheet = (ExcelInterop.Worksheet)sheets.Add(After: lastSheet);
 
-            var sheetFeature = (ExcelInterop.Worksheet)sheets.Add(Missing.Value, sheetOverview);
-            nativeResources.Add(sheetFeature);
-            sheetFeature.Name = "产品特性统计";
-            (new FeatureSheet(sheetFeature)).Build();
+                lastSheet = sheet;
+                nativeResources.Add(sheet);
+                sheet.Name = allSheets[i].Item1;
 
-            var sheetBacklog = (ExcelInterop.Worksheet)sheets.Add(Missing.Value, sheetFeature);
-            nativeResources.Add(sheetBacklog);
-            sheetBacklog.Name = "Backlog统计";
-            (new BacklogSheet(sheetBacklog)).Build();
+                WriteLog("处理：" + sheet.Name);
 
-            var sheetWorkload = (ExcelInterop.Worksheet)sheets.Add(Missing.Value, sheetBacklog);
-            nativeResources.Add(sheetWorkload);
-            sheetWorkload.Name = "工作量统计";
-            (new WorkloadSheet(sheetWorkload)).Build();
+                Type t = allSheets[i].Item2;
+                var ci = t.GetConstructor(new Type[] { typeof(ExcelInterop.Worksheet) });
+                object obj = ci.Invoke(new object[] { sheet });
+                t.InvokeMember("Build", BindingFlags.InvokeMethod, null, obj, new object[] { });
+            }
 
-            var sheetCommitment = (ExcelInterop.Worksheet)sheets.Add(Missing.Value, sheetWorkload);
-            nativeResources.Add(sheetCommitment);
-            sheetCommitment.Name = "提交单分析";
-            (new CommitmentSheet(sheetCommitment)).Build();
-            
-            var sheetCodeReview = (ExcelInterop.Worksheet)sheets.Add(Missing.Value, sheetCommitment);
-            nativeResources.Add(sheetCodeReview);
-            sheetCodeReview.Name = "代码审查分析";
-            (new CodeReviewSheet(sheetCodeReview)).Build();
-
-            var sheetBugAnalysis = (ExcelInterop.Worksheet)sheets.Add(Missing.Value, sheetCodeReview);
-            nativeResources.Add(sheetBugAnalysis);
-            sheetBugAnalysis.Name = "Bug统计分析";
-            (new BugAnalysisSheet(sheetBugAnalysis)).Build();
-
-            var sheetSuggestion = (ExcelInterop.Worksheet)sheets.Add(Missing.Value, sheetBugAnalysis);
-            nativeResources.Add(sheetSuggestion);
-            sheetSuggestion.Name = "改进建议";
-            (new SuggestionSheet(sheetSuggestion)).Build();
-
-            var sheetPeoplePerformance = (ExcelInterop.Worksheet)sheets.Add(Missing.Value, sheetSuggestion);
-            nativeResources.Add(sheetPeoplePerformance);
-            sheetPeoplePerformance.Name = "人员考评结果";
-            (new PerformanceSheet(sheetPeoplePerformance)).Build();
-
+            WriteLog("保存文件.");
             sheets.Select();//选择所有的sheet
 
             var window = excel.ActiveWindow;
@@ -91,12 +73,15 @@ namespace MonthlyReportTool.API.Office.Excel
             workbook.SaveAs("c:\\irt\\1.xlsx");
             workbook.Close();
 
+            WriteLog("释放资源.");
             foreach (object com in nativeResources)
             {
                 TFS.Utils.ReleaseComObject(com);
             }
 
             excel.Quit();
+
+            WriteLog("================结束================");
         }
 
         public static void SetSheetFont(ExcelInterop.Worksheet sheet)
@@ -207,6 +192,17 @@ namespace MonthlyReportTool.API.Office.Excel
             ExcelInterop.Range colA = sheet.Cells[1, "A"] as ExcelInterop.Range;
             Utility.AddNativieResource(colA);
             colA.ColumnWidth = 2;
+        }
+
+        public static void WriteLog(string msg)
+        {
+            string line = String.Format("{0} --- {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"), msg);
+            Console.WriteLine(line);
+
+            using (StreamWriter sw = new StreamWriter(@"c:\\irt\\log.txt",true))
+            {
+                sw.WriteLine(line);
+            }
         }
     }
 }

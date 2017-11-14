@@ -17,7 +17,7 @@ namespace MonthlyReportTool.API.Office.Excel
         {
             nativeResources.Add(obj);
         }
-        public static void BuildIterationReports()
+        public static void BuildIterationReports(string project)
         {
             WriteLog("================开始================");
             ExcelInterop.Application excel = new ExcelInterop.Application();
@@ -49,7 +49,7 @@ namespace MonthlyReportTool.API.Office.Excel
             {
                 ExcelInterop.Worksheet sheet;
 
-                if (lastSheet == null)sheet = (ExcelInterop.Worksheet)sheets.Add();else sheet = (ExcelInterop.Worksheet)sheets.Add(After: lastSheet);
+                if (lastSheet == null) sheet = (ExcelInterop.Worksheet)sheets.Add(); else sheet = (ExcelInterop.Worksheet)sheets.Add(After: lastSheet);
 
                 lastSheet = sheet;
                 nativeResources.Add(sheet);
@@ -60,7 +60,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 Type t = allSheets[i].Item2;
                 var ci = t.GetConstructor(new Type[] { typeof(ExcelInterop.Worksheet) });
                 object obj = ci.Invoke(new object[] { sheet });
-                t.InvokeMember("Build", BindingFlags.InvokeMethod, null, obj, new object[] { });
+                t.InvokeMember("Build", BindingFlags.InvokeMethod, null, obj, new object[] { project });
             }
 
             WriteLog("保存文件.");
@@ -96,7 +96,7 @@ namespace MonthlyReportTool.API.Office.Excel
         }
 
         public static int BuildFormalTable(ExcelInterop.Worksheet sheet, int row, string title, string description,
-            string startCol, string endCol, List<string> colnames, List<string> mergedInfo,int rowCount)
+            string startCol, string endCol, List<string> colnames, List<string> mergedInfo, int rowCount)
         {
             ExcelInterop.Range tableTitleRange = sheet.Range[sheet.Cells[row, startCol], sheet.Cells[row, endCol]];
             Utility.AddNativieResource(tableTitleRange);
@@ -113,16 +113,16 @@ namespace MonthlyReportTool.API.Office.Excel
             ExcelInterop.Range tableDescriptionRange = sheet.Range[sheet.Cells[row, startCol], sheet.Cells[row, endCol]];
             Utility.AddNativieResource(tableDescriptionRange);
             tableDescriptionRange.Merge();
-            
+
             sheet.Cells[row, startCol] = description;
-            var lines = description.Split(new char[] { '\r', '\n' },StringSplitOptions.RemoveEmptyEntries);
-            tableDescriptionRange.RowHeight = 20*(lines.Length+0);
+            var lines = description.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            tableDescriptionRange.RowHeight = 20 * (lines.Length + 0);
 
             row++;
             for (int i = 0; i < colnames.Count; i++)
             {
                 string[] cols = mergedInfo[i].Split(new char[] { ',' });
-                ExcelInterop.Range colRange = sheet.Range[sheet.Cells[row,cols[0]], sheet.Cells[row, cols[1]]];
+                ExcelInterop.Range colRange = sheet.Range[sheet.Cells[row, cols[0]], sheet.Cells[row, cols[1]]];
                 Utility.AddNativieResource(colRange);
                 colRange.RowHeight = 20;
                 colRange.Merge();
@@ -157,7 +157,7 @@ namespace MonthlyReportTool.API.Office.Excel
             return row + rowCount + 1;
         }
 
-        public static void BuildFormalTableHeader(ExcelInterop.Worksheet sheet,int startRow, string startCol, int endRow, string endCol)
+        public static void BuildFormalTableHeader(ExcelInterop.Worksheet sheet, int startRow, string startCol, int endRow, string endCol)
         {
             ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, startCol], sheet.Cells[endRow, endCol]];
             Utility.AddNativieResource(range);
@@ -174,7 +174,7 @@ namespace MonthlyReportTool.API.Office.Excel
             interior.Color = System.Drawing.Color.DarkGray.ToArgb();
         }
 
-        public static void BuildFormalSheetTitle(ExcelInterop.Worksheet sheet, int startRow, string startCol, int endRow, string endCol,string title, int columnWidth=16)
+        public static void BuildFormalSheetTitle(ExcelInterop.Worksheet sheet, int startRow, string startCol, int endRow, string endCol, string title, int columnWidth = 16)
         {
             ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, startCol], sheet.Cells[endRow, endCol]];
 
@@ -199,7 +199,7 @@ namespace MonthlyReportTool.API.Office.Excel
             string line = String.Format("{0} --- {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"), msg);
             Console.WriteLine(line);
 
-            using (StreamWriter sw = new StreamWriter(@"c:\\irt\\log.txt",true))
+            using (StreamWriter sw = new StreamWriter(@"c:\\irt\\log.txt", true))
             {
                 sw.WriteLine(line);
             }

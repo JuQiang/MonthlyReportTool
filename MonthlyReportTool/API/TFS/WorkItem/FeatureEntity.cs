@@ -9,17 +9,25 @@ namespace MonthlyReportTool.API.TFS.WorkItem
     public class FeatureEntity
     {
         public int Id;
+        public string KeyApplication;
+        public string ModulesName;
         public string Title;
         public string AssignedTo;
         public string MonthState;        
         public string State;
+        public string RequireFinishedDate;
+        public string DesignFinishedDate;
         public string DevelopmentFinishedDate;
+        public string TestFinishedDate;
+        public string AcceptFinishedDate;
         public string ReleaseFinishedDate;
         public string TeamProject;
         public string InitTargetDate;
         public string TargetDate;        
         public bool IsDevelopment;
+        public string FunctionMenu;
 
+        
     }
 
     //select [System.Id], [System.Title], [System.AssignedTo], [Teld.Scrum.MonthState], [System.State],

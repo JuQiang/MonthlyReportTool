@@ -14,5 +14,7 @@ namespace MonthlyReportTool.API.TFS.TeamProject
         public string URL { get; set; }
         public string State { get; set; }
         public int Revision { get; set; }
+
+        public List<TeamEntity> TeamList;
     }    
 }

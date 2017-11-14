@@ -16,7 +16,7 @@ namespace MonthlyReportTool.API.Office.Excel
             this.sheet = sheet;
         }
 
-        public void Build()
+        public void Build(string project)
         {
             ExcelInterop.Range allrange = sheet.Range[sheet.Cells[1, "C"], sheet.Cells[40, "J"]];
             Utility.AddNativieResource(allrange);

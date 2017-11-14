@@ -321,7 +321,31 @@ namespace MonthlyReportTool.API.TFS
 
             return list;
         }
-        public JObject GetQueryClause(string queryID)
+
+        public static string ReplaceProjectAndDateFromWIQL(string wiql, Tuple<string, string, string> original)
+        {
+            string prj = original.Item1;
+            string date1 = original.Item2;
+            string date2 = original.Item3;
+
+            int pos = wiql.IndexOf(prj);
+            pos = wiql.IndexOf("'",pos+ prj.Length);
+            int pos2 = wiql.IndexOf("'", pos + 1);
+            wiql = wiql.Substring(0, pos) + "'{0}'" + wiql.Substring(pos2 + 1);
+
+            pos = wiql.IndexOf(date1);
+            pos = wiql.IndexOf("'", pos + date1.Length);
+            pos2 = wiql.IndexOf("'", pos + 1);
+            wiql = wiql.Substring(0, pos) + "'{1}'" + wiql.Substring(pos2 + 1);
+
+            pos = wiql.IndexOf(date2);
+            pos = wiql.IndexOf("'", pos + date2.Length);
+            pos2 = wiql.IndexOf("'", pos + 1);
+            wiql = wiql.Substring(0, pos) + "'{2}'" + wiql.Substring(pos2 + 1);
+
+            return wiql;
+        }
+        public static string GetQueryClause(string queryID)
         {
 
             string url = String.Format("http://{0}:8080/{1}/_apis/wit/queries/{2}?$expand=clauses&api-version=1.0",
@@ -347,7 +371,7 @@ namespace MonthlyReportTool.API.TFS
                     response.EnsureSuccessStatusCode();
                     string responseBody = response.Content.ReadAsStringAsync().Result;
 
-                    return JsonConvert.DeserializeObject(responseBody) as JObject;
+                    return Convert.ToString((JsonConvert.DeserializeObject(responseBody) as JObject)["wiql"]);
                 }
             }
         }
@@ -384,6 +408,31 @@ namespace MonthlyReportTool.API.TFS
         }
         private static Dictionary<string, string> memberCache = new Dictionary<string, string>();
         private void FlushTeamMemberList()
+        {
+            memberCache = new Dictionary<string, string>();
+
+            //http://tfs.teld.cn:8080/tfs/teld/_apis/projects/2edbf3dd-f4d4-4ff9-9cd8-cadda5bdc21a/teams/be7ae25c-0fc2-429a-8759-ef84675fc028/members?api-version=2.0
+
+            List<ProjectEntity> prjlist = new List<ProjectEntity>();
+            //http://tfs.teld.cn:8080/tfs/teld/_apis/projects?api-version=2.0
+            string url = String.Format("http://{0}:8080/{1}/_apis/projects/2edbf3dd-f4d4-4ff9-9cd8-cadda5bdc21a/teams/be7ae25c-0fc2-429a-8759-ef84675fc028/members?api-version=2.0",
+                    "tfs.teld.cn",
+                    "tfs/teld"
+                    );
+
+
+            string responseBody = GetHttpResponseByUrl(url);
+
+            foreach (var person in (JsonConvert.DeserializeObject(responseBody) as JObject)["value"] as JArray)
+            {
+                string dispname = Convert.ToString(person["displayName"]);
+                string uniquename = Convert.ToString(person["uniqueName"]);
+                memberCache.Add(dispname, String.Format("{0} <{1}>", dispname, uniquename));
+            }
+
+        }
+
+        public static void RetrieveTeamMemberList(string prj)
         {
             memberCache = new Dictionary<string, string>();
 
@@ -672,61 +721,14 @@ namespace MonthlyReportTool.API.TFS
         }
 
         #region Iterations
-        public static List<FeatureEntity> GetAllFeaturesByIterations(string iterationPath)
-        {
-            List<FeatureEntity> list = new List<FeatureEntity>();
-
-            string[] pathinfo = iterationPath.Split(new char[] { '\\' });
-            string prj = pathinfo[0];
-            var allIterations = API.TFS.Agile.Iteration.GetProjectIterations(prj);
-            var matchedFristIteration = allIterations.Where(ite => (ite.Path.ToLower() == iterationPath.ToLower())).FirstOrDefault();
-
-            string sql = String.Format(
-                "select [System.Id], [System.Title], [System.AssignedTo], [Teld.Scrum.MonthState], [System.State]," +
-                "[Teld.Scrum.DevelopmentFinishedDate], [Teld.Scrum.ReleaseFinishedDate], [System.TeamProject]," +
-                "[Teld.Scrum.Scheduling.InitTargetDate], [Microsoft.VSTS.Scheduling.TargetDate], [Teld.Scrum.IsDevelopment] " +
-                " from WorkItems where[System.WorkItemType] = '产品特性' " +
-                " and[Microsoft.VSTS.Scheduling.TargetDate] >= '{0}' " +
-                " and[Microsoft.VSTS.Scheduling.TargetDate] < '{1}' ",
-                matchedFristIteration.StartDate,
-                matchedFristIteration.EndDate);
-
-            string responseBody = Utils.ExecuteQueryBySQL(sql);
-            var features = ConvertFlatQueryResult2Array(responseBody);
-            foreach (var feature in features)
-            {
-                list.Add(
-                    new FeatureEntity()
-                    {
-                        //[Teld.Scrum.Scheduling.InitTargetDate], [Microsoft.VSTS.Scheduling.TargetDate], [Teld.Scrum.IsDevelopment]
-                        Id = Convert.ToInt32(feature["System.Id"]),
-                        Title = Convert.ToString(feature["fields"]["System.Title"]),
-                        AssignedTo = Convert.ToString(feature["fields"]["System.AssignedTo"]),
-                        MonthState = Convert.ToString(feature["fields"]["Teld.Scrum.MonthState"]),
-                        State = Convert.ToString(feature["fields"]["System.State"]),
-                        //DevelopmentFinishedDate = DateTime.Parse(Convert.ToString(feature["fields"]["Teld.Scrum.DevelopmentFinishedDate"])),
-                        //ReleaseFinishedDate = DateTime.Parse(Convert.ToString(feature["fields"]["Teld.Scrum.ReleaseFinishedDate"])),
-                        DevelopmentFinishedDate = Convert.ToString(feature["fields"]["Teld.Scrum.DevelopmentFinishedDate"]),
-                        ReleaseFinishedDate = Convert.ToString(feature["fields"]["Teld.Scrum.ReleaseFinishedDate"]),
-
-                        TeamProject = Convert.ToString(feature["fields"]["System.TeamProject"]),
-                        //InitTargetDate = DateTime.Parse(Convert.ToString(feature["fields"]["Teld.Scrum.Scheduling.InitTargetDate"])),
-                        //TargetDate = DateTime.Parse(Convert.ToString(feature["fields"]["Microsoft.VSTS.Scheduling.TargetDate"])),
-                        InitTargetDate = Convert.ToString(feature["fields"]["Teld.Scrum.Scheduling.InitTargetDate"]),
-                        TargetDate = Convert.ToString(feature["fields"]["Microsoft.VSTS.Scheduling.TargetDate"]),
-                        IsDevelopment = Convert.ToString(feature["fields"]["Teld.Scrum.IsDevelopment"]) == "是",
-                    }
-                );
-            }
-
-            return list;
-        }
+        
 
         #endregion Iterations
 
-        private static List<JToken> ConvertFlatQueryResult2Array(string responseBody)
+        public static List<JToken> ConvertWorkitemFlatQueryResult2Array(string responseBody)
         {
             List<JToken> list = new List<JToken>();
+            if (String.IsNullOrEmpty(responseBody)) return list;
 
             var jsonobj = JsonConvert.DeserializeObject(responseBody) as JObject;
             StringBuilder sbrefname = new StringBuilder();
@@ -741,6 +743,8 @@ namespace MonthlyReportTool.API.TFS
             }
 
             var ids = jsonobj["workItems"] as JArray;
+            if (ids.Count < 1) return list;
+
             foreach (var id in ids)
             {
                 var wiid = Convert.ToString(id["id"]);

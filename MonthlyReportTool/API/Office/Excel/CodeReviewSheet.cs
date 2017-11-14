@@ -17,7 +17,7 @@ namespace MonthlyReportTool.API.Office.Excel
             this.sheet = sheet;
         }
 
-        public void Build()
+        public void Build(string project)
         {
             BuildTitle();
 

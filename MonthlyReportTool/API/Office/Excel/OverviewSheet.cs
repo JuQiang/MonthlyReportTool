@@ -16,7 +16,7 @@ namespace MonthlyReportTool.API.Office.Excel
             this.sheet = sheet;
         }
 
-        public void Build()
+        public void Build(string project)
         {
             Utility.BuildFormalSheetTitle(sheet, 2, "B", 2, "J", "项目整体说明");
 

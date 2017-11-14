@@ -8,6 +8,6 @@ namespace MonthlyReportTool.API.Office.Excel
 {
     public interface IExcelSheet
     {
-        void Build();
+        void Build(string project);
     }
 }

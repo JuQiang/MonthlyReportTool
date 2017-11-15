@@ -14,7 +14,7 @@ namespace MonthlyReportTool.API.TFS.Agile
         {
             List<IterationEntity> list = new List<IterationEntity>();
 
-            string ret = TFS.Utils.GetHttpResponseByUrl(
+            string ret = TFS.Utility.GetHttpResponseByUrl(
                 String.Format("http://tfs.teld.cn:8080/tfs/teld/{0}/_apis/work/teamsettings/iterations?api-version=v2.0-preview", prj)
             );
 

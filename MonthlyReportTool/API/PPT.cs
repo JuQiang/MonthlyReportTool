@@ -117,33 +117,33 @@ namespace MonthlyReportTool.API
 
         public void BuildSlides()
         {
-            var allbugs = (new TFS.Utils()).RetrieveAllBugsByDate("2017-10-01", "2017-11-01");
-            var teambugs = allbugs.GroupBy(wi => wi.SystemTeamProject);
+            //var allbugs = (new TFS.Utility()).RetrieveAllBugsByDate("2017-10-01", "2017-11-01");
+            //var teambugs = allbugs.GroupBy(wi => wi.SystemTeamProject);
 
-            foreach (var teambug in teambugs)
-            {
-                if (teambug.Key == "Bugs") continue;
-                Console.WriteLine(teambug.Key);
-                var pptApplication = new PowerPointInterop.Application();
-                // Create the Presentation File
-                var pptPresentation = pptApplication.Presentations.Add();// (MsoTriState.msoTrue);
+            //foreach (var teambug in teambugs)
+            //{
+            //    if (teambug.Key == "Bugs") continue;
+            //    Console.WriteLine(teambug.Key);
+            //    var pptApplication = new PowerPointInterop.Application();
+            //    // Create the Presentation File
+            //    var pptPresentation = pptApplication.Presentations.Add();// (MsoTriState.msoTrue);
 
-                // Create new Slide
-                var slides = pptPresentation.Slides;
-                var customLayout = pptPresentation.SlideMaster.CustomLayouts[PowerPointInterop.PpSlideLayout.ppLayoutText];
+            //    // Create new Slide
+            //    var slides = pptPresentation.Slides;
+            //    var customLayout = pptPresentation.SlideMaster.CustomLayouts[PowerPointInterop.PpSlideLayout.ppLayoutText];
 
-                int page = 1;
-                //BuildSlide1(slides.AddSlide(page++, customLayout));
-                //BuildSlide2(slides.AddSlide(page++, customLayout));
+            //    int page = 1;
+            //    //BuildSlide1(slides.AddSlide(page++, customLayout));
+            //    //BuildSlide2(slides.AddSlide(page++, customLayout));
 
-                //BuildAllBugsSlide(teambug, slides.AddSlide(page++, customLayout));
-                //BuildProjectMaintananceBugsSlide(teambug, slides.AddSlide(page++, customLayout));
-                BuildBugsByAreaPathSlide(teambug, slides.AddSlide(page++, customLayout));
+            //    //BuildAllBugsSlide(teambug, slides.AddSlide(page++, customLayout));
+            //    //BuildProjectMaintananceBugsSlide(teambug, slides.AddSlide(page++, customLayout));
+            //    BuildBugsByAreaPathSlide(teambug, slides.AddSlide(page++, customLayout));
 
-                pptPresentation.SaveAs(@"c:\mrt\" + teambug.Key + ".pptx", PowerPointInterop.PpSaveAsFileType.ppSaveAsDefault, MsoTriState.msoTrue);
-                //pptPresentation.Close();
-                //pptApplication.Quit();
-            }
+            //    pptPresentation.SaveAs(@"c:\mrt\" + teambug.Key + ".pptx", PowerPointInterop.PpSaveAsFileType.ppSaveAsDefault, MsoTriState.msoTrue);
+            //    //pptPresentation.Close();
+            //    //pptApplication.Quit();
+            //}
          }
 
         private void PrepareBugs()

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MonthlyReportTool.API.TFS.TeamProject;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,6 @@ namespace MonthlyReportTool.API.Office.Excel
 {
     public interface IExcelSheet
     {
-        void Build(string project);
+        void Build(ProjectEntity project);
     }
 }

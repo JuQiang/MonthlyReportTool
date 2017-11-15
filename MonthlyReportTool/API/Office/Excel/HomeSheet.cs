@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ExcelInterop = Microsoft.Office.Interop.Excel;
 using Microsoft.Office.Core;
+using MonthlyReportTool.API.TFS.TeamProject;
 
 namespace MonthlyReportTool.API.Office.Excel
 {
@@ -16,15 +17,17 @@ namespace MonthlyReportTool.API.Office.Excel
             this.sheet = sheet;
         }
 
-        public void Build(string project)
+        public void Build(ProjectEntity project)
         {
             ExcelInterop.Range allrange = sheet.Range[sheet.Cells[1, "C"], sheet.Cells[40, "J"]];
             Utility.AddNativieResource(allrange);
             allrange.ColumnWidth = 12;
             allrange.RowHeight = 15;
 
+            var ite = TFS.Utility.GetBestIteration(project.Name);
             #region 1st paragraph
-            sheet.Cells[5, "D"] = "***迭代总结";
+            string[] tmp = ite.Path.Split(new char[] { '\\' });
+            sheet.Cells[5, "D"] = String.Format("{0} {1} 迭代总结", project.Description, tmp[1]);
             ExcelInterop.Range range = sheet.Range[sheet.Cells[5, "D"], sheet.Cells[6, "H"]];
             Utility.AddNativieResource(range);
             range.Merge();

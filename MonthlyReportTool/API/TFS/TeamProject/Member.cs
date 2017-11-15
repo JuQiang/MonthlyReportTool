@@ -20,7 +20,7 @@ namespace MonthlyReportTool.API.TFS.TeamProject
                     teamname
                     );
 
-            string responseBody = TFS.Utils.GetHttpResponseByUrl(url);
+            string responseBody = TFS.Utility.GetHttpResponseByUrl(url);
 
 
             foreach (var prj in (JsonConvert.DeserializeObject(responseBody) as JObject)["value"] as JArray)

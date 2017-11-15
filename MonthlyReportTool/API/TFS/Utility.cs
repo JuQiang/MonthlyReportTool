@@ -11,10 +11,11 @@ using MonthlyReportTool.Entity;
 using MonthlyReportTool.API.TFS.TeamProject;
 using MonthlyReportTool.API.TFS.WorkItem;
 using System.Runtime.InteropServices;
+using MonthlyReportTool.API.TFS.Agile;
 
 namespace MonthlyReportTool.API.TFS
 {
-    public class Utils
+    public class Utility
     {
         private static string username = "juqiang";
         private static string password = "Password02!";
@@ -40,7 +41,7 @@ namespace MonthlyReportTool.API.TFS
             }
         }
 
-        public static string GetUnCompletedDepartmantPlan(int days)
+        private static string GetUnCompletedDepartmantPlan(int days)
         {
             //54e8a414-fef8-4b5d-bec9-57b477eac320
             //https://fabrikam-fiber-inc.visualstudio.com/DefaultCollection/Fabrikam-Fiber-Git/_apis/wit/wiql/1e4e5b17-f212-4ba2-9c2f-a95600ef50a5?api-version=1.0
@@ -73,7 +74,7 @@ namespace MonthlyReportTool.API.TFS
             return responseBody;
         }
 
-        public List<string> RetrieveFilesOfCheckInHistory(string startTime, string endTime)
+        private List<string> RetrieveFilesOfCheckInHistory(string startTime, string endTime)
         {
             List<string> filelist = new List<string>();
             string url = String.Format("http://tfs.teld.cn:8080/tfs/teld/_apis/tfvc/changesets?fromDate={0}&toDate={1}&api-version=1.0",
@@ -186,7 +187,7 @@ namespace MonthlyReportTool.API.TFS
                             string.Format("{0}:{1}", username, password))));
 
 
-                var postvalue = new StringContent("{\"query\":\"" + sql + "\"}", Encoding.UTF8, "application/json");
+                var postvalue = new StringContent("{\"query\":\"" + sql.Replace("\\","\\\\") + "\"}", Encoding.UTF8, "application/json");
                 var method = new HttpMethod("POST");
                 var request = new HttpRequestMessage(method, url) { Content = postvalue };
                 var response = client.SendAsync(request).Result;
@@ -206,7 +207,7 @@ namespace MonthlyReportTool.API.TFS
 
             }
         }
-        public List<BugEntity> RetrieveAllBugsByDate(string startTime, string endTime)
+        private List<BugEntity> RetrieveAllBugsByDate(string startTime, string endTime)
         {
             List<BugEntity> list = new List<BugEntity>();
             string bugurl = String.Format("http://{0}:8080/{1}/_apis/wit/wiql?api-version=1.0",
@@ -345,6 +346,23 @@ namespace MonthlyReportTool.API.TFS
 
             return wiql;
         }
+
+        public static string ReplaceProjectAndIterationFromWIQL(string wiql)
+        {
+            string prj = "[System.TeamProject] =";
+            int pos = wiql.IndexOf(prj);
+            pos = wiql.IndexOf("'", pos + prj.Length);
+            int pos2 = wiql.IndexOf("'", pos + 1);
+            wiql = wiql.Substring(0, pos) + "'{0}'" + wiql.Substring(pos2 + 1);
+
+            string ite = "[System.IterationPath] =";
+            pos = wiql.IndexOf(ite);
+            pos = wiql.IndexOf("'", pos + ite.Length);
+            pos2 = wiql.IndexOf("'", pos + 1);
+            wiql = wiql.Substring(0, pos) + "'{1}'" + wiql.Substring(pos2 + 1);
+
+            return wiql;
+        }
         public static string GetQueryClause(string queryID)
         {
 
@@ -375,7 +393,7 @@ namespace MonthlyReportTool.API.TFS
                 }
             }
         }
-        public void GetDashboards()
+        private static void GetDashboards()
         {
             string url = "http://tfs.teld.cn:8080/tfs/teld/c955f4f8-3b05-4afc-9969-3a54f7b70533/ad0bf755-9688-4d6a-95f9-4e20702a2972/_apis/dashboard/dashboards?api-version=3.0-preview.2";
             var username = "juqiang";
@@ -624,7 +642,7 @@ namespace MonthlyReportTool.API.TFS
         }
 
 
-        public List<ReleasePlan> RetrieveReleasePlanEntityList()
+        private List<ReleasePlan> RetrieveReleasePlanEntityList()
         {
             List<ReleasePlan> list = new List<ReleasePlan>();
 
@@ -720,11 +738,6 @@ namespace MonthlyReportTool.API.TFS
             return list;
         }
 
-        #region Iterations
-        
-
-        #endregion Iterations
-
         public static List<JToken> ConvertWorkitemFlatQueryResult2Array(string responseBody)
         {
             List<JToken> list = new List<JToken>();
@@ -761,7 +774,7 @@ namespace MonthlyReportTool.API.TFS
         sbrefname.ToString()
         );
 
-            responseBody = Utils.GetHttpResponseByUrl(detailsUrl);
+            responseBody = Utility.GetHttpResponseByUrl(detailsUrl);
 
             var wiarray = (JsonConvert.DeserializeObject(responseBody) as JObject)["value"] as JArray;
 
@@ -801,6 +814,25 @@ namespace MonthlyReportTool.API.TFS
         {
             while (Marshal.ReleaseComObject(com) > 0) ;
             com = null;
+        }
+
+        public static IterationEntity GetBestIteration(string project)
+        {
+            DateTime now = DateTime.Now;
+            var itelist = API.TFS.Agile.Iteration.GetProjectIterations(project);
+
+            for (int i = 1; i < itelist.Count; i++)
+            {
+                if (string.IsNullOrEmpty(itelist[i - 1].EndDate) || string.IsNullOrEmpty(itelist[i - 0].EndDate)) continue;
+                DateTime last1 = DateTime.ParseExact(itelist[i - 1].EndDate, "yyyy/M/d h:mm:ss", null);
+                DateTime last2 = DateTime.ParseExact(itelist[i - 0].EndDate, "yyyy/M/d h:mm:ss", null);
+                if (now >= last1 && now <= last2)
+                {
+                    return itelist[i - 1];
+                }
+            }
+
+            return null;
         }
     }
 

@@ -67,8 +67,9 @@
     <Compile Include="API\TFS\TeamProject\Project.cs" />
     <Compile Include="API\TFS\TeamProject\Team.cs" />
     <Compile Include="API\TFS\TeamProject\TeamEntity.cs" />
-    <Compile Include="API\TFS\Utils.cs" />
+    <Compile Include="API\TFS\Utility.cs" />
     <Compile Include="API\TFS\Agile\Iteration.cs" />
+    <Compile Include="API\TFS\WorkItem\Backlog.cs" />
     <Compile Include="API\TFS\WorkItem\CodeReviewEntity.cs" />
     <Compile Include="API\TFS\WorkItem\CommitmentEntity.cs" />
     <Compile Include="API\TFS\WorkItem\BugEntity.cs" />

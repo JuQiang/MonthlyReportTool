@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ExcelInterop = Microsoft.Office.Interop.Excel;
 using Microsoft.Office.Core;
+using MonthlyReportTool.API.TFS.TeamProject;
 
 namespace MonthlyReportTool.API.Office.Excel
 {
@@ -16,7 +17,7 @@ namespace MonthlyReportTool.API.Office.Excel
             this.sheet = sheet;
         }
 
-        public void Build(string project)
+        public void Build(ProjectEntity project)
         {
             ExcelInterop.Range allrange = sheet.Range[sheet.Cells[5, "D"], sheet.Cells[40, "J"]];
             Utility.AddNativieResource(allrange);

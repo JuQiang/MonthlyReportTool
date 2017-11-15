@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ExcelInterop = Microsoft.Office.Interop.Excel;
 using Microsoft.Office.Core;
 using MonthlyReportTool.API.TFS.WorkItem;
+using MonthlyReportTool.API.TFS.TeamProject;
 
 namespace MonthlyReportTool.API.Office.Excel
 {
@@ -17,7 +18,7 @@ namespace MonthlyReportTool.API.Office.Excel
             this.sheet = sheet;
         }
 
-        public void Build(string project)
+        public void Build(ProjectEntity project)
         {
             BuildTitle();
 

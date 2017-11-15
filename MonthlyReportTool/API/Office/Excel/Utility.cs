@@ -7,6 +7,8 @@ using ExcelInterop = Microsoft.Office.Interop.Excel;
 using Microsoft.Office.Core;
 using System.Reflection;
 using System.IO;
+using MonthlyReportTool.API.TFS.TeamProject;
+using MonthlyReportTool.API.TFS.Agile;
 
 namespace MonthlyReportTool.API.Office.Excel
 {
@@ -17,7 +19,7 @@ namespace MonthlyReportTool.API.Office.Excel
         {
             nativeResources.Add(obj);
         }
-        public static void BuildIterationReports(string project)
+        public static void BuildIterationReports(ProjectEntity project)
         {
             WriteLog("================开始================");
             ExcelInterop.Application excel = new ExcelInterop.Application();
@@ -36,12 +38,12 @@ namespace MonthlyReportTool.API.Office.Excel
                 Tuple.Create<string, Type>("项目整体说明",typeof(OverviewSheet)),
                 Tuple.Create<string, Type>("产品特性统计",typeof(FeatureSheet)),
                 Tuple.Create<string, Type>("Backlog统计",typeof(BacklogSheet)),
-                Tuple.Create<string, Type>("工作量统计",typeof(WorkloadSheet)),
-                Tuple.Create<string, Type>("提交单分析",typeof(CommitmentSheet)),
-                Tuple.Create<string, Type>("代码审查分析",typeof(CodeReviewSheet)),
-                Tuple.Create<string, Type>("Bug统计分析",typeof(BugAnalysisSheet)),
-                Tuple.Create<string, Type>("改进建议",typeof(SuggestionSheet)),
-                Tuple.Create<string, Type>("人员考评结果",typeof(PerformanceSheet)),
+                //Tuple.Create<string, Type>("工作量统计",typeof(WorkloadSheet)),
+                //Tuple.Create<string, Type>("提交单分析",typeof(CommitmentSheet)),
+                //Tuple.Create<string, Type>("代码审查分析",typeof(CodeReviewSheet)),
+                //Tuple.Create<string, Type>("Bug统计分析",typeof(BugAnalysisSheet)),
+                //Tuple.Create<string, Type>("改进建议",typeof(SuggestionSheet)),
+                //Tuple.Create<string, Type>("人员考评结果",typeof(PerformanceSheet)),
             };
 
             ExcelInterop.Worksheet lastSheet = null;
@@ -70,13 +72,18 @@ namespace MonthlyReportTool.API.Office.Excel
             nativeResources.Add(window);
             window.DisplayGridlines = false;//都不显示表格线
 
-            workbook.SaveAs("c:\\irt\\1.xlsx");
+            var ite = TFS.Utility.GetBestIteration(project.Name);
+            workbook.SaveAs(String.Format("c:\\irt\\{0}总结({1}_{2}).xlsx",
+                ite.Path.Replace("\\"," "),
+                (DateTime.Parse(ite.StartDate)).ToString("yyyyMMdd"),
+                (DateTime.Parse(ite.EndDate)).ToString("yyyyMMdd")
+                ));
             workbook.Close();
 
             WriteLog("释放资源.");
             foreach (object com in nativeResources)
             {
-                TFS.Utils.ReleaseComObject(com);
+                TFS.Utility.ReleaseComObject(com);
             }
 
             excel.Quit();
@@ -94,7 +101,7 @@ namespace MonthlyReportTool.API.Office.Excel
             bigrangeFont.Name = "微软雅黑";
             bigrangeFont.Size = 11;
         }
-
+        
         public static int BuildFormalTable(ExcelInterop.Worksheet sheet, int row, string title, string description,
             string startCol, string endCol, List<string> colnames, List<string> mergedInfo, int rowCount)
         {

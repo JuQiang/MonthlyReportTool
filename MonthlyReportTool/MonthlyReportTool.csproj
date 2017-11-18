@@ -77,6 +77,8 @@
     <Compile Include="API\TFS\WorkItem\Feature.cs" />
     <Compile Include="API\TFS\WorkItem\FeatureEntity.cs" />
     <Compile Include="API\TFS\TeamProject\ProjectEntity.cs" />
+    <Compile Include="API\TFS\WorkItem\Workload.cs" />
+    <Compile Include="API\TFS\WorkItem\WorkloadEntity.cs" />
     <Compile Include="Entity\ReleasePlan.cs" />
     <Compile Include="Entity\TeamMember.cs" />
     <Compile Include="Program.cs" />

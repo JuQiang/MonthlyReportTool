@@ -450,6 +450,21 @@ namespace MonthlyReportTool.API.TFS
 
         }
 
+        private static List<string> testMembers = new List<string>();
+
+        public static List<string> GetTestMembers(bool forceRefresh)
+        {
+            if ((false==forceRefresh) && (testMembers.Count > 0)) return testMembers;
+
+            testMembers.Clear();
+            var list = API.TFS.TeamProject.Member.RetrieveMemberList("orgportal", "TestManager");
+            foreach (var me in list)
+            {
+                testMembers.Add(me.FullName);
+            }
+
+            return testMembers;
+        }
         public static void RetrieveTeamMemberList(string prj)
         {
             memberCache = new Dictionary<string, string>();
@@ -755,10 +770,10 @@ namespace MonthlyReportTool.API.TFS
                 var txtname = Convert.ToString(column["name"]);
             }
 
-            var ids = jsonobj["workItems"] as JArray;
-            if (ids.Count < 1) return list;
+            var wiarray = jsonobj["workItems"] as JArray;
+            if (wiarray.Count < 1) return list;
 
-            foreach (var id in ids)
+            foreach (var id in wiarray)
             {
                 var wiid = Convert.ToString(id["id"]);
                 sbid.Append(wiid).Append(",");
@@ -767,16 +782,16 @@ namespace MonthlyReportTool.API.TFS
             sbrefname.Remove(sbrefname.Length - 1, 1);
             sbid.Remove(sbid.Length - 1, 1);
 
-            string detailsUrl = String.Format("http://{0}:8080/{1}/_apis/wit/workitems?ids={2}&fields={3}&api-version=2.0",
-        "tfs.teld.cn",
-        "tfs/teld",
-        sbid.ToString(),
-        sbrefname.ToString()
-        );
+        //    string detailsUrl = String.Format("http://{0}:8080/{1}/_apis/wit/workitems?ids={2}&fields={3}&api-version=2.0",
+        //"tfs.teld.cn",
+        //"tfs/teld",
+        //sbid.ToString(),
+        //sbrefname.ToString()
+        //);
 
-            responseBody = Utility.GetHttpResponseByUrl(detailsUrl);
+        //    responseBody = Utility.GetHttpResponseByUrl(detailsUrl);
 
-            var wiarray = (JsonConvert.DeserializeObject(responseBody) as JObject)["value"] as JArray;
+            //var wiarray = (JsonConvert.DeserializeObject(responseBody) as JObject)["value"] as JArray;
 
             List<StringBuilder> sbWorkItems = new List<StringBuilder>();
 
@@ -824,8 +839,8 @@ namespace MonthlyReportTool.API.TFS
             for (int i = 1; i < itelist.Count; i++)
             {
                 if (string.IsNullOrEmpty(itelist[i - 1].EndDate) || string.IsNullOrEmpty(itelist[i - 0].EndDate)) continue;
-                DateTime last1 = DateTime.ParseExact(itelist[i - 1].EndDate, "yyyy/M/d h:mm:ss", null);
-                DateTime last2 = DateTime.ParseExact(itelist[i - 0].EndDate, "yyyy/M/d h:mm:ss", null);
+                DateTime last1 = DateTime.ParseExact(itelist[i - 1].EndDate, "yyyy/M/d h:mm:ss", null).AddDays(1);
+                DateTime last2 = DateTime.ParseExact(itelist[i - 0].EndDate, "yyyy/M/d h:mm:ss", null).AddDays(1);
                 if (now >= last1 && now <= last2)
                 {
                     return itelist[i - 1];

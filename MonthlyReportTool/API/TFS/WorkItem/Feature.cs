@@ -1,4 +1,5 @@
-﻿using MonthlyReportTool.API.TFS.TeamProject;
+﻿using MonthlyReportTool.API.TFS.Agile;
+using MonthlyReportTool.API.TFS.TeamProject;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,30 +10,29 @@ namespace MonthlyReportTool.API.TFS.WorkItem
 {
     public class Feature
     {
-        public static List<List<FeatureEntity>> GetAll(string project)
+        public static List<List<FeatureEntity>> GetAll(string project,IterationEntity ite)
         {
             List<List<FeatureEntity>> list = new List<List<FeatureEntity>>();
             
-            string iterationPath = Utility.GetBestIteration(project).Path;
-            var all = GetFeatureListByIteration(iterationPath, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F00本迭代_产品特性总数",
+            var all = GetFeatureListByIteration(project,ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F00本迭代_产品特性总数",
                                                                 
                 Tuple.Create<string, string, string>("[System.TeamProject] =",
                 "[Microsoft.VSTS.Scheduling.TargetDate] >",
                 "[Microsoft.VSTS.Scheduling.TargetDate] <"));
 
-            var completed = GetFeatureListByIteration(iterationPath, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F05本迭代_已完成产品特性总数",
+            var completed = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F05本迭代_已完成产品特性总数",
                 Tuple.Create<string, string, string>("[System.TeamProject] =",
                 "[Microsoft.VSTS.Scheduling.TargetDate] >",
                 "[Microsoft.VSTS.Scheduling.TargetDate] <"));
-            var removed = GetFeatureListByIteration(iterationPath, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F20本迭代_已中止或已移除产品特性总数",
+            var removed = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F20本迭代_已中止或已移除产品特性总数",
                 Tuple.Create<string, string, string>("[System.TeamProject] =",
                 "[Teld.Scrum.StateChangeDate] >",
                 "[Teld.Scrum.StateChangeDate] <"));
-            var delayed = GetFeatureListByIteration(iterationPath, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F10本迭代_拖期产品特性总数",
+            var delayed = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F10本迭代_拖期产品特性总数",
                 Tuple.Create<string, string, string>("[System.TeamProject] =",
                 "[Microsoft.VSTS.Scheduling.TargetDate] >",
                 "[Microsoft.VSTS.Scheduling.TargetDate] <"));
-            var perfect = GetFeatureListByIteration(iterationPath, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F25本迭代_按计划完成产品特性总数",
+            var perfect = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F25本迭代_按计划完成产品特性总数",
                 Tuple.Create<string, string, string>("[System.TeamProject] =",
                 "[Microsoft.VSTS.Scheduling.TargetDate] >",
                 "[Microsoft.VSTS.Scheduling.TargetDate] <"));
@@ -46,21 +46,21 @@ namespace MonthlyReportTool.API.TFS.WorkItem
             return list;
         }
         
-        private static List<FeatureEntity> GetFeatureListByIteration(string iterationPath, string query, Tuple<string,string,string> tuple)
+        private static List<FeatureEntity> GetFeatureListByIteration(string project,IterationEntity ite,string query, Tuple<string,string,string> tuple)
         {
             List<FeatureEntity> list = new List<FeatureEntity>();
             string wiql = API.TFS.Utility.GetQueryClause(query);
             wiql = API.TFS.Utility.ReplaceProjectAndDateFromWIQL(wiql, tuple);
 
-            string[] pathinfo = iterationPath.Split(new char[] { '\\' });
-            string prj = pathinfo[0];
-            var allIterations = API.TFS.Agile.Iteration.GetProjectIterations(prj);
-            var matchedFirstIteration = allIterations.Where(ite => (ite.Path.ToLower() == iterationPath.ToLower())).FirstOrDefault();
+            //string[] pathinfo = iterationPath.Split(new char[] { '\\' });
+            //string prj = pathinfo[0];
+            //var allIterations = API.TFS.Agile.Iteration.GetProjectIterations(prj);
+            //var matchedFirstIteration = allIterations.Where(ite => (ite.Path.ToLower() == iterationPath.ToLower())).FirstOrDefault();
 
             string sql = String.Format(wiql,
-                prj,
-                matchedFirstIteration.StartDate,
-                DateTime.Parse(matchedFirstIteration.EndDate).AddDays(1).ToString("yyyy-MM-dd HH:mm:ss.fff")//最后一天要加一
+                project,
+                DateTime.Parse(ite.StartDate).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss.fff"),//第一天要减一
+                DateTime.Parse(ite.EndDate).AddDays(1).ToString("yyyy-MM-dd HH:mm:ss.fff")//最后一天要加一
             );
 
             string responseBody = Utility.ExecuteQueryBySQL(sql);

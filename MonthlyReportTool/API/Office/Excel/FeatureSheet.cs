@@ -21,7 +21,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
         public void Build(ProjectEntity project)
         {
-            this.featureList = Feature.GetAll(project.Name);
+            this.featureList = Feature.GetAll(project.Name, TFS.Utility.GetBestIteration(project.Name));
             BuildTitle();
             BuildSubTitle();
             BuildDescription();

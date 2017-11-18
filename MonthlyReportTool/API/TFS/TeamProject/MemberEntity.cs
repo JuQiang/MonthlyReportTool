@@ -13,5 +13,6 @@ namespace MonthlyReportTool.API.TFS.TeamProject
         public string UniqueName;
         public string URL;
         public string ImageURL;
+        public string FullName;
     }
 }

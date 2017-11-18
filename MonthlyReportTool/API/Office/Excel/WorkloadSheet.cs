@@ -6,12 +6,16 @@ using System.Threading.Tasks;
 using ExcelInterop = Microsoft.Office.Interop.Excel;
 using Microsoft.Office.Core;
 using MonthlyReportTool.API.TFS.TeamProject;
+using MonthlyReportTool.API.TFS.WorkItem;
+using MonthlyReportTool.API.TFS.Agile;
 
 namespace MonthlyReportTool.API.Office.Excel
 {
     public class WorkloadSheet : ExcelSheetBase, IExcelSheet
     {
         private ExcelInterop.Worksheet sheet;
+        private ProjectEntity project;
+        private List<WorkloadEntity> workloadList;
         public WorkloadSheet(ExcelInterop.Worksheet sheet) : base(sheet)
         {
             this.sheet = sheet;
@@ -19,6 +23,8 @@ namespace MonthlyReportTool.API.Office.Excel
 
         public void Build(ProjectEntity project)
         {
+            this.project = project;
+            this.workloadList = TFS.WorkItem.Workload.GetAll(project.Name, TFS.Utility.GetBestIteration(project.Name));
             BuildTitle();
             BuildSubTitle();
             BuildDescription();
@@ -27,9 +33,98 @@ namespace MonthlyReportTool.API.Office.Excel
             BuildDevelopmentTitle();
             BuildDevelopmentDescription();
 
-            int startRow = BuildDevelopmentTableTitle();
+            int startRow = BuildDevelopmentTable();
+            int dataRow = startRow - 3;
+
+            List<Tuple<string, double,double>> workloads = new List<Tuple<string, double,double>>();
+            for (int i = 14; i <= dataRow; i++)
+            {
+                string textb = this.sheet.Cells[i, "B"].Text;
+                string textf = this.sheet.Cells[i, "F"].Text;
+                string texti = this.sheet.Cells[i, "I"].Text;
+
+                if (String.IsNullOrEmpty(textb)) continue;
+
+                workloads.Add(Tuple.Create<string, double,double>(this.sheet.Cells[i, "B"].Text, Convert.ToDouble(textf.Replace("%",""))/100.00d, Convert.ToDouble(texti.Replace("%", "")) / 100.00d));
+            }
+
+            startRow = Build115Analysis(startRow,workloads);
+            startRow = Build60Analysis(startRow, workloads);
+            startRow = BUild50Analysis(startRow, dataRow);
 
         }
+
+        private int BUild50Analysis(int startRow, int dataRow)
+        {
+            
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "计划偏差大于50%分析", "说明：", "B", "U",
+                new List<string>() { "计划偏差大于50%分析", "说明：", "研发占比低于60%原因分析" },
+                new List<string>() { "B,B", "C,E", "F,U" },
+                5
+                );
+
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow + 2, "B"], sheet.Cells[startRow + 2 + 5, "U"]];
+            Utility.AddNativieResource(range);
+            range.Merge();
+
+            return nextRow;
+        }
+
+        private int Build60Analysis(int startRow, List<Tuple<string, double, double>> workloads)
+        {
+            var ds = workloads.Where(wl => wl.Item3 <= 0.60d).OrderByDescending(wl=>wl.Item3).ToList();
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "研发占比低于60%分析", "说明：对研发占比低于60%（不包括60%）的同事，分别做原因分析", "B", "U",
+                new List<string>() { "团队成员", "研发占比", "研发占比低于60%原因分析" },
+                new List<string>() { "B,B", "C,E", "F,U" },
+                ds.Count()
+                );
+
+            for (int i = 0; i < ds.Count(); i++)
+            {
+                this.sheet.Cells[startRow + 3 + i, "B"] = ds[i].Item1;
+                this.sheet.Cells[startRow + 3 + i, "C"] = ds[i].Item3;
+                this.sheet.Cells[startRow + 3 + i, "F"] = "";
+            }
+
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow + 3, "B"], sheet.Cells[startRow + 3 + ds.Count() - 1, "B"]];
+            Utility.AddNativieResource(range);
+            range.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignCenter;
+
+            ExcelInterop.Range range2 = sheet.Range[sheet.Cells[startRow + 3, "C"], sheet.Cells[startRow + 3 + ds.Count() - 1, "C"]];
+            Utility.AddNativieResource(range2);
+            range2.NumberFormat = "#%";
+
+            return nextRow;
+        }
+
+        private int Build115Analysis(int startRow,List<Tuple<string, double, double>> workloads)
+        {
+
+            var ds = workloads.Where(wl => wl.Item2 >= 1.15d).ToList();
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "工作量饱和度超115%分析", "说明：对工作量饱和度超过115%（包括115%）的同事，分别做原因分析", "B", "U",
+                new List<string>() { "团队成员", "工作量饱和度", "工作量饱和度超115%原因分析" },
+                new List<string>() { "B,B", "C,E", "F,U" },
+                ds.Count()
+                );
+
+            for (int i = 0; i < ds.Count(); i++)
+            {
+                this.sheet.Cells[startRow + 3 + i, "B"] = ds[i].Item1;
+                this.sheet.Cells[startRow + 3 + i, "C"] = ds[i].Item2;
+                this.sheet.Cells[startRow + 3 + i, "F"] = "";
+            }
+
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow + 3, "B"], sheet.Cells[startRow + 3+ds.Count()-1, "B"]];
+            Utility.AddNativieResource(range);
+            range.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignCenter;
+
+            ExcelInterop.Range range2 = sheet.Range[sheet.Cells[startRow + 3, "C"], sheet.Cells[startRow + 3 + ds.Count() - 1, "C"]];
+            Utility.AddNativieResource(range2);
+            range2.NumberFormat = "#%";
+
+            return nextRow;
+        }
+
         private void BuildTitle()
         {
             Utility.BuildFormalSheetTitle(sheet, 2, "B", 2, "AG", "工作量统计分析");
@@ -177,7 +272,122 @@ namespace MonthlyReportTool.API.Office.Excel
                                    "      Bug产出率：bug数 / 实际投入工作量";
         }
 
-        private int BuildDevelopmentTableTitle()
+        private int FillWorkloadData(List<WorkloadEntity> workloads, int startrow)
+        {
+            int firstrow = startrow;
+
+            int standardWorkingDays = 0;
+            IOrderedEnumerable<IGrouping<string, WorkloadEntity>> orderedLoads;
+            int workloadCount = 0;
+            GetOrderedWorkloads(workloads, out workloadCount, out standardWorkingDays, out orderedLoads);
+
+            foreach (var load in orderedLoads)
+            {
+                string person = load.Key.Split(new char[] { '<' }, StringSplitOptions.RemoveEmptyEntries)[0];
+
+                double leavetime = load.Where(wl => wl.SupperType == "请假").Sum(wl => wl.SumHours + wl.OverTimes);
+
+                var dev = load.Where(wl => wl.SupperType == "研发");
+                double devtime = dev.Sum(wl => wl.SumHours + wl.OverTimes);
+                double devtime1 = dev.Where(wl => wl.Type == "开发").Sum(wl => wl.SumHours + wl.OverTimes);
+                double devtime2 = dev.Where(wl => wl.Type == "需求").Sum(wl => wl.SumHours + wl.OverTimes);
+                double devtime3 = dev.Where(wl => wl.Type == "设计").Sum(wl => wl.SumHours + wl.OverTimes);
+                double devtime4 = dev.Where(wl => wl.Type == "测试设计").Sum(wl => wl.SumHours + wl.OverTimes);
+                double devtime5 = dev.Where(wl => wl.Type == "测试执行").Sum(wl => wl.SumHours + wl.OverTimes);
+                double devtime6 = devtime - (devtime1 + devtime2 + devtime3 + devtime4 + devtime5);
+
+                double mgrtime = load.Where(wl => wl.SupperType == "管理").Sum(wl => wl.SumHours + wl.OverTimes);
+                double oprtime = load.Where(wl => wl.SupperType == "运维").Sum(wl => wl.SumHours + wl.OverTimes);
+                double doctime = load.Where(wl => wl.SupperType == "文档").Sum(wl => wl.SumHours + wl.OverTimes);
+                double studytime = load.Where(wl => wl.SupperType == "学习交流").Sum(wl => wl.SumHours + wl.OverTimes);
+                double presalestime = load.Where(wl => wl.SupperType == "售前/推广").Sum(wl => wl.SumHours + wl.OverTimes);
+                double othertime = load.Sum(wl => wl.SumHours + wl.OverTimes) - (devtime + mgrtime + doctime + studytime + presalestime);
+
+                sheet.Cells[startrow, "B"] = person;
+                sheet.Cells[startrow, "C"] = standardWorkingDays * 8;
+                sheet.Cells[startrow, "D"] = load.Sum(wl => wl.SumHours + wl.OverTimes) - leavetime;
+                sheet.Cells[startrow, "E"] = leavetime;
+                sheet.Cells[startrow, "F"] = String.Format("=D{0}/C{0}", startrow);
+                sheet.Cells[startrow, "I"] = devtime / (load.Sum(wl => wl.SumHours + wl.OverTimes) - leavetime);
+                sheet.Cells[startrow, "J"] = devtime1;
+                sheet.Cells[startrow, "K"] = String.Format("=IF(J{0}<>0,J{0}/D{0}, \"\"", startrow);
+                sheet.Cells[startrow, "L"] = devtime2;
+                sheet.Cells[startrow, "M"] = String.Format("=IF(L{0}<>0,L{0}/D{0}, \"\"", startrow);
+                sheet.Cells[startrow, "N"] = devtime3;
+                sheet.Cells[startrow, "O"] = String.Format("=IF(N{0}<>0,N{0}/D{0}, \"\"", startrow);
+                sheet.Cells[startrow, "P"] = devtime4;
+                sheet.Cells[startrow, "Q"] = String.Format("=IF(P{0}<>0,P{0}/D{0}, \"\"", startrow);
+                sheet.Cells[startrow, "R"] = devtime5;
+                sheet.Cells[startrow, "S"] = String.Format("=IF(R{0}<>0,R{0}/D{0}, \"\"", startrow);
+                sheet.Cells[startrow, "T"] = devtime6;
+                sheet.Cells[startrow, "U"] = String.Format("=IF(T{0}<>0,T{0}/D{0}, \"\"", startrow);
+
+                sheet.Cells[startrow, "V"] = mgrtime;
+                sheet.Cells[startrow, "W"] = String.Format("=IF(V{0}<>0,V{0}/D{0}, \"\"", startrow);
+                sheet.Cells[startrow, "X"] = oprtime;
+                sheet.Cells[startrow, "Y"] = String.Format("=IF(X{0}<>0,X{0}/D{0}, \"\"", startrow);
+                sheet.Cells[startrow, "Z"] = doctime;
+                sheet.Cells[startrow, "AA"] = String.Format("=IF(Z{0}<>0,Z{0}/D{0}, \"\"", startrow);
+                sheet.Cells[startrow, "AB"] = studytime;
+                sheet.Cells[startrow, "AC"] = String.Format("=IF(AB{0}<>0,AB{0}/D{0}, \"\"", startrow);
+                sheet.Cells[startrow, "AD"] = presalestime;
+                sheet.Cells[startrow, "AE"] = String.Format("=IF(AD{0}<>0,AD{0}/D{0}, \"\"", startrow);
+                sheet.Cells[startrow, "AF"] = othertime;
+                sheet.Cells[startrow, "AG"] = String.Format("=IF(AF{0}<>0,AF{0}/D{0}, \"\"", startrow);
+
+                startrow++;
+            }
+
+            ExcelInterop.Range devRange = sheet.Range[sheet.Cells[firstrow, "B"], sheet.Cells[startrow - 1, "AG"]];
+            devRange.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignRight;
+            devRange.WrapText = true;
+            devRange.RowHeight = 20;
+            devRange.ColumnWidth = 7;
+
+            var borderDevRange = devRange.Borders;
+            Utility.AddNativieResource(borderDevRange);
+            borderDevRange.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
+
+            ExcelInterop.Range devRange2 = sheet.Range[sheet.Cells[firstrow, "B"], sheet.Cells[startrow - 1, "B"]];
+            Utility.AddNativieResource(devRange2);
+            devRange2.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignCenter;
+
+            ExcelInterop.Range devRange3 = sheet.Range[sheet.Cells[firstrow, "F"], sheet.Cells[startrow - 1, "F"]];
+            Utility.AddNativieResource(devRange3);
+            devRange3.NumberFormat = "#%";
+
+            for (int col = 9; col <= 33; col += 2)
+            {
+                ExcelInterop.Range range = sheet.Range[sheet.Cells[firstrow, col], sheet.Cells[startrow - 1, col]];
+                Utility.AddNativieResource(range);
+                range.NumberFormat = "#%";
+            }
+            return startrow;
+        }
+
+        private void GetOrderedWorkloads(List<WorkloadEntity> workloads, out int workloadCount, out int standardWorkingDays, out IOrderedEnumerable<IGrouping<string, WorkloadEntity>> orderedLoads)
+        {
+            var loads = workloads.GroupBy(wl => wl.AssignedTo);
+            var ite = TFS.Utility.GetBestIteration(project.Name);
+            var daysoff = Iteration.GetProjectIterationDaysOff(this.project.Name, ite.Id);
+            standardWorkingDays = (int)((DateTime.Parse(ite.EndDate) - DateTime.Parse(ite.StartDate)).TotalDays) + 1 - daysoff.Count;
+            for (DateTime dt = DateTime.Parse(ite.StartDate); dt < DateTime.Parse(ite.EndDate).AddDays(1); dt = dt.AddDays(1))
+            {
+                if (dt.DayOfWeek == DayOfWeek.Sunday) standardWorkingDays--;//再刨掉礼拜天
+            }
+
+            orderedLoads = loads.OrderByDescending(
+                load => (
+                    load.Sum(wl => wl.SumHours + wl.OverTimes)
+                    -
+                    load.Where(wl => wl.SupperType == "请假").Sum(wl => wl.SumHours + wl.OverTimes)
+                )
+            );
+
+            workloadCount = loads.Count();
+        }
+
+        private int BuildDevelopmentTable()
         {
             string[,] cols = new string[,]
                         {
@@ -222,109 +432,127 @@ namespace MonthlyReportTool.API.Office.Excel
 
             Utility.BuildFormalTableHeader(sheet, 11, "B", 13, "AG");
 
-            int devWorkloadCount = 7;
-            for (int i = 0; i < devWorkloadCount; i++)
+            var testlist = TFS.Utility.GetTestMembers(false);
+            List<WorkloadEntity> devload = new List<WorkloadEntity>();
+            List<WorkloadEntity> testload = new List<WorkloadEntity>();
+
+            for (int i = 0; i < this.workloadList.Count(); i++)
             {
-                for (int j = 2; j < 34; j++)
+                bool isTester = testlist.Where(test => test == this.workloadList[i].AssignedTo).Count() > 0;
+                if (isTester)
                 {
-                    sheet.Cells[14 + i, j] = "开发";
+                    testload.Add(this.workloadList[i]);
+                }
+                else
+                {
+                    devload.Add(this.workloadList[i]);
                 }
             }
 
-            for (int i = 0; i < devWorkloadCount; i++)
+            int startrow = 14;
+            startrow = FillWorkloadData(devload, startrow);
+            startrow = FillWorkloadData(testload, startrow + 1);
+
+
+
+            sheet.Cells[startrow, "B"] = "合计";
+            sheet.Cells[startrow, "C"] = String.Format("=sum(C14:C{0}", startrow - 1);
+            sheet.Cells[startrow, "D"] = String.Format("=sum(D14:D{0}", startrow - 1);
+            sheet.Cells[startrow, "E"] = String.Format("=sum(E14:E{0}", startrow - 1);
+            sheet.Cells[startrow, "F"] = String.Format("=IF(C{0}<>0,D{0}/C{0},\"\")", startrow);
+            sheet.Cells[startrow, "G"] = String.Format("=sum(G14:G{0}", startrow - 1);
+
+            sheet.Cells[startrow, "J"] = String.Format("=sum(J14:J{0}", startrow - 1);
+            sheet.Cells[startrow, "K"] = String.Format("=J{0}/D{0}", startrow);
+            sheet.Cells[startrow, "L"] = String.Format("=sum(L14:L{0}", startrow - 1);
+            sheet.Cells[startrow, "M"] = String.Format("=L{0}/D{0}", startrow);
+            sheet.Cells[startrow, "N"] = String.Format("=sum(N14:N{0}", startrow - 1);
+            sheet.Cells[startrow, "O"] = String.Format("=N{0}/D{0}", startrow);
+            sheet.Cells[startrow, "P"] = String.Format("=sum(P14:P{0}", startrow - 1);
+            sheet.Cells[startrow, "Q"] = String.Format("=P{0}/D{0}", startrow);
+            sheet.Cells[startrow, "R"] = String.Format("=sum(R14:R{0}", startrow - 1);
+            sheet.Cells[startrow, "S"] = String.Format("=R{0}/D{0}", startrow);
+            sheet.Cells[startrow, "T"] = String.Format("=sum(T14:T{0}", startrow - 1);
+            sheet.Cells[startrow, "U"] = String.Format("=T{0}/D{0}", startrow);
+            sheet.Cells[startrow, "V"] = String.Format("=sum(V14:V{0}", startrow - 1);
+            sheet.Cells[startrow, "W"] = String.Format("=V{0}/D{0}", startrow);
+            sheet.Cells[startrow, "X"] = String.Format("=sum(X14:X{0}", startrow - 1);
+            sheet.Cells[startrow, "Y"] = String.Format("=X{0}/D{0}", startrow);
+            sheet.Cells[startrow, "Z"] = String.Format("=sum(Z14:Z{0}", startrow - 1);
+            sheet.Cells[startrow, "AA"] = String.Format("=Z{0}/D{0}", startrow);
+            sheet.Cells[startrow, "AB"] = String.Format("=sum(AB14:AB{0}", startrow - 1);
+            sheet.Cells[startrow, "AC"] = String.Format("=AB{0}/D{0}", startrow);
+            sheet.Cells[startrow, "AD"] = String.Format("=sum(AD14:AD{0}", startrow - 1);
+            sheet.Cells[startrow, "AE"] = String.Format("=AD{0}/D{0}", startrow);
+            sheet.Cells[startrow, "AF"] = String.Format("=sum(AF14:AF{0}", startrow - 1);
+            sheet.Cells[startrow, "AG"] = String.Format("=AF{0}/D{0}", startrow);
+
+            sheet.Cells[7, "B"] = String.Format("=C{0}", startrow);
+            sheet.Cells[7, "F"] = String.Format("=D{0}", startrow);
+            sheet.Cells[7, "I"] = String.Format("=F7/B7", startrow);
+            sheet.Cells[7, "K"] = String.Format("=J{0}+L{0}+N{0}+P{0}+R{0}+T{0}", startrow);
+            sheet.Cells[7, "M"] = String.Format("=K7/F7", startrow);
+
+            ExcelInterop.Range range2 = sheet.Range[sheet.Cells[startrow, "F"], sheet.Cells[startrow, "F"]];
+            Utility.AddNativieResource(range2);
+            range2.NumberFormat = "#%";
+
+            for (int i = 9; i <= 33; i += 2)
             {
-                sheet.Cells[14 + i, "B"] = String.Format("开发人{0:d3}", i + 1);
+                SetCellPercentFormat(startrow, i);
             }
 
-            Random r = new Random();
-            for (int i = 0; i < devWorkloadCount; i++)
-            {
-                sheet.Cells[14 + i, "F"] = String.Format("{0}%", r.Next(150) + 1);
-            }
+            SetCellPercentFormat(7, 9);
+            SetCellPercentFormat(7, 13);
 
-            ExcelInterop.Range devRange = sheet.Range[sheet.Cells[14, "B"], sheet.Cells[14 + devWorkloadCount - 1, "AG"]];
-            devRange.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignRight;
-            devRange.WrapText = true;
+            #region 画图，暂时作废，藏起来
+            //int chartstart = startrow + 2;
 
-            var borderDevRange = devRange.Borders;
-            Utility.AddNativieResource(borderDevRange);
-            borderDevRange.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
+            //ExcelInterop.Range workloadChartRange = sheet.Range[sheet.Cells[chartstart, "B"], sheet.Cells[chartstart + 10, "AG"]];
 
-            ExcelInterop.Range devRange2 = sheet.Range[sheet.Cells[14, "B"], sheet.Cells[14 + devWorkloadCount - 1, "B"]];
-            Utility.AddNativieResource(devRange2);
-            devRange2.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignCenter;
+            //ExcelInterop.ChartObjects charts = sheet.ChartObjects(Type.Missing) as ExcelInterop.ChartObjects;
+            //Utility.AddNativieResource(charts);
 
-            int testWorkloadCount = 3;
-            for (int i = 0; i < testWorkloadCount; i++)
-            {
-                for (int j = 2; j < 34; j++)
-                {
-                    sheet.Cells[14 + devWorkloadCount + 2 + i, j] = "测试";
-                }
-            }
+            //ExcelInterop.ChartObject workloadChartObject = charts.Add(0, 0, workloadChartRange.Width, workloadChartRange.Height);
+            //Utility.AddNativieResource(workloadChartObject);
+            //ExcelInterop.Chart workloadChart = workloadChartObject.Chart;//设置图表数据区域。
+            //Utility.AddNativieResource(workloadChart);
 
-            for (int i = 0; i < testWorkloadCount; i++)
-            {
-                sheet.Cells[14 + devWorkloadCount + 2 + i, "B"] = String.Format("测试人{0:d3}", i + 1);
-            }
+            ////=工作量统计!$B$14:$B$33,工作量统计!$F$14:$F$33
+            //ExcelInterop.Range datasource = sheet.get_Range(String.Format("B14:B{0},F14:F{0}", startrow - 1));//不是："B14:B25","F14:F25"
+            ////ExcelInterop.Range datasource = sheet.get_Range("B14:B25,F14:F25");//不是："B14:B25","F14:F25"
+            //Utility.AddNativieResource(datasource);
+            //workloadChart.ChartWizard(datasource, XlChartType.xlColumnClustered, Type.Missing, XlRowCol.xlColumns, 1, 1, false, "工作量饱和度", "人员", "工作量", Type.Missing);
+            //workloadChart.ApplyDataLabels();//图形上面显示具体的值
+            ////将图表移到数据区域之下。
+            //workloadChartObject.Left = Convert.ToDouble(workloadChartRange.Left);
+            //workloadChartObject.Top = Convert.ToDouble(workloadChartRange.Top) + 20;
 
-            r = new Random();
-            for (int i = 0; i < testWorkloadCount; i++)
-            {
-                sheet.Cells[14 + devWorkloadCount + 2 + i, "F"] = String.Format("{0}%", r.Next(150) + 1);
-                sheet.Cells[14 + devWorkloadCount + 2 + i, "G"] = r.Next(50) + 1;
-            }
+            //chartstart += 12;
+            //ExcelInterop.Range bugChartRange = sheet.Range[sheet.Cells[chartstart, "B"], sheet.Cells[chartstart + 10, "K"]];
+            //ExcelInterop.ChartObject bugChartObject = charts.Add(0, 0, bugChartRange.Width, bugChartRange.Height);
+            //Utility.AddNativieResource(bugChartObject);
+            //ExcelInterop.Chart bugChart = bugChartObject.Chart;//设置图表数据区域。
+            //Utility.AddNativieResource(bugChart);
 
-            ExcelInterop.Range testRange = sheet.Range[sheet.Cells[14 + devWorkloadCount + 2, "B"], sheet.Cells[14 + devWorkloadCount + 2 + testWorkloadCount, "AG"]];
-            testRange.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignRight;
-            testRange.WrapText = true;
+            ////=工作量统计!$B$14:$B$33,工作量统计!$F$14:$F$33
+            //ExcelInterop.Range datasource2 = sheet.get_Range(String.Format("B{0}:B{1},G{0}:G{1}", 14 + devload.Count + 2 - 1, startrow - 1));//不是："B14:B25","F14:F25"
+            ////ExcelInterop.Range datasource = sheet.get_Range("B14:B25,F14:F25");//不是："B14:B25","F14:F25"
+            //Utility.AddNativieResource(datasource2);
+            //bugChart.ChartWizard(datasource2, XlChartType.xlColumnClustered, Type.Missing, XlRowCol.xlColumns, 1, 1, false, "测试人员BUG数", "人员", "BUG数", Type.Missing);
+            //bugChart.ApplyDataLabels();//图形上面显示具体的值
+            ////将图表移到数据区域之下。
+            //bugChartObject.Left = Convert.ToDouble(bugChartRange.Left);
+            //bugChartObject.Top = Convert.ToDouble(bugChartRange.Top) + 20;
+            #endregion 画图，暂时作废，藏起来
+            return startrow + 2;
+        }
 
-            var borderTestRange = testRange.Borders;
-            Utility.AddNativieResource(borderTestRange);
-            borderTestRange.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
-
-            sheet.Cells[14 + devWorkloadCount + 2 + testWorkloadCount, "B"] = "合计";
-
-            int chartstart = 14 + devWorkloadCount + 2 + testWorkloadCount + 2;
-
-            ExcelInterop.Range workloadChartRange = sheet.Range[sheet.Cells[chartstart, "B"], sheet.Cells[chartstart + 10, "AG"]];
-
-            ExcelInterop.ChartObjects charts = sheet.ChartObjects(Type.Missing) as ExcelInterop.ChartObjects;
-            Utility.AddNativieResource(charts);
-
-            ExcelInterop.ChartObject workloadChartObject = charts.Add(0, 0, workloadChartRange.Width, workloadChartRange.Height);
-            Utility.AddNativieResource(workloadChartObject);
-            ExcelInterop.Chart workloadChart = workloadChartObject.Chart;//设置图表数据区域。
-            Utility.AddNativieResource(workloadChart);
-
-            //=工作量统计!$B$14:$B$33,工作量统计!$F$14:$F$33
-            ExcelInterop.Range datasource = sheet.get_Range(String.Format("B14:B{0},F14:F{0}", 14 + devWorkloadCount + 2 + testWorkloadCount - 1));//不是："B14:B25","F14:F25"
-            //ExcelInterop.Range datasource = sheet.get_Range("B14:B25,F14:F25");//不是："B14:B25","F14:F25"
-            Utility.AddNativieResource(datasource);
-            workloadChart.ChartWizard(datasource, XlChartType.xlColumnClustered, Type.Missing, XlRowCol.xlColumns, 1, 1, false, "工作量饱和度", "人员", "工作量", Type.Missing);
-            workloadChart.ApplyDataLabels();//图形上面显示具体的值
-            //将图表移到数据区域之下。
-            workloadChartObject.Left = Convert.ToDouble(workloadChartRange.Left);
-            workloadChartObject.Top = Convert.ToDouble(workloadChartRange.Top) + 20;
-
-            chartstart += 12;
-            ExcelInterop.Range bugChartRange = sheet.Range[sheet.Cells[chartstart, "B"], sheet.Cells[chartstart + 10, "K"]];
-            ExcelInterop.ChartObject bugChartObject = charts.Add(0, 0, bugChartRange.Width, bugChartRange.Height);
-            Utility.AddNativieResource(bugChartObject);
-            ExcelInterop.Chart bugChart = bugChartObject.Chart;//设置图表数据区域。
-            Utility.AddNativieResource(bugChart);
-
-            //=工作量统计!$B$14:$B$33,工作量统计!$F$14:$F$33
-            ExcelInterop.Range datasource2 = sheet.get_Range(String.Format("B{0}:B{1},G{0}:G{1}", 14 + devWorkloadCount + 2 - 1, 14 + devWorkloadCount + 2 + testWorkloadCount - 1));//不是："B14:B25","F14:F25"
-            //ExcelInterop.Range datasource = sheet.get_Range("B14:B25,F14:F25");//不是："B14:B25","F14:F25"
-            Utility.AddNativieResource(datasource2);
-            bugChart.ChartWizard(datasource2, XlChartType.xlColumnClustered, Type.Missing, XlRowCol.xlColumns, 1, 1, false, "测试人员BUG数", "人员", "BUG数", Type.Missing);
-            bugChart.ApplyDataLabels();//图形上面显示具体的值
-            //将图表移到数据区域之下。
-            bugChartObject.Left = Convert.ToDouble(bugChartRange.Left);
-            bugChartObject.Top = Convert.ToDouble(bugChartRange.Top) + 20;
-
-            return 14 + devWorkloadCount + testWorkloadCount + 2 + 2 + 10 + 10;
+        private void SetCellPercentFormat(int startrow, int i)
+        {
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[startrow, i], sheet.Cells[startrow, i]];
+            Utility.AddNativieResource(range);
+            range.NumberFormat = "#%";
         }
     }
 }

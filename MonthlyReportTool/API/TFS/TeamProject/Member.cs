@@ -32,6 +32,7 @@ namespace MonthlyReportTool.API.TFS.TeamProject
                     UniqueName = Convert.ToString(prj["uniqueName"]),
                     URL = Convert.ToString(prj["url"]),
                     ImageURL = Convert.ToString(prj["imageUrl"]),
+                    FullName= Convert.ToString(prj["displayName"])+" <" + Convert.ToString(prj["uniqueName"])+">",
                 }
                 );
             }

@@ -121,19 +121,25 @@ namespace MonthlyReportTool.API.Office.Excel
 
             BuildSummaryTableTitle();
 
+            sheet.Cells[7, "D"] = this.backlogList[0].Count;
             sheet.Cells[7, "E"] = "=IF(D7<>0,D7/D12,\"\")";
             sheet.Cells[8, "D"] = "=D12-D7-D9-D11";
             sheet.Cells[8, "E"] = "=IF(D8<>0,D8/D12,\"\")";
+            sheet.Cells[9, "D"] = this.backlogList[1].Count;
             sheet.Cells[9, "E"] = "=IF(D9<>0,D9/D12,\"\")";
             sheet.Cells[10, "D"] = "=D12-D7-D11";
             sheet.Cells[10, "E"] = "=IF(D10<>0,D10/D12,\"\")";
+            sheet.Cells[11, "D"] = this.backlogList[2].Count;
             sheet.Cells[11, "E"] = "=IF(D11<>0,D11/D12,\"\")";
-
+            sheet.Cells[12, "D"] = this.backlogList[3].Count;
             sheet.Cells[12, "E"] = "'--";
+            sheet.Cells[13, "D"] = this.backlogList[4].Count;
             sheet.Cells[13, "E"] = "=IF(D13<>0,D13/D16,\"\")";
+            sheet.Cells[14, "D"] = this.backlogList[5].Count;
             sheet.Cells[14, "E"] = "=IF(D14<>0,D14/D16,\"\")";
             sheet.Cells[15, "D"] = "=D16-D13";
             sheet.Cells[15, "E"] = "=IF(D15<>0,D15/D16,\"\")";
+            sheet.Cells[16, "D"] = this.backlogList[6].Count;
             sheet.Cells[16, "E"] = "'--";
 
             Utility.SetupSheetPercentFormat(sheet, 7, "E", 16, "E");

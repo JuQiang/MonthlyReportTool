@@ -13,9 +13,10 @@ namespace MonthlyReportTool
             var prjlist = API.TFS.TeamProject.Project.RetrieveProjectList();
             foreach (var prj in prjlist)
             {
-                Console.WriteLine(prj.Name);
+                Console.WriteLine("==================="+prj.Name+ "===================");
                 
                 if (prj.Name.ToLower() == "bugs") continue;
+                if (prj.Name.ToLower() == "orgportal") continue;
                 //if (prj.Name.ToLower() != "fcp") continue;
                 //API.TFS.WorkItem.Workload.GetAll(prj.Name);
                 //var teamlist = API.TFS.TeamProject.Team.RetrieveTeamList(prj.Name);
@@ -36,7 +37,7 @@ namespace MonthlyReportTool
                 API.Office.Excel.Utility.BuildIterationReports(prj);
 
 
-                Console.WriteLine("======================");
+                Console.WriteLine("=============================================================");
             }
             //API.Office.Excel.Utility.BuildIterationReports();
 

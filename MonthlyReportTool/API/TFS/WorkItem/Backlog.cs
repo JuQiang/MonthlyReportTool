@@ -38,7 +38,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
 
             string sql = String.Format(wiql,
                 project,
-                ite.Id
+                ite.Path
             );
 
             string responseBody = Utility.ExecuteQueryBySQL(sql);

@@ -21,7 +21,6 @@ namespace MonthlyReportTool.API.Office.Excel
         }
         public static void BuildIterationReports(ProjectEntity project)
         {
-            WriteLog("================开始================");
             ExcelInterop.Application excel = new ExcelInterop.Application();
 
             excel.DisplayAlerts = false;
@@ -87,8 +86,6 @@ namespace MonthlyReportTool.API.Office.Excel
             }
 
             excel.Quit();
-
-            WriteLog("================结束================");
         }
 
         public static string GetPersonName(string fullname)

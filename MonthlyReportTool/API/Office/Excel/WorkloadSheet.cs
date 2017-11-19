@@ -90,9 +90,7 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.AddNativieResource(range);
             range.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignCenter;
 
-            ExcelInterop.Range range2 = sheet.Range[sheet.Cells[startRow + 3, "C"], sheet.Cells[startRow + 3 + ds.Count() - 1, "C"]];
-            Utility.AddNativieResource(range2);
-            range2.NumberFormat = "#%";
+            Utility.SetupSheetPercentFormat(sheet, startRow + 3, "C", startRow + 3 + ds.Count() - 1, "C");
 
             return nextRow;
         }
@@ -118,9 +116,7 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.AddNativieResource(range);
             range.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignCenter;
 
-            ExcelInterop.Range range2 = sheet.Range[sheet.Cells[startRow + 3, "C"], sheet.Cells[startRow + 3 + ds.Count() - 1, "C"]];
-            Utility.AddNativieResource(range2);
-            range2.NumberFormat = "#%";
+            Utility.SetupSheetPercentFormat(sheet, startRow + 3, "C", startRow + 3 + ds.Count() - 1, "C");
 
             return nextRow;
         }
@@ -272,7 +268,7 @@ namespace MonthlyReportTool.API.Office.Excel
                                    "      Bug产出率：bug数 / 实际投入工作量";
         }
 
-        private int FillWorkloadData(List<WorkloadEntity> workloads, int startrow)
+        private int FillWorkloadData(List<WorkloadEntity> workloads, int startrow, bool isTester)
         {
             int firstrow = startrow;
 
@@ -281,10 +277,20 @@ namespace MonthlyReportTool.API.Office.Excel
             int workloadCount = 0;
             GetOrderedWorkloads(workloads, out workloadCount, out standardWorkingDays, out orderedLoads);
 
+            var allbugs = Bug.GetAddedBugs(this.project.Name, API.TFS.Utility.GetBestIteration(this.project.Name));
+
             foreach (var load in orderedLoads)
             {
-                string person = load.Key.Split(new char[] { '<' }, StringSplitOptions.RemoveEmptyEntries)[0];
-
+                string person = load.Key.Split(new char[] { '<' }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+                int bugCount = 0;
+                if (isTester)
+                {
+                    bugCount = allbugs.Where(bug => bug.DiscoveryUser == load.Key).Count();
+                }
+                else
+                {
+                    bugCount = allbugs.Where(bug => bug.AssignedTo == load.Key).Count();
+                }
                 double leavetime = load.Where(wl => wl.SupperType == "请假").Sum(wl => wl.SumHours + wl.OverTimes);
 
                 var dev = load.Where(wl => wl.SupperType == "研发");
@@ -308,6 +314,8 @@ namespace MonthlyReportTool.API.Office.Excel
                 sheet.Cells[startrow, "D"] = load.Sum(wl => wl.SumHours + wl.OverTimes) - leavetime;
                 sheet.Cells[startrow, "E"] = leavetime;
                 sheet.Cells[startrow, "F"] = String.Format("=D{0}/C{0}", startrow);
+                sheet.Cells[startrow, "G"] = bugCount;
+                sheet.Cells[startrow, "H"] = String.Format("=G{0}/(D{0}/8)", startrow);
                 sheet.Cells[startrow, "I"] = devtime / (load.Sum(wl => wl.SumHours + wl.OverTimes) - leavetime);
                 sheet.Cells[startrow, "J"] = devtime1;
                 sheet.Cells[startrow, "K"] = String.Format("=IF(J{0}<>0,J{0}/D{0}, \"\"", startrow);
@@ -352,15 +360,15 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.AddNativieResource(devRange2);
             devRange2.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignCenter;
 
-            ExcelInterop.Range devRange3 = sheet.Range[sheet.Cells[firstrow, "F"], sheet.Cells[startrow - 1, "F"]];
-            Utility.AddNativieResource(devRange3);
-            devRange3.NumberFormat = "#%";
+            Utility.SetupSheetPercentFormat(sheet, firstrow, "F", startrow - 1, "F");
+
+            ExcelInterop.Range bugrange = sheet.Range[sheet.Cells[firstrow, "H"], sheet.Cells[startrow - 1, "H"]];
+            Utility.AddNativieResource(bugrange);
+            bugrange.NumberFormat = "#0.00";
 
             for (int col = 9; col <= 33; col += 2)
             {
-                ExcelInterop.Range range = sheet.Range[sheet.Cells[firstrow, col], sheet.Cells[startrow - 1, col]];
-                Utility.AddNativieResource(range);
-                range.NumberFormat = "#%";
+                Utility.SetupSheetPercentFormat(sheet, firstrow, col, startrow - 1, col);
             }
             return startrow;
         }
@@ -450,10 +458,8 @@ namespace MonthlyReportTool.API.Office.Excel
             }
 
             int startrow = 14;
-            startrow = FillWorkloadData(devload, startrow);
-            startrow = FillWorkloadData(testload, startrow + 1);
-
-
+            startrow = FillWorkloadData(devload, startrow,false);
+            startrow = FillWorkloadData(testload, startrow + 1,true);
 
             sheet.Cells[startrow, "B"] = "合计";
             sheet.Cells[startrow, "C"] = String.Format("=sum(C14:C{0}", startrow - 1);
@@ -493,17 +499,15 @@ namespace MonthlyReportTool.API.Office.Excel
             sheet.Cells[7, "K"] = String.Format("=J{0}+L{0}+N{0}+P{0}+R{0}+T{0}", startrow);
             sheet.Cells[7, "M"] = String.Format("=K7/F7", startrow);
 
-            ExcelInterop.Range range2 = sheet.Range[sheet.Cells[startrow, "F"], sheet.Cells[startrow, "F"]];
-            Utility.AddNativieResource(range2);
-            range2.NumberFormat = "#%";
+            Utility.SetupSheetPercentFormat(sheet, startrow, "F", startrow, "F");
 
             for (int i = 9; i <= 33; i += 2)
             {
-                SetCellPercentFormat(startrow, i);
+                Utility.SetupSheetPercentFormat(sheet, startrow, i, startrow, i);
             }
 
-            SetCellPercentFormat(7, 9);
-            SetCellPercentFormat(7, 13);
+            Utility.SetupSheetPercentFormat(sheet, 7,9, 7, 9);
+            Utility.SetupSheetPercentFormat(sheet, 7, 13, 7, 13);
 
             #region 画图，暂时作废，藏起来
             //int chartstart = startrow + 2;
@@ -546,13 +550,6 @@ namespace MonthlyReportTool.API.Office.Excel
             //bugChartObject.Top = Convert.ToDouble(bugChartRange.Top) + 20;
             #endregion 画图，暂时作废，藏起来
             return startrow + 2;
-        }
-
-        private void SetCellPercentFormat(int startrow, int i)
-        {
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[startrow, i], sheet.Cells[startrow, i]];
-            Utility.AddNativieResource(range);
-            range.NumberFormat = "#%";
         }
     }
 }

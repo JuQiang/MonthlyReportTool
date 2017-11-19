@@ -48,7 +48,7 @@
   <ItemGroup>
     <Compile Include="API\Office\Excel\PerformanceSheet.cs" />
     <Compile Include="API\Office\Excel\SuggestionSheet.cs" />
-    <Compile Include="API\Office\Excel\BugAnalysisSheet.cs" />
+    <Compile Include="API\Office\Excel\BugSheet.cs" />
     <Compile Include="API\Office\Excel\CodeReviewSheet.cs" />
     <Compile Include="API\Office\Excel\ContentSheet.cs" />
     <Compile Include="API\Office\Excel\FeatureSheet.cs" />
@@ -70,7 +70,9 @@
     <Compile Include="API\TFS\Utility.cs" />
     <Compile Include="API\TFS\Agile\Iteration.cs" />
     <Compile Include="API\TFS\WorkItem\Backlog.cs" />
+    <Compile Include="API\TFS\WorkItem\Bug.cs" />
     <Compile Include="API\TFS\WorkItem\CodeReviewEntity.cs" />
+    <Compile Include="API\TFS\WorkItem\Commitment.cs" />
     <Compile Include="API\TFS\WorkItem\CommitmentEntity.cs" />
     <Compile Include="API\TFS\WorkItem\BugEntity.cs" />
     <Compile Include="API\TFS\WorkItem\BacklogEntity.cs" />

@@ -9,6 +9,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
 {
     public class Workload
     {
+        
         //共享查询%2F迭代总结数据查询%2F10%20工作量统计%2F05本迭代_实际所有的工作日志工作量
         public static List<WorkloadEntity> GetAll(string project, IterationEntity ite)
         {
@@ -21,7 +22,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
             "[Teld.Scrum.Worklog.WorkDate] <");
 
             string wiql = API.TFS.Utility.GetQueryClause("共享查询%2F迭代总结数据查询%2F10%20工作量统计%2F05本迭代_实际所有的工作日志工作量");
-            wiql = API.TFS.Utility.ReplaceProjectAndDateFromWIQL(wiql, tuple);
+            wiql = API.TFS.Utility.ReplacePrjAndDateFromWIQL(wiql, tuple);
 
             //string[] pathinfo = iterationPath.Split(new char[] { '\\' });
             //string prj = pathinfo[0];

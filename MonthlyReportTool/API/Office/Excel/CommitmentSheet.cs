@@ -10,9 +10,10 @@ using MonthlyReportTool.API.TFS.TeamProject;
 
 namespace MonthlyReportTool.API.Office.Excel
 {
-    public class CommitmentSheet : ExcelSheetBase,IExcelSheet
+    public class CommitmentSheet : ExcelSheetBase, IExcelSheet
     {
         private ExcelInterop.Worksheet sheet;
+        private List<List<CommitmentEntity>> commitmentList;
         public CommitmentSheet(ExcelInterop.Worksheet sheet) : base(sheet)
         {
             this.sheet = sheet;
@@ -20,16 +21,17 @@ namespace MonthlyReportTool.API.Office.Excel
 
         public void Build(ProjectEntity project)
         {
+            this.commitmentList = TFS.WorkItem.Commitment.GetAll(project.Name, TFS.Utility.GetBestIteration(project.Name));
             BuildTitle();
             BuildSubTitle();
 
             BuildTestTable();
             BuildPerformanceTestTable();
 
-            List<CommitmentEntity> list = new List<CommitmentEntity>() {new CommitmentEntity(), new CommitmentEntity(), new CommitmentEntity(), new CommitmentEntity(), new CommitmentEntity(), new CommitmentEntity() };
-            int startRow = BuildFailedTable(12,list);
-            startRow = BuildFailedReasonTable(startRow,list);
-            BuildExceptionTable(startRow,list);
+            int startRow = BuildFailedTable(13, this.commitmentList[0]);
+            startRow = BuildFailedReasonTable(startRow, this.commitmentList[5]);
+            startRow = BuildRemovedReasonTable(startRow, this.commitmentList[2]);
+            BuildExceptionTable(startRow, this.commitmentList[1]);
         }
 
         private void BuildTitle()
@@ -83,7 +85,8 @@ namespace MonthlyReportTool.API.Office.Excel
                 { "分类", "迭代提交单", "Hotfix补丁-紧急需求", "Hotfix补丁-BUG"},
                 { "提交单测试通过数", "", "", ""},
                 { "遗留提交单数", "", "", ""},
-                { "需测试提交单总数", "", "", "" },
+                { "已移除提交单数", "", "", ""},
+                { "提交单总数", "", "", "" },
                 { "通过率", "", "", ""},
                         };
             List<Tuple<string, string>> colsname = new List<Tuple<string, string>>(){
@@ -110,9 +113,32 @@ namespace MonthlyReportTool.API.Office.Excel
 
             BuildTestTableTitle();
 
-            sheet.Cells[9, "C"] = "=IF(C6<>0,C6/C8,\"\")";
-            sheet.Cells[9, "D"] = "=IF(D6<>0,D6/D8,\"\")";
-            sheet.Cells[9, "E"] = "=IF(E6<>0,E6/E8,\"\")";
+            sheet.Cells[7, "C"] = "=C9-C6-C8";
+            sheet.Cells[7, "D"] = "=D9-D6-D8";
+            sheet.Cells[7, "E"] = "=E9-E6-E8";
+
+            sheet.Cells[10, "C"] = "=IF(C6<>0,C6/C9,\"\")";
+            sheet.Cells[10, "D"] = "=IF(D6<>0,D6/D9,\"\")";
+            sheet.Cells[10, "E"] = "=IF(E6<>0,E6/E9,\"\")";
+
+            var testpassed = this.commitmentList[1];
+            var removed = this.commitmentList[2];
+            var all = this.commitmentList[0];
+
+            sheet.Cells[6, "C"] = testpassed.Where(commitment => commitment.SubmitType == "迭代提交单").Count();
+            sheet.Cells[6, "D"] = testpassed.Where(commitment => commitment.SubmitType == "Hotfix补丁-紧急需求").Count();
+            sheet.Cells[6, "E"] = testpassed.Where(commitment => commitment.SubmitType == "Hotfix补丁-BUG").Count();
+
+            sheet.Cells[8, "C"] = removed.Where(commitment => commitment.SubmitType == "迭代提交单").Count();
+            sheet.Cells[8, "D"] = removed.Where(commitment => commitment.SubmitType == "Hotfix补丁-紧急需求").Count();
+            sheet.Cells[8, "E"] = removed.Where(commitment => commitment.SubmitType == "Hotfix补丁-BUG").Count();
+
+            sheet.Cells[9, "C"] = all.Where(commitment => commitment.SubmitType == "迭代提交单").Count();
+            sheet.Cells[9, "D"] = all.Where(commitment => commitment.SubmitType == "Hotfix补丁-紧急需求").Count();
+            sheet.Cells[9, "E"] = all.Where(commitment => commitment.SubmitType == "Hotfix补丁-BUG").Count();
+
+            Utility.SetupSheetPercentFormat(sheet, 10, "C", 10, "E");
+
         }
         private void BuildTestTableTitle()
         {
@@ -181,32 +207,148 @@ namespace MonthlyReportTool.API.Office.Excel
         }
         private int BuildFailedTable(int startRow, List<CommitmentEntity> list)
         {
+            var commitments = list.GroupBy(commitment => commitment.SubmitUser);
             int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "提交单打回次数及一次通过率，按人员统计", "说明：一次通过率=一次通过数/提交单总数\r\n按一次通过率排序", "B", "G",
                 new List<string>() { "姓名", "一次通过数", "被打回一次数", "被打回两次数", "被打回两次以上数", "一次通过率" },
-                new List<string>() { "B,B", "C,C", "D,D", "E,E", "F,F", "G,G"},
-                list.Count);
+                new List<string>() { "B,B", "C,C", "D,D", "E,E", "F,F", "G,G" },
+                commitments.Count());
+
+
+            startRow += 3;
+            int firstRow = startRow;
+
+            List<Tuple<string, int, int, int, int, double>> cells = new List<Tuple<string, int, int, int, int, double>>();
+            foreach (var commitment in commitments)
+            {
+                string person = commitment.Key.Split(new char[] { '<' }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+
+                int succCount = commitment.Where(comm => comm.BackNum == 0).Count();
+                int back1Count = commitment.Where(comm => comm.BackNum == 1).Count();
+                int back2Count = commitment.Where(comm => comm.BackNum == 2).Count();
+                int back3Count = commitment.Where(comm => comm.BackNum >= 3).Count();
+
+                cells.Add(Tuple.Create<string, int, int, int, int, double>(
+                    person, succCount, back1Count, back2Count, back3Count, (double)succCount / (double)(succCount + back1Count + back2Count + back3Count)
+                    )
+                );
+            }
+
+            var orderedCells = cells.OrderByDescending(tuple => tuple.Item6).ToList();
+
+            for (int i = startRow; i < startRow + cells.Count; i++)
+            {
+                sheet.Cells[i, "B"] = orderedCells[i - startRow].Item1;
+                sheet.Cells[i, "C"] = orderedCells[i - startRow].Item2;
+                sheet.Cells[i, "D"] = orderedCells[i - startRow].Item3;
+                sheet.Cells[i, "E"] = orderedCells[i - startRow].Item4;
+                sheet.Cells[i, "F"] = orderedCells[i - startRow].Item5;
+                sheet.Cells[i, "G"] = orderedCells[i - startRow].Item6;
+
+            }
+
+            Utility.SetupSheetPercentFormat(sheet, firstRow, "G", startRow + cells.Count - 1, "G");
 
             return nextRow;
         }
 
         private int BuildFailedReasonTable(int startRow, List<CommitmentEntity> list)
         {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "提交单打回原因分析", "说明：", "B", "H",
-                new List<string>() { "提交单ID", "提交单类型", "打回次数", "打回原因", "功能负责人", "测试负责人" },
-                new List<string>() { "B,B", "C,C", "D,D", "E,F", "G,G", "H,H"},
+            
+            var commitments = list.OrderByDescending(comm=>comm.BackNum).ToList();
+
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "提交单打回原因分析", "说明：", "B", "O",
+                new List<string>() { "提交单ID", "提交单类型", "提交单名称", "状态", "打回次数", "打回原因", "功能负责人", "测试负责人", "后续改进措施" },
+                new List<string>() { "B,B", "C,C", "D,F", "G,G", "H,H", "I,J", "K,K", "L,L", "M,O" },
+                commitments.Count);
+
+            startRow += 3;
+            for (int i = 0; i < commitments.Count; i++)
+            {
+                sheet.Cells[i + startRow, "B"] = commitments[i].Id;
+                sheet.Cells[i + startRow, "C"] = commitments[i].SubmitType;
+                sheet.Cells[i + startRow, "D"] = commitments[i].Title;
+                sheet.Cells[i + startRow, "G"] = commitments[i].State;
+                sheet.Cells[i + startRow, "H"] = commitments[i].BackNum;
+                sheet.Cells[i + startRow, "I"] = "";
+                if (commitments[i].SubmitUser.Trim().Length > 0)
+                {
+                    sheet.Cells[i + startRow, "K"] = commitments[i].SubmitUser.Split(new char[] { '<' }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+                }
+                if (commitments[i].AssignedTo.Trim().Length > 0)
+                {
+                    sheet.Cells[i + startRow, "L"] = commitments[i].AssignedTo.Split(new char[] { '<' }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+                }
+                sheet.Cells[i + startRow, "M"] = "";
+            }
+
+            return nextRow;
+
+        }
+
+        private int BuildRemovedReasonTable(int startRow, List<CommitmentEntity> list)
+        {
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "已移除提交单原因分析", "说明：", "B", "L",
+                new List<string>() { "提交单ID", "提交单类型", "提交单名称", "状态", "原因分析", "功能负责人", "测试负责人"},
+                new List<string>() { "B,B", "C,C", "D,F", "G,G", "H,J", "K,K", "L,L"},
                 list.Count);
 
-            return nextRow;            
+            startRow += 3;
+            for (int i = 0; i < list.Count; i++)
+            {
+                sheet.Cells[i + startRow, "B"] = list[i].Id;
+                sheet.Cells[i + startRow, "C"] = list[i].SubmitType;
+                sheet.Cells[i + startRow, "D"] = list[i].Title;
+                sheet.Cells[i + startRow, "G"] = list[i].State;
+                sheet.Cells[i + startRow, "H"] = "";
+
+                if (list[i].SubmitUser.Trim().Length > 0)
+                {
+                    sheet.Cells[i + startRow, "K"] = list[i].SubmitUser.Split(new char[] { '<' }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+                }
+                if (list[i].AssignedTo.Trim().Length > 0)
+                {
+                    sheet.Cells[i + startRow, "L"] = list[i].AssignedTo.Split(new char[] { '<' }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+                }
+            }
+
+            return nextRow;
 
         }
 
         private int BuildExceptionTable(int startRow, List<CommitmentEntity> list)
         {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "提交单持续时间超过2周的异常分析", "说明：提交单状态从【提交测试】到【测试通过】这段时间超过2周的\r\n提交日期和测试通过时间比较", "B", "H",
-                new List<string>() { "提交单ID", "持续时间", "原因分析", "功能负责人", "测试负责人" },
-                new List<string>() { "B,B", "C,C", "D,F", "G,G", "H,H" },
-                list.Count);
+            var commitments = list.Where(comm => (
+            comm.TestFinishedTime.Trim().Length>0 &&
+            comm.SubmitDate.Trim().Length > 0 &&
+            (DateTime.Parse(comm.TestFinishedTime) - DateTime.Parse(comm.SubmitDate)).TotalDays >= 14.0d
+            )
+            ).ToList();
 
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "提交单持续时间超过2周的异常分析", "说明：提交单状态从【提交测试】到【测试通过】这段时间超过2周的\r\n提交日期和测试通过时间比较", "B", "M",
+                new List<string>() { "提交单ID", "提交单类型", "提交单名称","状态","持续时间", "原因分析", "功能负责人", "测试负责人" },
+                new List<string>() { "B,B", "C,C", "D,F", "G,G", "H,H","I,K","L,L","M,M" },
+                commitments.Count);
+
+            startRow += 3;
+            for (int i = 0; i < commitments.Count; i++)
+            {
+                sheet.Cells[i + startRow, "B"] = commitments[i].Id;
+                sheet.Cells[i + startRow, "C"] = commitments[i].SubmitType;
+                sheet.Cells[i + startRow, "D"] = commitments[i].Title;
+                sheet.Cells[i + startRow, "G"] = commitments[i].State;
+
+                sheet.Cells[i + startRow, "H"] = (int)((DateTime.Parse(commitments[i].TestFinishedTime) - DateTime.Parse(commitments[i].SubmitDate)).TotalDays) + "天";
+                sheet.Cells[i + startRow, "I"] = "";
+
+                if (commitments[i].SubmitUser.Trim().Length > 0)
+                {
+                    sheet.Cells[i + startRow, "L"] = commitments[i].SubmitUser.Split(new char[] { '<' }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+                }
+                if (commitments[i].AssignedTo.Trim().Length > 0)
+                {
+                    sheet.Cells[i + startRow, "M"] = commitments[i].AssignedTo.Split(new char[] { '<' }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+                }
+            }
             return nextRow;
         }
     }

@@ -321,105 +321,105 @@ namespace MonthlyReportTool.API
             slide.NotesPage.Shapes[2].TextFrame.TextRange.Text = "This demo is created by FPPT using C# - Download free templates from http://FPPT.com";
         }
 
-        private void BuildAllBugsSlide(IGrouping<string,BugEntity> teambugs, PowerPointInterop.Slide slide)
-        {
-            var frame = (slide.Shapes[1] as PowerPointInterop.Shape).TextFrame;
-            // Add title
-            var title = slide.Shapes[1].TextFrame.TextRange;
-            title.Text = "一、Bug数量及分布情况统计分析 - 总体";
-            title.Font.NameFarEast = "微软雅黑";
-            title.Font.Bold = MsoTriState.msoTrue;
-            title.Font.Color.RGB = 0x00C07000;
-            title.Font.Size = 24;
+        //private void BuildAllBugsSlide(IGrouping<string,BugEntity> teambugs, PowerPointInterop.Slide slide)
+        //{
+        //    var frame = (slide.Shapes[1] as PowerPointInterop.Shape).TextFrame;
+        //    // Add title
+        //    var title = slide.Shapes[1].TextFrame.TextRange;
+        //    title.Text = "一、Bug数量及分布情况统计分析 - 总体";
+        //    title.Font.NameFarEast = "微软雅黑";
+        //    title.Font.Bold = MsoTriState.msoTrue;
+        //    title.Font.Color.RGB = 0x00C07000;
+        //    title.Font.Size = 24;
 
-            //all bugs: 958a895b-5c5f-4ce5-ac60-84f4b652941c
-            //http://tfs.teld.cn:8080/tfs/Teld/OrgPortal/_workItems/resultsById/8cf850a5-8352-4492-9f52-e02a7c5ef6b7
+        //    //all bugs: 958a895b-5c5f-4ce5-ac60-84f4b652941c
+        //    //http://tfs.teld.cn:8080/tfs/Teld/OrgPortal/_workItems/resultsById/8cf850a5-8352-4492-9f52-e02a7c5ef6b7
             
-            //{[wiql, 
-            //select [System.Id], [System.CreatedDate], [System.CreatedBy], [System.Title], [System.AssignedTo], [System.State], 
-            //[Teld.Bug.ResolvedReason], [Teld.Bug.Type], [Microsoft.VSTS.Common.Severity], [Teld.Bug.Verificator], [System.AreaPath], 
-            //[Teld.Bug.PlanReleaseTime], [Teld.Bug.HopeFixSubmitTime], [Teld.Bug.IfAgreeResultState], [Teld.Bug.SubmitToAuditDate], 
-            //[Teld.Bug.RepeatBugId], [System.TeamProject] 
-            //from WorkItems 
-            //where [System.WorkItemType] = 'Bug' and[System.TeamProject] <> 'Bugs' and[System.CreatedDate] <= '2017-12-31T00:00:00.0000000' 
-            //and[System.CreatedDate] >= '2017-07-01T00:00:00.0000000' and[System.State] <> '已移除' order by[Teld.Bug.Type]]}
-            var bugsdate = teambugs.GroupBy(wi => wi.CreatedYearMonth);
-            List<string> dateseries = new List<string>();
-            foreach (var date in bugsdate)
-            {
-                dateseries.Add(date.Key);
-            }
+        //    //{[wiql, 
+        //    //select [System.Id], [System.CreatedDate], [System.CreatedBy], [System.Title], [System.AssignedTo], [System.State], 
+        //    //[Teld.Bug.ResolvedReason], [Teld.Bug.Type], [Microsoft.VSTS.Common.Severity], [Teld.Bug.Verificator], [System.AreaPath], 
+        //    //[Teld.Bug.PlanReleaseTime], [Teld.Bug.HopeFixSubmitTime], [Teld.Bug.IfAgreeResultState], [Teld.Bug.SubmitToAuditDate], 
+        //    //[Teld.Bug.RepeatBugId], [System.TeamProject] 
+        //    //from WorkItems 
+        //    //where [System.WorkItemType] = 'Bug' and[System.TeamProject] <> 'Bugs' and[System.CreatedDate] <= '2017-12-31T00:00:00.0000000' 
+        //    //and[System.CreatedDate] >= '2017-07-01T00:00:00.0000000' and[System.State] <> '已移除' order by[Teld.Bug.Type]]}
+        //    var bugsdate = teambugs.GroupBy(wi => wi.CreatedYearMonth);
+        //    List<string> dateseries = new List<string>();
+        //    foreach (var date in bugsdate)
+        //    {
+        //        dateseries.Add(date.Key);
+        //    }
 
 
-            var bugstype = teambugs.GroupBy(wi => wi.TeldBugType);
+        //    var bugstype = teambugs.GroupBy(wi => wi.TeldBugType);
 
-            var bugtbl = slide.Shapes.AddTable(dateseries.Count + 2, bugstype.Count() * 2 + 2);
+        //    var bugtbl = slide.Shapes.AddTable(dateseries.Count + 2, bugstype.Count() * 2 + 2);
 
-            bugtbl.Table.Cell(1, 1).Merge(bugtbl.Table.Cell(2, 1));
-            var month = bugtbl.Table.Cell(1, 1).Shape.TextFrame.TextRange;
-            month.Text = "月份";month.Font.Size = 12;
+        //    bugtbl.Table.Cell(1, 1).Merge(bugtbl.Table.Cell(2, 1));
+        //    var month = bugtbl.Table.Cell(1, 1).Shape.TextFrame.TextRange;
+        //    month.Text = "月份";month.Font.Size = 12;
 
-            int row = 3;
-            foreach (string yearmonth in GetDateSeriesByFriendlyFormat(dateseries))
-            {
-                var dt = bugtbl.Table.Cell(row++, 1).Shape.TextFrame.TextRange;
-                dt.Text = yearmonth;
-                dt.Font.Size = 12;
-            }
+        //    int row = 3;
+        //    foreach (string yearmonth in GetDateSeriesByFriendlyFormat(dateseries))
+        //    {
+        //        var dt = bugtbl.Table.Cell(row++, 1).Shape.TextFrame.TextRange;
+        //        dt.Text = yearmonth;
+        //        dt.Font.Size = 12;
+        //    }
 
-            int col = 2;
-            foreach (var bugtype in bugstype)
-            {
-                bugtbl.Table.Cell(1, col).Merge(bugtbl.Table.Cell(1, col+1));
-                var tr1 = bugtbl.Table.Cell(1, col).Shape.TextFrame.TextRange;                
-                tr1.Text = bugtype.Key;tr1.Font.Size = 12;
+        //    int col = 2;
+        //    foreach (var bugtype in bugstype)
+        //    {
+        //        bugtbl.Table.Cell(1, col).Merge(bugtbl.Table.Cell(1, col+1));
+        //        var tr1 = bugtbl.Table.Cell(1, col).Shape.TextFrame.TextRange;                
+        //        tr1.Text = bugtype.Key;tr1.Font.Size = 12;
 
-                var tr2 = bugtbl.Table.Cell(2, col).Shape.TextFrame.TextRange;
-                tr2.Text = "数量"; tr2.Font.Size = 12;
-                var tr3 = bugtbl.Table.Cell(2, col + 1).Shape.TextFrame.TextRange;
-                tr3.Text = "占比"; tr3.Font.Size = 12;
+        //        var tr2 = bugtbl.Table.Cell(2, col).Shape.TextFrame.TextRange;
+        //        tr2.Text = "数量"; tr2.Font.Size = 12;
+        //        var tr3 = bugtbl.Table.Cell(2, col + 1).Shape.TextFrame.TextRange;
+        //        tr3.Text = "占比"; tr3.Font.Size = 12;
 
-                row = 3;
-                foreach (string yearmonth in dateseries)
-                {
-                    var monthbugtype = bugtype.Where(wi => wi.CreatedYearMonth == yearmonth);
-                    var data = bugtbl.Table.Cell(row++, col).Shape.TextFrame.TextRange;
-                    data.Text = monthbugtype.Count().ToString();                    
-                    data.Font.Size = 12;
-                    data.ParagraphFormat.Alignment = PowerPointInterop.PpParagraphAlignment.ppAlignRight;
-                }
+        //        row = 3;
+        //        foreach (string yearmonth in dateseries)
+        //        {
+        //            var monthbugtype = bugtype.Where(wi => wi.CreatedYearMonth == yearmonth);
+        //            var data = bugtbl.Table.Cell(row++, col).Shape.TextFrame.TextRange;
+        //            data.Text = monthbugtype.Count().ToString();                    
+        //            data.Font.Size = 12;
+        //            data.ParagraphFormat.Alignment = PowerPointInterop.PpParagraphAlignment.ppAlignRight;
+        //        }
 
-                col += 2;
-            }
-            bugtbl.Table.Cell(1, col).Merge(bugtbl.Table.Cell(2, col));
-            var sumr= bugtbl.Table.Cell(1, col).Shape.TextFrame.TextRange;
-            sumr.Text = "合计"; sumr.Font.Size = 12;
+        //        col += 2;
+        //    }
+        //    bugtbl.Table.Cell(1, col).Merge(bugtbl.Table.Cell(2, col));
+        //    var sumr= bugtbl.Table.Cell(1, col).Shape.TextFrame.TextRange;
+        //    sumr.Text = "合计"; sumr.Font.Size = 12;
 
-            for (row = 3; row < dateseries.Count + 3; row++)
-            {
-                int sum = 0;
-                for (col = 2; col < 2 * bugstype.Count() + 2; col += 2)
-                {
-                    sum += Convert.ToInt32(bugtbl.Table.Cell(row, col).Shape.TextFrame.TextRange.Text);
-                }
-                var data = bugtbl.Table.Cell(row, col).Shape.TextFrame.TextRange;
-                data.Text = Convert.ToString(sum);
-                data.Font.Size = 12;
-                data.ParagraphFormat.Alignment = PowerPointInterop.PpParagraphAlignment.ppAlignRight;
+        //    for (row = 3; row < dateseries.Count + 3; row++)
+        //    {
+        //        int sum = 0;
+        //        for (col = 2; col < 2 * bugstype.Count() + 2; col += 2)
+        //        {
+        //            sum += Convert.ToInt32(bugtbl.Table.Cell(row, col).Shape.TextFrame.TextRange.Text);
+        //        }
+        //        var data = bugtbl.Table.Cell(row, col).Shape.TextFrame.TextRange;
+        //        data.Text = Convert.ToString(sum);
+        //        data.Font.Size = 12;
+        //        data.ParagraphFormat.Alignment = PowerPointInterop.PpParagraphAlignment.ppAlignRight;
 
                 
-                for (col = 2; col < 2 * bugstype.Count() + 2; col += 2)
-                {
-                    var percent = bugtbl.Table.Cell(row, col + 1).Shape.TextFrame.TextRange;
-                    var num = Convert.ToInt32(bugtbl.Table.Cell(row, col).Shape.TextFrame.TextRange.Text);
-                    percent.Text = Convert.ToString(num * 100 / sum) + "%";
-                    percent.Font.Size = 12;
-                    percent.ParagraphFormat.Alignment = PowerPointInterop.PpParagraphAlignment.ppAlignRight;
-                }
-            }
+        //        for (col = 2; col < 2 * bugstype.Count() + 2; col += 2)
+        //        {
+        //            var percent = bugtbl.Table.Cell(row, col + 1).Shape.TextFrame.TextRange;
+        //            var num = Convert.ToInt32(bugtbl.Table.Cell(row, col).Shape.TextFrame.TextRange.Text);
+        //            percent.Text = Convert.ToString(num * 100 / sum) + "%";
+        //            percent.Font.Size = 12;
+        //            percent.ParagraphFormat.Alignment = PowerPointInterop.PpParagraphAlignment.ppAlignRight;
+        //        }
+        //    }
 
-            //bugtbl.Table.ScaleProportionally(0.5f);
-        }
+        //    //bugtbl.Table.ScaleProportionally(0.5f);
+        //}
 
         private void BuildProjectMaintananceBugsSlide(IGrouping<string, BugEntity> teambugs, PowerPointInterop.Slide slide)
         {
@@ -434,119 +434,119 @@ namespace MonthlyReportTool.API
 
         }
 
-        private void BuildBugsByAreaPathSlide(IGrouping<string, BugEntity> teambugs, PowerPointInterop.Slide slide)
-        {
-            var frame = (slide.Shapes[1] as PowerPointInterop.Shape).TextFrame;
-            // Add title
-            var title = slide.Shapes[1].TextFrame.TextRange;
-            title.Text = "一、Bug数量及分布情况统计分析 - 区域路径";
-            title.Font.NameFarEast = "微软雅黑";
-            title.Font.Bold = MsoTriState.msoTrue;
-            title.Font.Color.RGB = 0x00C07000;
-            title.Font.Size = 24;
+        //private void BuildBugsByAreaPathSlide(IGrouping<string, BugEntity> teambugs, PowerPointInterop.Slide slide)
+        //{
+        //    var frame = (slide.Shapes[1] as PowerPointInterop.Shape).TextFrame;
+        //    // Add title
+        //    var title = slide.Shapes[1].TextFrame.TextRange;
+        //    title.Text = "一、Bug数量及分布情况统计分析 - 区域路径";
+        //    title.Font.NameFarEast = "微软雅黑";
+        //    title.Font.Bold = MsoTriState.msoTrue;
+        //    title.Font.Color.RGB = 0x00C07000;
+        //    title.Font.Size = 24;
 
-            var pathbugs = teambugs.GroupBy(wi => wi.SystemAreaPath);
-            #region 找到二级分类
-            //FCP，一级分类
-            //FCP   5，这个是没登记到具体二级分类的
-            //FCP\02业务运营平台\04销售管理   8，这个应该和所有02业务运营平台的合并
-            //FCP\01基础服务平台\01业务公共   7，这个应该和所有01业务公共的合并，一下雷同
-            //FCP\01基础服务平台   1
-            //FCP\02业务运营平台\01代金券管理   3
-            //FCP\02业务运营平台\06收退款管理   2
-            //FCP\01基础服务平台\02业务数据\03SAP启用设置   2
-            //FCP\01基础服务平台\04企业信息管理   8
-            //FCP\01基础服务平台\02业务数据   5
-            //FCP\01基础服务平台\03客户管理   6
-            List<string> subgroup = new List<string>();//二级分类
-            string mainkey = teambugs.Key;
-            foreach (var path in pathbugs)
-            {
-                Console.WriteLine(path.Key + "     " + path.Count());
-                if (path.Key == mainkey) { subgroup.Add(path.Key); continue; }//未登记到明细二级问题的。
-                string tmp = path.Key.Replace(mainkey + "\\", "");
+        //    var pathbugs = teambugs.GroupBy(wi => wi.SystemAreaPath);
+        //    #region 找到二级分类
+        //    //FCP，一级分类
+        //    //FCP   5，这个是没登记到具体二级分类的
+        //    //FCP\02业务运营平台\04销售管理   8，这个应该和所有02业务运营平台的合并
+        //    //FCP\01基础服务平台\01业务公共   7，这个应该和所有01业务公共的合并，一下雷同
+        //    //FCP\01基础服务平台   1
+        //    //FCP\02业务运营平台\01代金券管理   3
+        //    //FCP\02业务运营平台\06收退款管理   2
+        //    //FCP\01基础服务平台\02业务数据\03SAP启用设置   2
+        //    //FCP\01基础服务平台\04企业信息管理   8
+        //    //FCP\01基础服务平台\02业务数据   5
+        //    //FCP\01基础服务平台\03客户管理   6
+        //    List<string> subgroup = new List<string>();//二级分类
+        //    string mainkey = teambugs.Key;
+        //    foreach (var path in pathbugs)
+        //    {
+        //        Console.WriteLine(path.Key + "     " + path.Count());
+        //        if (path.Key == mainkey) { subgroup.Add(path.Key); continue; }//未登记到明细二级问题的。
+        //        string tmp = path.Key.Replace(mainkey + "\\", "");
 
-                int pos = tmp.IndexOf("\\");
-                if (pos < 0) {
-                    if (subgroup.Contains(tmp)) continue;
-                    subgroup.Add(tmp); continue; }
-                else
-                {
-                    if (subgroup.Contains(tmp.Substring(0, pos))) continue;
-                    subgroup.Add(tmp.Substring(0, pos));
-                    continue;
-                }
-            }
-            subgroup = subgroup.OrderBy(wi => wi).ToList();
-            #endregion 找到二级分类
+        //        int pos = tmp.IndexOf("\\");
+        //        if (pos < 0) {
+        //            if (subgroup.Contains(tmp)) continue;
+        //            subgroup.Add(tmp); continue; }
+        //        else
+        //        {
+        //            if (subgroup.Contains(tmp.Substring(0, pos))) continue;
+        //            subgroup.Add(tmp.Substring(0, pos));
+        //            continue;
+        //        }
+        //    }
+        //    subgroup = subgroup.OrderBy(wi => wi).ToList();
+        //    #endregion 找到二级分类
 
-            #region 按照二级分类汇总
-            Dictionary<string, int> results = new Dictionary<string, int>();
-            foreach (string sub in subgroup)
-            {
+        //    #region 按照二级分类汇总
+        //    Dictionary<string, int> results = new Dictionary<string, int>();
+        //    foreach (string sub in subgroup)
+        //    {
                 
-                results.Add(sub, 0);
-            }
-            foreach (var pathbug in pathbugs){
-                foreach (string sub in subgroup)
-                {
-                    if (pathbug.Key==mainkey)
-                    {
-                        results[mainkey] = pathbug.Count();
-                    }
-                    else if (pathbug.Key.StartsWith(mainkey + "\\" + sub))
-                    {
-                        results[sub] = results[sub] + pathbug.Count();
-                    }
-                }
-            }
+        //        results.Add(sub, 0);
+        //    }
+        //    foreach (var pathbug in pathbugs){
+        //        foreach (string sub in subgroup)
+        //        {
+        //            if (pathbug.Key==mainkey)
+        //            {
+        //                results[mainkey] = pathbug.Count();
+        //            }
+        //            else if (pathbug.Key.StartsWith(mainkey + "\\" + sub))
+        //            {
+        //                results[sub] = results[sub] + pathbug.Count();
+        //            }
+        //        }
+        //    }
 
-            Console.WriteLine();
-            foreach (string key in results.Keys) { Console.WriteLine(key + "    " + results[key]); }
-            Console.WriteLine("=================================");
-            #endregion 按照二级分类汇总
+        //    Console.WriteLine();
+        //    foreach (string key in results.Keys) { Console.WriteLine(key + "    " + results[key]); }
+        //    Console.WriteLine("=================================");
+        //    #endregion 按照二级分类汇总
 
-            #region 画柱状图
+        //    #region 画柱状图
 
-            var chart = slide.Shapes.AddChart2(-1, OfficeInterop.XlChartType.xlBarClustered, 100, 100, 100, 100).Chart;
-            //input data
-            //chart.ChartData.Activate();
-            //chart.ChartData[0, 0].Text = "";
-            //int num = kinds.Count();
-            //Excel.Workbook workbook = chart.ChartData.Workbook;
-            //Excel.Worksheet sheet = chart.ChartData.Workbook.Worksheets["Sheet1"];
-            //sheet.Cells.Clear();
+        //    var chart = slide.Shapes.AddChart2(-1, OfficeInterop.XlChartType.xlBarClustered, 100, 100, 100, 100).Chart;
+        //    //input data
+        //    //chart.ChartData.Activate();
+        //    //chart.ChartData[0, 0].Text = "";
+        //    //int num = kinds.Count();
+        //    //Excel.Workbook workbook = chart.ChartData.Workbook;
+        //    //Excel.Worksheet sheet = chart.ChartData.Workbook.Worksheets["Sheet1"];
+        //    //sheet.Cells.Clear();
 
-            //Excel.Range range;
-            //object[] objHeaders = { "数量", "数据1" };
-            //range = sheet.get_Range("A1", "B1");
-            //range.set_Value(Type.Missing, objHeaders);
+        //    //Excel.Range range;
+        //    //object[] objHeaders = { "数量", "数据1" };
+        //    //range = sheet.get_Range("A1", "B1");
+        //    //range.set_Value(Type.Missing, objHeaders);
 
-            //var data = new object[num, 2];
-            //foreach (int n in Enumerable.Range(0, num))
-            //{
-            //    data[n, 0] = kinds[n];
-            //    data[n, 1] = values[n];
-            //}
+        //    //var data = new object[num, 2];
+        //    //foreach (int n in Enumerable.Range(0, num))
+        //    //{
+        //    //    data[n, 0] = kinds[n];
+        //    //    data[n, 1] = values[n];
+        //    //}
 
-            //range = sheet.get_Range("A2", "B" + (num + 1));
-            //sheet.get_Range("A2", "B" + (num + 1)).Value = data;
-            //sheet.get_Range("B1").Value = title;
-            ////Excel.Range chartRange = sheet.get_Range("A1", "B5");
-            //chart.ChartWizard(sheet.get_Range("A1", "B5"), missing, missing, Microsoft.Office.Interop.Excel.XlRowCol.xlColumns, 1, 1, true, "多糖商品销量分析", "月份", "销量", missing);
+        //    //range = sheet.get_Range("A2", "B" + (num + 1));
+        //    //sheet.get_Range("A2", "B" + (num + 1)).Value = data;
+        //    //sheet.get_Range("B1").Value = title;
+        //    ////Excel.Range chartRange = sheet.get_Range("A1", "B5");
+        //    //chart.ChartWizard(sheet.get_Range("A1", "B5"), missing, missing, Microsoft.Office.Interop.Excel.XlRowCol.xlColumns, 1, 1, true, "多糖商品销量分析", "月份", "销量", missing);
 
-            ////set different part's color
-            //for (int i = 1; i < 2; i++)
-            //{
-            //    PPT.Series series = chart.SeriesCollection(i);
-            //    for (int j = 1; j <= num; j++)
-            //    {
-            //        PPT.Point point = series.Points(j);
-            //        point.Format.Fill.ForeColor.RGB = color[j - 1];
-            //    }
-            //}
-            #endregion 画柱状图
-        }
+        //    ////set different part's color
+        //    //for (int i = 1; i < 2; i++)
+        //    //{
+        //    //    PPT.Series series = chart.SeriesCollection(i);
+        //    //    for (int j = 1; j <= num; j++)
+        //    //    {
+        //    //        PPT.Point point = series.Points(j);
+        //    //        point.Format.Fill.ForeColor.RGB = color[j - 1];
+        //    //    }
+        //    //}
+        //    #endregion 画柱状图
+        //}
 
         private string[] GetDateSeriesByFriendlyFormat(List<string> dateseries)
         {

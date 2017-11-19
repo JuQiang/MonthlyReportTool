@@ -206,124 +206,9 @@ namespace MonthlyReportTool.API.TFS
                 return ret;
 
             }
-        }
-        private List<BugEntity> RetrieveAllBugsByDate(string startTime, string endTime)
-        {
-            List<BugEntity> list = new List<BugEntity>();
-            string bugurl = String.Format("http://{0}:8080/{1}/_apis/wit/wiql?api-version=1.0",
-                    "tfs.teld.cn",
-                    "tfs/teld"
-                    );
+        }        
 
-            using (HttpClient client = new HttpClient())
-            {
-                client.DefaultRequestHeaders.Accept.Add(
-                    new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
-                    Convert.ToBase64String(
-                        System.Text.ASCIIEncoding.ASCII.GetBytes(
-                            string.Format("{0}:{1}", username, password))));
-
-
-                string content = "{\"query\":";
-                content += "\"";
-                content += "select [System.Id], [System.CreatedDate], [System.CreatedBy], [System.Title], [System.AssignedTo], [System.State], [Teld.Bug.ResolvedReason], [Teld.Bug.Type], [Microsoft.VSTS.Common.Severity], [Teld.Bug.Verificator], [System.AreaPath], [Teld.Bug.PlanReleaseTime], [Teld.Bug.HopeFixSubmitTime], [Teld.Bug.IfAgreeResultState], [Teld.Bug.SubmitToAuditDate], [Teld.Bug.RepeatBugId], [System.TeamProject] ";
-                content += "from WorkItems where [System.WorkItemType] = 'Bug' and [System.CreatedDate] < '";
-                //content += DateTime.ParseExact(endTime, "yyyy-MM-dd", null).AddHours(-8).ToString("yyyy-MM-ddTHH:00:00.000");
-                content += endTime;
-                content += "' and [System.CreatedDate] >= '";
-                //content += DateTime.ParseExact(startTime, "yyyy-MM-dd",null).AddHours(-8).ToString("yyyy-MM-ddTHH:00:00.000");
-                content += startTime;
-                content += "'";
-                content += "\"}";
-                var postvalue = new StringContent(content, Encoding.UTF8, "application/json");
-                var method = new HttpMethod("POST");
-                var request = new HttpRequestMessage(method, bugurl) { Content = postvalue };
-                var response = client.SendAsync(request).Result;
-
-                string result = String.Empty;
-                //这句不要在if里面加，坑爹啊！拿出来，才能看到真正的程序错误！！！
-                //这个傻逼错误：你必须在请求正文中传递有效的修补程序文档
-                //对应的English version实际上是：
-                //{"$id":"1","innerException":null,"message":"You must pass a valid patch document in the body of the request.","typeName":"Microsoft.VisualStudio.Services.Common.VssPropertyValidationException, Microsoft.VisualStudio.Services.Common, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03ftoken0a3a","typeKey":"VssPropertyValidationException","errorCode":0,"eventId":3000}
-                //ref: http://stackoverflow.com/questions/29607416/vso-api-work-item-patch-giving-400-bad-request
-                //因为method是patch，所以上面说的，其实就是你的post的数据不对。这是个狗屁说明，毫无帮助。
-                result = response.Content.ReadAsStringAsync().Result;
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var allBugs = JsonConvert.DeserializeObject(result) as JObject;
-                    StringBuilder sbColumns = new StringBuilder();
-                    List<StringBuilder> sbWorkItems = new List<StringBuilder>();
-
-                    foreach (var wi in allBugs["columns"] as JArray)
-                    {
-                        sbColumns.Append(Convert.ToString(wi["referenceName"])).Append(",");
-                    }
-                    if (sbColumns.Length > 0) sbColumns.Remove(sbColumns.Length - 1, 1);
-
-                    var wiarray = allBugs["workItems"] as JArray;
-                    //Get work items
-                    //After executing a query, get the work items using the IDs that are returned in the query results response. 
-                    //You can get up to 200 work items at a time.
-                    //https://www.visualstudio.com/en-us/docs/integrate/api/wit/wiql
-                    for (int i = 0; i < (wiarray.Count - 1) / 200 + 1; i++)
-                    {
-                        StringBuilder sbTemp = new StringBuilder();
-                        int limit = (i < (wiarray.Count - 1) / 200) ? 200 : (wiarray.Count - (wiarray.Count - 1) / 200 * 200);
-                        for (int j = 0; j < limit; j++)
-                        {
-                            sbTemp.Append(Convert.ToString(wiarray[200 * i + j]["id"])).Append(",");
-                        }
-                        if (sbTemp.Length > 0) sbTemp.Remove(sbTemp.Length - 1, 1);
-
-                        sbWorkItems.Add(sbTemp);
-                    }
-
-                    int total = sbWorkItems.Count;
-                    for (int i = 0; i < sbWorkItems.Count; i++)// test only
-                    {
-                        //Console.CursorLeft = 0;
-                        //Console.CursorTop = 0;
-                        //Console.WriteLine("Process all bugs :" + (i * 100 / (sbWorkItems.Count))+"%...");
-                        var buglist = RetrieveWorkItems(sbColumns.ToString(), sbWorkItems[i].ToString())["value"] as JArray;
-                        foreach (var wi in buglist)
-                        {
-                            var hopeDate = Convert.ToString(wi["fields"]["Teld.Bug.HopeFixSubmitTime"]);
-                            if (false == String.IsNullOrEmpty(hopeDate))
-                            {
-                                hopeDate = DateTime.Parse(hopeDate).AddHours(8).ToString("yyyy-MM-dd HH:mm:ss");
-                            }
-                            var createdDate = DateTime.Parse(Convert.ToString(wi["fields"]["System.CreatedDate"])).AddHours(8);
-
-
-                            list.Add(new BugEntity()
-                            {
-                                SystemId = Convert.ToInt32(Convert.ToString(wi["fields"]["System.Id"])),
-                                SystemAreaPath = Convert.ToString(wi["fields"]["System.AreaPath"]),
-                                SystemTeamProject = Convert.ToString(wi["fields"]["System.TeamProject"]),
-                                SystemState = Convert.ToString(wi["fields"]["System.State"]),
-                                SystemAssignedTo = Convert.ToString(wi["fields"]["System.AssignedTo"]),
-                                SystemCreatedDate = createdDate.ToString("yyyy-MM-dd HH:mm:ss"),
-                                SystemCreatedBy = Convert.ToString(wi["fields"]["System.CreatedBy"]),
-                                SystemTitle = Convert.ToString(wi["fields"]["System.Title"]),
-                                MicrosoftVSTSCommonSeverity = Convert.ToString(wi["fields"]["Microsoft.VSTS.Common.Severity"]),
-                                TeldBugType = Convert.ToString(wi["fields"]["Teld.Bug.Type"]),
-                                TeldBugHopeFixSubmitTime = hopeDate,
-                                TeldBugVerificator = Convert.ToString(wi["fields"]["Teld.Bug.Verificator"]),
-                                TeldBugResolvedReason = Convert.ToString(wi["fields"]["Teld.Bug.ResolvedReason"]),
-                                CreatedYearMonth = createdDate.ToString("yyyy.MM月")
-                            });
-                        }
-                    }
-                }
-            }
-
-            return list;
-        }
-
-        public static string ReplaceProjectAndDateFromWIQL(string wiql, Tuple<string, string, string> original)
+        public static string ReplacePrjAndDateFromWIQL(string wiql, Tuple<string, string, string> original)
         {
             string prj = original.Item1;
             string date1 = original.Item2;
@@ -343,6 +228,45 @@ namespace MonthlyReportTool.API.TFS
             pos = wiql.IndexOf("'", pos + date2.Length);
             pos2 = wiql.IndexOf("'", pos + 1);
             wiql = wiql.Substring(0, pos) + "'{2}'" + wiql.Substring(pos2 + 1);
+
+            return wiql;
+        }
+
+        public static string ReplacePrjAndDateAndPrjFromWIQL(string wiql, Tuple<string, string, string,string> original)
+        {
+            string prj = original.Item1;
+            string date1 = original.Item2;
+            string date2 = original.Item3;
+            string prj2 = original.Item4;
+
+            int pos = wiql.IndexOf(prj);
+            pos = wiql.IndexOf("'", pos + prj.Length);
+            int pos2 = wiql.IndexOf("'", pos + 1);
+            wiql = wiql.Substring(0, pos) + "'{0}'" + wiql.Substring(pos2 + 1);
+
+            if (date1 != "_FQQ_")
+            {
+                pos = wiql.IndexOf(date1);
+                pos = wiql.IndexOf("'", pos + date1.Length);
+                pos2 = wiql.IndexOf("'", pos + 1);
+                wiql = wiql.Substring(0, pos) + "'{1}'" + wiql.Substring(pos2 + 1);
+            }
+
+            if (date2 != "_FQQ_")
+            {
+                pos = wiql.IndexOf(date2);
+                pos = wiql.IndexOf("'", pos + date2.Length);
+                pos2 = wiql.IndexOf("'", pos + 1);
+                wiql = wiql.Substring(0, pos) + "'{2}'" + wiql.Substring(pos2 + 1);
+            }
+
+            if (prj2 != "_FQQ_")
+            {
+                pos = wiql.IndexOf(prj2);
+                pos = wiql.IndexOf("'", pos + prj2.Length);
+                pos2 = wiql.IndexOf("'", pos + 1);
+                wiql = wiql.Substring(0, pos) + "'{0}'" + wiql.Substring(pos2 + 1);
+            }
 
             return wiql;
         }

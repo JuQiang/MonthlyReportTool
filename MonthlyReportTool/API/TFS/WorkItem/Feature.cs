@@ -50,7 +50,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
         {
             List<FeatureEntity> list = new List<FeatureEntity>();
             string wiql = API.TFS.Utility.GetQueryClause(query);
-            wiql = API.TFS.Utility.ReplaceProjectAndDateFromWIQL(wiql, tuple);
+            wiql = API.TFS.Utility.ReplacePrjAndDateFromWIQL(wiql, tuple);
 
             //string[] pathinfo = iterationPath.Split(new char[] { '\\' });
             //string prj = pathinfo[0];

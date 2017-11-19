@@ -136,9 +136,7 @@ namespace MonthlyReportTool.API.Office.Excel
             sheet.Cells[15, "E"] = "=IF(D15<>0,D15/D16,\"\")";
             sheet.Cells[16, "E"] = "'--";
 
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[7, "E"], sheet.Cells[16, "E"]];
-            Utility.AddNativieResource(range);
-            range.NumberFormat = "#%";
+            Utility.SetupSheetPercentFormat(sheet, 7, "E", 16, "E");
 
             sheet.Cells[7, "D"] = this.backlogList[0].Count;
             sheet.Cells[9, "D"] = this.backlogList[1].Count;

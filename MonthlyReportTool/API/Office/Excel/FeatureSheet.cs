@@ -100,13 +100,11 @@ namespace MonthlyReportTool.API.Office.Excel
             sheet.Cells[11, "E"] = this.featureList[0].Count;
             //sheet.Cells[12, "E"] = "=SUM(E7: E11)";
 
+            Utility.SetupSheetPercentFormat(sheet, 7, "F", 11, "F");
+
             ExcelInterop.Range range = sheet.Range[sheet.Cells[7, "B"], sheet.Cells[12, "B"]];
             Utility.AddNativieResource(range);
             range.RowHeight = 40;
-
-            ExcelInterop.Range range2 = sheet.Range[sheet.Cells[7, "F"], sheet.Cells[11, "F"]];            
-            Utility.AddNativieResource(range2);
-            range2.NumberFormat = "#%";
         }
 
         private int BuildDelayTable(int startRow,List<FeatureEntity> features)

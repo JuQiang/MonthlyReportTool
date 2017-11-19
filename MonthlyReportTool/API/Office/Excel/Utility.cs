@@ -33,17 +33,17 @@ namespace MonthlyReportTool.API.Office.Excel
 
             List<Tuple<string, Type>> allSheets = new List<Tuple<string, Type>>()
             {
-                //Tuple.Create<string, Type>("首页及说明",typeof(HomeSheet)),
-                //Tuple.Create<string, Type>("目录",typeof(ContentSheet)),
-                //Tuple.Create<string, Type>("项目整体说明",typeof(OverviewSheet)),
-                //Tuple.Create<string, Type>("产品特性统计",typeof(FeatureSheet)),
-                //Tuple.Create<string, Type>("Backlog统计",typeof(BacklogSheet)),
+                Tuple.Create<string, Type>("首页及说明",typeof(HomeSheet)),
+                Tuple.Create<string, Type>("目录",typeof(ContentSheet)),
+                Tuple.Create<string, Type>("项目整体说明",typeof(OverviewSheet)),
+                Tuple.Create<string, Type>("产品特性统计",typeof(FeatureSheet)),
+                Tuple.Create<string, Type>("Backlog统计",typeof(BacklogSheet)),
                 Tuple.Create<string, Type>("工作量统计",typeof(WorkloadSheet)),
-                //Tuple.Create<string, Type>("提交单分析",typeof(CommitmentSheet)),
-                //Tuple.Create<string, Type>("代码审查分析",typeof(CodeReviewSheet)),
-                //Tuple.Create<string, Type>("Bug统计分析",typeof(BugAnalysisSheet)),
-                //Tuple.Create<string, Type>("改进建议",typeof(SuggestionSheet)),
-                //Tuple.Create<string, Type>("人员考评结果",typeof(PerformanceSheet)),
+                Tuple.Create<string, Type>("提交单分析",typeof(CommitmentSheet)),
+                Tuple.Create<string, Type>("代码审查分析",typeof(CodeReviewSheet)),
+                Tuple.Create<string, Type>("Bug统计分析",typeof(BugSheet)),
+                Tuple.Create<string, Type>("改进建议",typeof(SuggestionSheet)),
+                Tuple.Create<string, Type>("人员考评结果",typeof(PerformanceSheet)),
             };
 
             ExcelInterop.Worksheet lastSheet = null;
@@ -91,6 +91,24 @@ namespace MonthlyReportTool.API.Office.Excel
             WriteLog("================结束================");
         }
 
+        public static string GetPersonName(string fullname)
+        {
+            if (fullname.Trim().Length < 1) return "";
+            return fullname.Split(new char[] { '<' }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+
+        }
+        public static void SetupSheetPercentFormat(ExcelInterop.Worksheet sheet, int startRow, string startCol, int endRow, string endCol)
+        {
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, startCol], sheet.Cells[endRow, endCol]];
+            Utility.AddNativieResource(range);
+            range.NumberFormat = "#%";
+        }
+        public static void SetupSheetPercentFormat(ExcelInterop.Worksheet sheet, int startRow, int startCol, int endRow, int endCol)
+        {
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, startCol], sheet.Cells[endRow, endCol]];
+            Utility.AddNativieResource(range);
+            range.NumberFormat = "#%";
+        }
         public static void SetSheetFont(ExcelInterop.Worksheet sheet)
         {
             var bigrange = sheet.Range[sheet.Cells[1, "A"], sheet.Cells[1000, "Z"]];
@@ -152,8 +170,6 @@ namespace MonthlyReportTool.API.Office.Excel
                     Utility.AddNativieResource(colRange);
                     colRange.RowHeight = 20;
                     colRange.Merge();
-
-                    sheet.Cells[row + i, cols[0]] = String.Format("数据行:{0}，列{1}", row + i, j + 1);
 
                     var border = colRange.Borders;
                     Utility.AddNativieResource(border);

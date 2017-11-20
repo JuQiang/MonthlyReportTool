@@ -32,17 +32,17 @@ namespace MonthlyReportTool.API.Office.Excel
 
             List<Tuple<string, Type>> allSheets = new List<Tuple<string, Type>>()
             {
-                Tuple.Create<string, Type>("首页及说明",typeof(HomeSheet)),
-                Tuple.Create<string, Type>("目录",typeof(ContentSheet)),
-                Tuple.Create<string, Type>("项目整体说明",typeof(OverviewSheet)),
-                Tuple.Create<string, Type>("产品特性统计",typeof(FeatureSheet)),
-                Tuple.Create<string, Type>("Backlog统计",typeof(BacklogSheet)),
+                //Tuple.Create<string, Type>("首页及说明",typeof(HomeSheet)),
+                //Tuple.Create<string, Type>("目录",typeof(ContentSheet)),
+                //Tuple.Create<string, Type>("项目整体说明",typeof(OverviewSheet)),
+                //Tuple.Create<string, Type>("产品特性统计",typeof(FeatureSheet)),
+                //Tuple.Create<string, Type>("Backlog统计",typeof(BacklogSheet)),
                 Tuple.Create<string, Type>("工作量统计",typeof(WorkloadSheet)),
-                Tuple.Create<string, Type>("提交单分析",typeof(CommitmentSheet)),
-                Tuple.Create<string, Type>("代码审查分析",typeof(CodeReviewSheet)),
-                Tuple.Create<string, Type>("Bug统计分析",typeof(BugSheet)),
-                Tuple.Create<string, Type>("改进建议",typeof(SuggestionSheet)),
-                Tuple.Create<string, Type>("人员考评结果",typeof(PerformanceSheet)),
+                //Tuple.Create<string, Type>("提交单分析",typeof(CommitmentSheet)),
+                //Tuple.Create<string, Type>("代码审查分析",typeof(CodeReviewSheet)),
+                //Tuple.Create<string, Type>("Bug统计分析",typeof(BugSheet)),
+                //Tuple.Create<string, Type>("改进建议",typeof(SuggestionSheet)),
+                //Tuple.Create<string, Type>("人员考评结果",typeof(PerformanceSheet)),
             };
 
             ExcelInterop.Worksheet lastSheet = null;
@@ -73,7 +73,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
             var ite = TFS.Utility.GetBestIteration(project.Name);
             workbook.SaveAs(String.Format("c:\\irt\\{0}总结({1}_{2}).xlsx",
-                ite.Path.Replace("\\"," "),
+                ite.Path.Replace("\\", " "),
                 (DateTime.Parse(ite.StartDate)).ToString("yyyyMMdd"),
                 (DateTime.Parse(ite.EndDate)).ToString("yyyyMMdd")
                 ));
@@ -116,15 +116,17 @@ namespace MonthlyReportTool.API.Office.Excel
             bigrangeFont.Name = "微软雅黑";
             bigrangeFont.Size = 11;
         }
-        
+
         public static int BuildFormalTable(ExcelInterop.Worksheet sheet, int row, string title, string description,
             string startCol, string endCol, List<string> colnames, List<string> mergedInfo, int rowCount)
         {
+            Utility.WriteLog("Build Formal Table - Begin.");
             ExcelInterop.Range tableTitleRange = sheet.Range[sheet.Cells[row, startCol], sheet.Cells[row, endCol]];
             Utility.AddNativieResource(tableTitleRange);
             tableTitleRange.Merge();
             tableTitleRange.RowHeight = 20;
             sheet.Cells[row, startCol] = title;
+
             var tableTitleFont = tableTitleRange.Font;
             Utility.AddNativieResource(tableTitleFont);
             tableTitleFont.Bold = true;
@@ -141,24 +143,34 @@ namespace MonthlyReportTool.API.Office.Excel
             tableDescriptionRange.RowHeight = 20 * (lines.Length + 0);
 
             row++;
-            for (int i = 0; i < colnames.Count; i++)
-            {
-                string[] cols = mergedInfo[i].Split(new char[] { ',' });
-                ExcelInterop.Range colRange = sheet.Range[sheet.Cells[row, cols[0]], sheet.Cells[row, cols[1]]];
-                Utility.AddNativieResource(colRange);
-                colRange.RowHeight = 20;
-                colRange.Merge();
-                sheet.Cells[row, cols[0]] = colnames[i];
-
-                var border = colRange.Borders;
-                Utility.AddNativieResource(border);
-                border.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
-            }
 
             BuildFormalTableHeader(sheet, row, startCol, row, endCol);
 
-            row++;
-            for (int i = 0; i < rowCount; i++)
+            //StringBuilder sb = new StringBuilder(1<<10);
+
+            //for (int i = 0; i < rowCount; i++)
+            //{
+            //    for (int j = 0; j < colnames.Count; j++)
+            //    {
+            //        string[] cols = mergedInfo[j].Split(new char[] { ',' });
+            //        sb.AppendFormat("{0}{1}:{2}{3},", cols[0], row + i, cols[1], row + i);
+            //    }
+            //}
+            //if (sb.Length > 0)
+            //{
+            //    sb.Remove(sb.Length - 1, 1);
+            //}
+
+            //ExcelInterop.Range colRange = sheet.get_Range(sb.ToString());
+            //Utility.AddNativieResource(colRange);
+            //colRange.RowHeight = 20;
+            //colRange.Merge();
+
+            //var border = colRange.Borders;
+            //Utility.AddNativieResource(border);
+            //border.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
+
+            for (int i = 0; i <= rowCount; i++)//<=的原因是column header也是这里处理的。
             {
                 for (int j = 0; j < colnames.Count; j++)
                 {
@@ -167,6 +179,10 @@ namespace MonthlyReportTool.API.Office.Excel
                     Utility.AddNativieResource(colRange);
                     colRange.RowHeight = 20;
                     colRange.Merge();
+                    if (i == 0)
+                    {
+                        sheet.Cells[row, cols[0]] = colnames[j];//table header
+                    }
 
                     var border = colRange.Borders;
                     Utility.AddNativieResource(border);
@@ -174,7 +190,8 @@ namespace MonthlyReportTool.API.Office.Excel
                 }
             }
 
-            return row + rowCount + 1;
+            Utility.WriteLog("Build Formal Table - End.");
+            return row + rowCount + 2;
         }
 
         public static void BuildFormalTableHeader(ExcelInterop.Worksheet sheet, int startRow, string startCol, int endRow, string endCol)

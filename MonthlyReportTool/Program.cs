@@ -13,11 +13,13 @@ namespace MonthlyReportTool
             var prjlist = API.TFS.TeamProject.Project.RetrieveProjectList();
             foreach (var prj in prjlist)
             {
-                Console.WriteLine("==================="+prj.Name+ "===================");
+                
                 
                 if (prj.Name.ToLower() == "bugs") continue;
                 if (prj.Name.ToLower() == "orgportal") continue;
-                //if (prj.Name.ToLower() != "fcp") continue;
+
+                Console.WriteLine("===================" + prj.Name + "===================");
+                if (prj.Name.ToLower() != "ttp") continue;
                 //API.TFS.WorkItem.Workload.GetAll(prj.Name);
                 //var teamlist = API.TFS.TeamProject.Team.RetrieveTeamList(prj.Name);
                 //foreach (var team in teamlist)
@@ -30,9 +32,9 @@ namespace MonthlyReportTool
                 //    }
                 //}
                 //continue;
-
-                var ite = API.TFS.Utility.GetBestIteration(prj.Name);
                 
+                var ite = API.TFS.Utility.GetBestIteration(prj.Name);
+                if (null == ite) continue;
                 API.TFS.Agile.Iteration.GetProjectIterationDaysOff(prj.Name, ite.Id);
                 API.Office.Excel.Utility.BuildIterationReports(prj);
 

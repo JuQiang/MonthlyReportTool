@@ -36,7 +36,7 @@ namespace MonthlyReportTool.API.Office.Excel
             int startRow = BuildDevelopmentTable();
             int dataRow = startRow - 3;
 
-            List<Tuple<string, double,double>> workloads = new List<Tuple<string, double,double>>();
+            List<Tuple<string, double, double>> workloads = new List<Tuple<string, double, double>>();
             for (int i = 14; i <= dataRow; i++)
             {
                 string textb = this.sheet.Cells[i, "B"].Text;
@@ -45,10 +45,10 @@ namespace MonthlyReportTool.API.Office.Excel
 
                 if (String.IsNullOrEmpty(textb)) continue;
 
-                workloads.Add(Tuple.Create<string, double,double>(this.sheet.Cells[i, "B"].Text, Convert.ToDouble(textf.Replace("%",""))/100.00d, Convert.ToDouble(texti.Replace("%", "")) / 100.00d));
+                workloads.Add(Tuple.Create<string, double, double>(this.sheet.Cells[i, "B"].Text, Convert.ToDouble(textf.Replace("%", "")) / 100.00d, Convert.ToDouble(texti.Replace("%", "")) / 100.00d));
             }
 
-            startRow = Build115Analysis(startRow,workloads);
+            startRow = Build115Analysis(startRow, workloads);
             startRow = Build60Analysis(startRow, workloads);
             startRow = BUild50Analysis(startRow, dataRow);
 
@@ -56,7 +56,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
         private int BUild50Analysis(int startRow, int dataRow)
         {
-            
+
             int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "计划偏差大于50%分析", "说明：", "B", "U",
                 new List<string>() { "计划偏差大于50%分析", "说明：", "研发占比低于60%原因分析" },
                 new List<string>() { "B,B", "C,E", "F,U" },
@@ -72,7 +72,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
         private int Build60Analysis(int startRow, List<Tuple<string, double, double>> workloads)
         {
-            var ds = workloads.Where(wl => wl.Item3 <= 0.60d).OrderByDescending(wl=>wl.Item3).ToList();
+            var ds = workloads.Where(wl => wl.Item3 <= 0.60d).OrderByDescending(wl => wl.Item3).ToList();
             int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "研发占比低于60%分析", "说明：对研发占比低于60%（不包括60%）的同事，分别做原因分析", "B", "U",
                 new List<string>() { "团队成员", "研发占比", "研发占比低于60%原因分析" },
                 new List<string>() { "B,B", "C,E", "F,U" },
@@ -95,7 +95,7 @@ namespace MonthlyReportTool.API.Office.Excel
             return nextRow;
         }
 
-        private int Build115Analysis(int startRow,List<Tuple<string, double, double>> workloads)
+        private int Build115Analysis(int startRow, List<Tuple<string, double, double>> workloads)
         {
 
             var ds = workloads.Where(wl => wl.Item2 >= 1.15d).ToList();
@@ -112,7 +112,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 this.sheet.Cells[startRow + 3 + i, "F"] = "";
             }
 
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow + 3, "B"], sheet.Cells[startRow + 3+ds.Count()-1, "B"]];
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow + 3, "B"], sheet.Cells[startRow + 3 + ds.Count() - 1, "B"]];
             Utility.AddNativieResource(range);
             range.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignCenter;
 
@@ -291,7 +291,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 {
                     bugCount = allbugs.Where(bug => bug.AssignedTo == load.Key).Count();
                 }
-                double leavetime = load.Where(wl => wl.SupperType == "请假").Sum(wl => wl.SumHours + wl.OverTimes);
+                double leavetime = load.Where(wl => wl.Type == "请假").Sum(wl => wl.SumHours + wl.OverTimes);
 
                 var dev = load.Where(wl => wl.SupperType == "研发");
                 double devtime = dev.Sum(wl => wl.SumHours + wl.OverTimes);
@@ -381,6 +381,15 @@ namespace MonthlyReportTool.API.Office.Excel
             standardWorkingDays = (int)((DateTime.Parse(ite.EndDate) - DateTime.Parse(ite.StartDate)).TotalDays) + 1 - daysoff.Count;
             for (DateTime dt = DateTime.Parse(ite.StartDate); dt < DateTime.Parse(ite.EndDate).AddDays(1); dt = dt.AddDays(1))
             {
+                bool duplicated = false;
+                for (int i = 0; i < daysoff.Count; i++)
+                {
+                    if (dt.Equals(DateTime.Parse(daysoff[i]))){
+                        duplicated = true;
+                        break;
+                    }
+                }
+                if (duplicated) continue;//如果在迭代里面又单独设置了休息日，那么要和取出来的daysoff排除掉。
                 if (dt.DayOfWeek == DayOfWeek.Sunday) standardWorkingDays--;//再刨掉礼拜天
             }
 
@@ -458,8 +467,8 @@ namespace MonthlyReportTool.API.Office.Excel
             }
 
             int startrow = 14;
-            startrow = FillWorkloadData(devload, startrow,false);
-            startrow = FillWorkloadData(testload, startrow + 1,true);
+            startrow = FillWorkloadData(devload, startrow, false);
+            startrow = FillWorkloadData(testload, startrow + 1, true);
 
             sheet.Cells[startrow, "B"] = "合计";
             sheet.Cells[startrow, "C"] = String.Format("=sum(C14:C{0}", startrow - 1);
@@ -506,7 +515,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 Utility.SetupSheetPercentFormat(sheet, startrow, i, startrow, i);
             }
 
-            Utility.SetupSheetPercentFormat(sheet, 7,9, 7, 9);
+            Utility.SetupSheetPercentFormat(sheet, 7, 9, 7, 9);
             Utility.SetupSheetPercentFormat(sheet, 7, 13, 7, 13);
 
             #region 画图，暂时作废，藏起来

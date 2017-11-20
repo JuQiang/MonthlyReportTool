@@ -64,7 +64,7 @@ namespace MonthlyReportTool.API.TFS.Agile
                     int days = (int)((endDate - startDate).TotalDays);
                     for (int i = 0; i < days; i++)
                     {
-                        daysOff.Add(startDate.AddDays(i + 1).ToString("yyyy/M/d h:mm:ss"));
+                        daysOff.Add(startDate.AddDays(i + 1).ToString("yyyy/M/d HH:mm:ss"));
                     }
                 }
             }

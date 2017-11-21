@@ -77,6 +77,12 @@ namespace MonthlyReportTool.API.Office.Excel
             ExcelInterop.Range range = sheet.Range[sheet.Cells[16 , "B"], sheet.Cells[16 + 2 + 5, "J"]];
             Utility.AddNativieResource(range);
             range.Merge();
+
+            string burdownPicturePath = TFS.Utility.GetBurndownPictureFile(project.Name);
+            var shapes = sheet.Shapes;
+            Utility.AddNativieResource(shapes);
+            shapes.AddPicture(burdownPicturePath, MsoTriState.msoFalse, MsoTriState.msoCTrue, 50, 550, 494, 581);
+
         }
     }
 }

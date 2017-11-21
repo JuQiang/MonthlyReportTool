@@ -17,7 +17,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
 
             string sql = String.Format(wiql,
                 project,
-                DateTime.Parse(ite.StartDate).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss.fff"),//第一天要减一
+                DateTime.Parse(ite.StartDate).AddDays(0).ToString("yyyy-MM-dd HH:mm:ss.fff"),//第一天是大于等于
                 DateTime.Parse(ite.EndDate).AddDays(1).ToString("yyyy-MM-dd HH:mm:ss.fff"),//最后一天要加一
                 project
             );
@@ -61,7 +61,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
         {
             var added = GetBugListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F25%20Bug统计分析%2F00本迭代_新增Bug总数",
             Tuple.Create<string, string, string, string>("[System.TeamProject] =",
-                "[System.CreatedDate] >",
+                "[System.CreatedDate] >=",
                 "[System.CreatedDate] <",
                 "[Teld.Scrum.BelongTeamProject] ="
                 )
@@ -75,7 +75,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
 
             var added = GetBugListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F25%20Bug统计分析%2F00本迭代_新增Bug总数",
             Tuple.Create<string, string, string, string>("[System.TeamProject] =",
-                "[System.CreatedDate] >",
+                "[System.CreatedDate] >=",
                 "[System.CreatedDate] <",
                 "[Teld.Scrum.BelongTeamProject] ="
                 )
@@ -83,7 +83,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
 
             var _fixed = GetBugListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F25%20Bug统计分析%2F05本迭代_已修复Bug总数",
             Tuple.Create<string, string, string, string>("[System.TeamProject] =",
-                "[Microsoft.VSTS.Common.StateChangeDate] >",
+                "[Microsoft.VSTS.Common.StateChangeDate] >=",
                 "[Microsoft.VSTS.Common.StateChangeDate] <",
                 "[Teld.Scrum.BelongTeamProject] ="
                 )
@@ -96,9 +96,9 @@ namespace MonthlyReportTool.API.TFS.WorkItem
                 "[Teld.Scrum.BelongTeamProject] ="
                 )
             );
-            var critical = GetBugListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F25%20Bug统计分析%2F25本迭代_新增1或2级Bug总数",
+            var critical = GetBugListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F25%20Bug统计分析%2F25本迭代_新增1或2级Bug总数（程序错误类）",
             Tuple.Create<string, string, string, string>("[System.TeamProject] =",
-            "[System.CreatedDate] >",
+            "[System.CreatedDate] >=",
             "[System.CreatedDate] <",
             "[Teld.Scrum.BelongTeamProject] ="
                 )
@@ -106,7 +106,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
 
             var ignore = GetBugListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F25%20Bug统计分析%2F30本迭代_不予处理或不是错误Bug总数",
             Tuple.Create<string, string, string, string>("[System.TeamProject] =",
-                "[Microsoft.VSTS.Common.StateChangeDate] >",
+                "[Microsoft.VSTS.Common.StateChangeDate] >=",
                 "[Microsoft.VSTS.Common.StateChangeDate] <",
                 "[Teld.Scrum.BelongTeamProject] ="
                 )
@@ -114,7 +114,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
 
             var review = GetBugListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F25%20Bug统计分析%2F35本迭代_新增评审问题总数",
             Tuple.Create<string, string, string, string>("[System.TeamProject] =",
-                "[System.CreatedDate] >",
+                "[System.CreatedDate] >=",
                 "[System.CreatedDate] <",
                 "_FQQ_"
                 )

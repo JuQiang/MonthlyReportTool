@@ -13,8 +13,8 @@ namespace MonthlyReportTool
             var prjlist = API.TFS.TeamProject.Project.RetrieveProjectList();
             foreach (var prj in prjlist)
             {
-                
-                
+
+
                 if (prj.Name.ToLower() == "bugs") continue;
                 if (prj.Name.ToLower() == "orgportal") continue;
 
@@ -32,7 +32,7 @@ namespace MonthlyReportTool
                 //    }
                 //}
                 //continue;
-                
+
                 var ite = API.TFS.Utility.GetBestIteration(prj.Name);
                 if (null == ite) continue;
                 API.TFS.Agile.Iteration.GetProjectIterationDaysOff(prj.Name, ite.Id);

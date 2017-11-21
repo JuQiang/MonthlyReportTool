@@ -12,6 +12,7 @@ using MonthlyReportTool.API.TFS.TeamProject;
 using MonthlyReportTool.API.TFS.WorkItem;
 using System.Runtime.InteropServices;
 using MonthlyReportTool.API.TFS.Agile;
+using System.IO;
 
 namespace MonthlyReportTool.API.TFS
 {
@@ -37,6 +38,36 @@ namespace MonthlyReportTool.API.TFS
                 {
                     response.EnsureSuccessStatusCode();
                     return response.Content.ReadAsStringAsync().Result;
+                }
+            }
+        }
+
+        public static string GetBurndownPictureFile(string projectName)
+        {
+            string url = String.Format("http://tfs.teld.cn:8080/tfs/Teld/{0}/_api/_teamChart/Burndown?chartOptions=%7B%22Width%22%3A494%2C%22Height%22%3A581%2C%22" +
+                "ShowDetails%22%3Atrue%2C%22Title%22%3A%22%22%7D&counter=2&iterationPath={1}&__v=5",
+                    projectName,
+                    Utility.GetBestIteration(projectName).Path
+                    );
+            using (HttpClient client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Accept.Add(
+                    new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
+                    Convert.ToBase64String(
+                        System.Text.ASCIIEncoding.ASCII.GetBytes(
+                            string.Format("{0}:{1}", username, password))));
+
+                string detailsUrl = String.Empty;
+                using (HttpResponseMessage response = client.GetAsync(url).Result)
+                {
+                    response.EnsureSuccessStatusCode();
+                    byte[] img = response.Content.ReadAsByteArrayAsync().Result;
+
+                    string fname = Environment.GetEnvironmentVariable("temp") + "\\" + Guid.NewGuid().ToString()+".png";
+                    File.WriteAllBytes(fname, img);
+                    return fname;
                 }
             }
         }
@@ -773,6 +804,7 @@ namespace MonthlyReportTool.API.TFS
 
             return null;
         }
+
     }
 
 

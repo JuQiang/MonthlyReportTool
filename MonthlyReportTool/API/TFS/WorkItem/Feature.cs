@@ -17,24 +17,24 @@ namespace MonthlyReportTool.API.TFS.WorkItem
             var all = GetFeatureListByIteration(project,ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F00本迭代_产品特性总数",
                                                                 
                 Tuple.Create<string, string, string>("[System.TeamProject] =",
-                "[Microsoft.VSTS.Scheduling.TargetDate] >",
+                "[Microsoft.VSTS.Scheduling.TargetDate] >=",
                 "[Microsoft.VSTS.Scheduling.TargetDate] <"));
 
             var completed = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F05本迭代_已完成产品特性总数",
                 Tuple.Create<string, string, string>("[System.TeamProject] =",
-                "[Microsoft.VSTS.Scheduling.TargetDate] >",
+                "[Microsoft.VSTS.Scheduling.TargetDate] >=",
                 "[Microsoft.VSTS.Scheduling.TargetDate] <"));
             var removed = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F20本迭代_已中止或已移除产品特性总数",
                 Tuple.Create<string, string, string>("[System.TeamProject] =",
-                "[Teld.Scrum.StateChangeDate] >",
-                "[Teld.Scrum.StateChangeDate] <"));
+                "[Microsoft.VSTS.Scheduling.TargetDate] >=",
+                "[Microsoft.VSTS.Scheduling.TargetDate] <"));
             var delayed = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F10本迭代_拖期产品特性总数",
                 Tuple.Create<string, string, string>("[System.TeamProject] =",
-                "[Microsoft.VSTS.Scheduling.TargetDate] >",
+                "[Microsoft.VSTS.Scheduling.TargetDate] >=",
                 "[Microsoft.VSTS.Scheduling.TargetDate] <"));
             var perfect = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F25本迭代_按计划完成产品特性总数",
                 Tuple.Create<string, string, string>("[System.TeamProject] =",
-                "[Microsoft.VSTS.Scheduling.TargetDate] >",
+                "[Microsoft.VSTS.Scheduling.TargetDate] >=",
                 "[Microsoft.VSTS.Scheduling.TargetDate] <"));
 
             list.Add(all);
@@ -59,7 +59,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
 
             string sql = String.Format(wiql,
                 project,
-                DateTime.Parse(ite.StartDate).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss.fff"),//第一天要减一
+                DateTime.Parse(ite.StartDate).AddDays(0).ToString("yyyy-MM-dd HH:mm:ss.fff"),//第一天是大于等于
                 DateTime.Parse(ite.EndDate).AddDays(1).ToString("yyyy-MM-dd HH:mm:ss.fff")//最后一天要加一
             );
 

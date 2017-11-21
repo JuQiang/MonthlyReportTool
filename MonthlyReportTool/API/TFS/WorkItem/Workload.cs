@@ -18,7 +18,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
             string iterationPath = Utility.GetBestIteration(project).Id;
 
             var tuple = Tuple.Create<string, string, string>("[System.TeamProject] =",
-            "[Teld.Scrum.Worklog.WorkDate] >",
+            "[Teld.Scrum.Worklog.WorkDate] >=",
             "[Teld.Scrum.Worklog.WorkDate] <");
 
             string wiql = API.TFS.Utility.GetQueryClause("共享查询%2F迭代总结数据查询%2F10%20工作量统计%2F05本迭代_实际所有的工作日志工作量");
@@ -31,7 +31,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
 
             string sql = String.Format(wiql,
                 project,
-                DateTime.Parse(ite.StartDate).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss.fff"),//第一天要减一
+                DateTime.Parse(ite.StartDate).AddDays(0).ToString("yyyy-MM-dd HH:mm:ss.fff"),//第一天大于等于
                 DateTime.Parse(ite.EndDate).AddDays(1).ToString("yyyy-MM-dd HH:mm:ss.fff")//最后一天要加一
             );
 

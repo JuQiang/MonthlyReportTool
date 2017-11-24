@@ -22,6 +22,8 @@ namespace MonthlyReportTool.API.Office.Excel
         public void Build(ProjectEntity project)
         {
             this.backlogList = Backlog.GetAll(project.Name, TFS.Utility.GetBestIteration(project.Name));
+            BuildTestCase(4);
+
             BuildTitle();
             BuildSubTitle();
             BuildDescription();
@@ -30,6 +32,7 @@ namespace MonthlyReportTool.API.Office.Excel
             startRow = BuildDelayedTable(startRow);
             startRow = BuildAbandonTable(startRow);
             BuildTable(startRow);
+
         }
         private void BuildTitle()
         {
@@ -210,7 +213,7 @@ namespace MonthlyReportTool.API.Office.Excel
             #endregion 有了查询了，不用自己算了
 
             var all = this.backlogList[7];
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "拖期backlog分析", "说明：分析每个拖期Backlog的原因、主要责任人、以及拖期改进措施、改进措施责任人", "B", "M",
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "拖期backlog分析", "说明：分析每个拖期Backlog的原因、主要责任人、以及拖期改进措施、改进措施责任人", "B", "Y",
                 new List<string>() { "ID", "关键应用", "模块", "backlog名称", "类别", "负责人", "验收标准", "状态", "拖期责任人", "拖期原因", "拖期改进措施", "措施负责人" },
                 new List<string>() { "B,B", "C,C", "D,E", "F,J", "K,K", "L,L", "M,N", "O,O", "P,P", "Q,T", "U,X", "Y,Y" },
                 all.Count);
@@ -238,7 +241,7 @@ namespace MonthlyReportTool.API.Office.Excel
         private int BuildAbandonTable(int startRow)
         {
             var all = this.backlogList[2];
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "移除/中止backlog分析", "说明：分析每个移除/中止Backlog的处理原因", "B", "M",
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "移除/中止backlog分析", "说明：分析每个移除/中止Backlog的处理原因", "B", "T",
                 new List<string>() { "ID", "关键应用", "模块", "backlog名称", "类别", "负责人", "验收标准","状态", "移除/中止原因分析" },
                 new List<string>() { "B,B", "C,C", "D,E", "F,J","K,K","L,L","M,N","O,O","P,T" },
                 all.Count);
@@ -261,25 +264,48 @@ namespace MonthlyReportTool.API.Office.Excel
         private int BuildTable(int startRow)
         {
             var all = this.backlogList[3];
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代backlog列表", "说明：按关键应用、模块排序；非研发类的为无", "B", "M",
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代backlog列表", "说明：按关键应用、模块排序；非研发类的为无", "B", "O",
                 new List<string>() { "ID", "关键应用", "模块", "backlog名称", "类别", "负责人", "验收标准", "状态" },
                 new List<string>() { "B,B", "C,C", "D,E", "F,J", "K,K", "L,L", "M,N","O,O" },
                 all.Count);
 
+            startRow += 3;
+            object[,] arr = new object[all.Count, 15];
             for (int i = 0; i < all.Count; i++)
             {
-                sheet.Cells[startRow + 3 + i, "B"] = all[i].Id;
-                sheet.Cells[startRow + 3 + i, "C"] = all[i].KeyApplication;
-                sheet.Cells[startRow + 3 + i, "D"] = all[i].ModulesName;
-                sheet.Cells[startRow + 3 + i, "F"] = all[i].Title;
-                sheet.Cells[startRow + 3 + i, "K"] = all[i].Category;
-                sheet.Cells[startRow + 3 + i, "L"] = all[i].AssignedTo;
-                sheet.Cells[startRow + 3 + i, "M"] = all[i].AcceptanceMeasure;
-                sheet.Cells[startRow + 3 + i, "O"] = all[i].State;
-                sheet.Cells[startRow + 3 + i, "P"] = "";
+                arr[i, 0] = all[i].Id;
+                arr[i, 1] = all[i].KeyApplication;
+                arr[i, 2] = all[i].ModulesName;
+                arr[i, 4] = all[i].Title;
+                arr[i, 9] = all[i].Category;
+                arr[i, 10] = Utility.GetPersonName(all[i].AssignedTo);
+                arr[i, 11] = all[i].AcceptanceMeasure;
+                arr[i, 13] = all[i].State;
             }
 
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + all.Count - 1, "O"]];
+            Utility.AddNativieResource(range);
+            range.Value2 = arr;
+
             return nextRow;
+        }
+
+        private void BuildTestCase(int startRow)
+        {            
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "","测试用例设计及执行统计", "M", "Q",
+                new List<string>() { "分类", "个数" },
+                new List<string>() { "M,O", "P,Q"},
+                6);
+
+            startRow += 3;
+            sheet.Cells[startRow,"M"] = "迭代Backlog总数";sheet.Cells[startRow++, "P"] = "=D12";
+            sheet.Cells[startRow, "M"] = "需编写用例Backlog总数"; sheet.Cells[startRow++, "P"] = this.backlogList[8].Count;
+            sheet.Cells[startRow, "M"] = "实际编写用例Backlog总数"; sheet.Cells[startRow++, "P"] = this.backlogList[9].Count;
+            sheet.Cells[startRow, "M"] = "编写用例总条数"; sheet.Cells[startRow++, "P"] = this.backlogList[10].Count;
+            sheet.Cells[startRow, "M"] = "用例未执行数目"; sheet.Cells[startRow++, "P"] = "不知道哪里找";
+            sheet.Cells[startRow, "M"] = "测试用例覆盖率"; sheet.Cells[startRow++, "P"] = "=IF(P8<>0,P9/P8,\"\")";
+
+
         }
     }
 }

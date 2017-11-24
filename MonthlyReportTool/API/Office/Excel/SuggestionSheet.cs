@@ -40,19 +40,30 @@ namespace MonthlyReportTool.API.Office.Excel
         }
         private int BuildTable1(int startRow)
         {
+            //计划,需求,设计,开发,测试,发布,维护,日常管理
             int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "上迭代改进建议落地情况", "说明：", "B", "M",
                 new List<string>() { "序号", "分类", "待改进内容", "负责人", "是否落地", "具体改进说明" },
                 new List<string>() { "B,B", "C,C", "D,G", "H,H", "I,I", "J,M" },
                 4);
-
-            sheet.Cells[startRow + 3, "B"] = 1; sheet.Cells[startRow + 3, "C"] = "计划";
-            sheet.Cells[startRow + 4, "B"] = 2; sheet.Cells[startRow + 4, "C"] = "日常管理";
-            sheet.Cells[startRow + 5, "B"] = 3; sheet.Cells[startRow + 5, "C"] = "需求";
-            sheet.Cells[startRow + 6, "B"] = 4; sheet.Cells[startRow + 6, "C"] = "跟踪";
+            AddValidationList(startRow);
+            sheet.Cells[startRow + 3, "B"] = 1;
+            sheet.Cells[startRow + 4, "B"] = 2;
+            sheet.Cells[startRow + 5, "B"] = 3;
+            sheet.Cells[startRow + 6, "B"] = 4;
 
             Format2Columns(startRow);
 
             return 12;
+        }
+
+        private void AddValidationList(int startRow)
+        {
+            var range = sheet.get_Range(String.Format("C{0}:C{1}", startRow + 3, startRow + 6));
+            Utility.AddNativieResource(range);
+            var validation = range.Validation;
+            Utility.AddNativieResource(validation);
+
+            validation.Add(ExcelInterop.XlDVType.xlValidateList, Formula1: "计划,需求,设计,开发,测试,发布,维护,日常管理");
         }
 
         private int BuildTable2(int startRow)
@@ -62,10 +73,11 @@ namespace MonthlyReportTool.API.Office.Excel
                 new List<string>() { "B,B", "C,C", "D,M" },
                 4);
 
-            sheet.Cells[startRow + 3, "B"] = 1; sheet.Cells[startRow + 3, "C"] = "计划";
-            sheet.Cells[startRow + 4, "B"] = 2; sheet.Cells[startRow + 4, "C"] = "日常管理";
-            sheet.Cells[startRow + 5, "B"] = 3; sheet.Cells[startRow + 5, "C"] = "需求";
-            sheet.Cells[startRow + 6, "B"] = 4; sheet.Cells[startRow + 6, "C"] = "跟踪";
+            AddValidationList(startRow);
+            sheet.Cells[startRow + 3, "B"] = 1; 
+            sheet.Cells[startRow + 4, "B"] = 2; 
+            sheet.Cells[startRow + 5, "B"] = 3; 
+            sheet.Cells[startRow + 6, "B"] = 4; 
 
             Format2Columns(startRow);
 
@@ -79,10 +91,11 @@ namespace MonthlyReportTool.API.Office.Excel
                 new List<string>() { "B,B", "C,C", "D,M" },
                 4);
 
-            sheet.Cells[startRow + 3, "B"] = 1; sheet.Cells[startRow + 3, "C"] = "计划";
-            sheet.Cells[startRow + 4, "B"] = 2; sheet.Cells[startRow + 4, "C"] = "日常管理";
-            sheet.Cells[startRow + 5, "B"] = 3; sheet.Cells[startRow + 5, "C"] = "需求";
-            sheet.Cells[startRow + 6, "B"] = 4; sheet.Cells[startRow + 6, "C"] = "跟踪";
+            AddValidationList(startRow);
+            sheet.Cells[startRow + 3, "B"] = 1; 
+            sheet.Cells[startRow + 4, "B"] = 2; 
+            sheet.Cells[startRow + 5, "B"] = 3; 
+            sheet.Cells[startRow + 6, "B"] = 4; 
 
             Format2Columns(startRow);
 
@@ -96,10 +109,11 @@ namespace MonthlyReportTool.API.Office.Excel
                 new List<string>() { "B,B", "C,C", "D,L","M,M" },
                 4);
 
-            sheet.Cells[startRow + 3, "B"] = 1; sheet.Cells[startRow + 3, "C"] = "计划";
-            sheet.Cells[startRow + 4, "B"] = 2; sheet.Cells[startRow + 4, "C"] = "日常管理";
-            sheet.Cells[startRow + 5, "B"] = 3; sheet.Cells[startRow + 5, "C"] = "需求";
-            sheet.Cells[startRow + 6, "B"] = 4; sheet.Cells[startRow + 6, "C"] = "跟踪";
+            AddValidationList(startRow);
+            sheet.Cells[startRow + 3, "B"] = 1; 
+            sheet.Cells[startRow + 4, "B"] = 2; 
+            sheet.Cells[startRow + 5, "B"] = 3; 
+            sheet.Cells[startRow + 6, "B"] = 4; 
 
             Format2Columns(startRow);
 

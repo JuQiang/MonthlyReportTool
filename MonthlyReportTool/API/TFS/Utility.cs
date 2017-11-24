@@ -44,7 +44,7 @@ namespace MonthlyReportTool.API.TFS
 
         public static string GetBurndownPictureFile(string projectName)
         {
-            string url = String.Format("http://tfs.teld.cn:8080/tfs/Teld/{0}/_api/_teamChart/Burndown?chartOptions=%7B%22Width%22%3A494%2C%22Height%22%3A581%2C%22" +
+            string url = String.Format("http://tfs.teld.cn:8080/tfs/Teld/{0}/_api/_teamChart/Burndown?chartOptions=%7B%22Width%22%3A1248%2C%22Height%22%3A616%2C%22" +
                 "ShowDetails%22%3Atrue%2C%22Title%22%3A%22%22%7D&counter=2&iterationPath={1}&__v=5",
                     projectName,
                     Utility.GetBestIteration(projectName).Path
@@ -726,7 +726,7 @@ namespace MonthlyReportTool.API.TFS
             }
 
             var wiarray = jsonobj["workItems"] as JArray;
-            if (wiarray.Count < 1) return list;
+            if (wiarray == null || wiarray.Count < 1) return list;
 
             foreach (var id in wiarray)
             {

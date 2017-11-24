@@ -28,7 +28,7 @@ namespace MonthlyReportTool.API.Office.Excel
             #region 1st paragraph
             string[] tmp = ite.Path.Split(new char[] { '\\' });
             sheet.Cells[5, "D"] = String.Format("{0} {1} 迭代总结", project.Description, tmp[1]);
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[5, "D"], sheet.Cells[6, "H"]];
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[5, "C"], sheet.Cells[6, "K"]];
             Utility.AddNativieResource(range);
             range.Merge();
             var font = range.Font;

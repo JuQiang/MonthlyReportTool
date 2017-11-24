@@ -7,7 +7,7 @@
     <ProjectGuid>{B7000EBC-B6C8-4E35-975F-DAFADF3A09A4}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>MonthlyReportTool</RootNamespace>
-    <AssemblyName>MonthlyReportTool</AssemblyName>
+    <AssemblyName>TRT</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

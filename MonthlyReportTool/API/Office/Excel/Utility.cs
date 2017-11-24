@@ -9,6 +9,7 @@ using System.Reflection;
 using System.IO;
 using MonthlyReportTool.API.TFS.TeamProject;
 using MonthlyReportTool.API.TFS.Agile;
+using System.Diagnostics;
 
 namespace MonthlyReportTool.API.Office.Excel
 {
@@ -32,17 +33,17 @@ namespace MonthlyReportTool.API.Office.Excel
 
             List<Tuple<string, Type>> allSheets = new List<Tuple<string, Type>>()
             {
-                //Tuple.Create<string, Type>("首页及说明",typeof(HomeSheet)),
+                Tuple.Create<string, Type>("首页及说明",typeof(HomeSheet)),
                 //Tuple.Create<string, Type>("目录",typeof(ContentSheet)),
                 Tuple.Create<string, Type>("项目整体说明",typeof(OverviewSheet)),
-                //Tuple.Create<string, Type>("产品特性统计",typeof(FeatureSheet)),
-                //Tuple.Create<string, Type>("Backlog统计",typeof(BacklogSheet)),
-                //Tuple.Create<string, Type>("工作量统计",typeof(WorkloadSheet)),
-                //Tuple.Create<string, Type>("提交单分析",typeof(CommitmentSheet)),
-                //Tuple.Create<string, Type>("代码审查分析",typeof(CodeReviewSheet)),
-                //Tuple.Create<string, Type>("Bug统计分析",typeof(BugSheet)),
-                //Tuple.Create<string, Type>("改进建议",typeof(SuggestionSheet)),
-                //Tuple.Create<string, Type>("人员考评结果",typeof(PerformanceSheet)),
+                Tuple.Create<string, Type>("产品特性统计",typeof(FeatureSheet)),
+                Tuple.Create<string, Type>("Backlog统计",typeof(BacklogSheet)),
+                Tuple.Create<string, Type>("工作量统计",typeof(WorkloadSheet)),
+                Tuple.Create<string, Type>("提交单分析",typeof(CommitmentSheet)),
+                Tuple.Create<string, Type>("代码审查分析",typeof(CodeReviewSheet)),
+                Tuple.Create<string, Type>("Bug统计分析",typeof(BugSheet)),
+                Tuple.Create<string, Type>("改进建议",typeof(SuggestionSheet)),
+                Tuple.Create<string, Type>("人员考评结果",typeof(PerformanceSheet)),
             };
 
             ExcelInterop.Worksheet lastSheet = null;
@@ -56,7 +57,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 nativeResources.Add(sheet);
                 sheet.Name = allSheets[i].Item1;
 
-                WriteLog("处理：" + sheet.Name);
+                WriteLog("\t" + sheet.Name);
 
                 Type t = allSheets[i].Item2;
                 var ci = t.GetConstructor(new Type[] { typeof(ExcelInterop.Worksheet) });
@@ -98,13 +99,13 @@ namespace MonthlyReportTool.API.Office.Excel
         {
             ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, startCol], sheet.Cells[endRow, endCol]];
             Utility.AddNativieResource(range);
-            range.NumberFormat = "#%";
+            range.NumberFormat = "0%";
         }
         public static void SetupSheetPercentFormat(ExcelInterop.Worksheet sheet, int startRow, int startCol, int endRow, int endCol)
         {
             ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, startCol], sheet.Cells[endRow, endCol]];
             Utility.AddNativieResource(range);
-            range.NumberFormat = "#%";
+            range.NumberFormat = "0%";
         }
         public static void SetSheetFont(ExcelInterop.Worksheet sheet)
         {
@@ -120,7 +121,7 @@ namespace MonthlyReportTool.API.Office.Excel
         public static int BuildFormalTable(ExcelInterop.Worksheet sheet, int row, string title, string description,
             string startCol, string endCol, List<string> colnames, List<string> mergedInfo, int rowCount)
         {
-            Utility.WriteLog("Build Formal Table - Begin.");
+            //Utility.WriteLog("Build Formal Table - Begin.");
             ExcelInterop.Range tableTitleRange = sheet.Range[sheet.Cells[row, startCol], sheet.Cells[row, endCol]];
             Utility.AddNativieResource(tableTitleRange);
             tableTitleRange.Merge();
@@ -144,57 +145,54 @@ namespace MonthlyReportTool.API.Office.Excel
 
             row++;
 
-            BuildFormalTableHeader(sheet, row, startCol, row, endCol);
-
-            //StringBuilder sb = new StringBuilder(1<<10);
-
-            //for (int i = 0; i < rowCount; i++)
-            //{
-            //    for (int j = 0; j < colnames.Count; j++)
-            //    {
-            //        string[] cols = mergedInfo[j].Split(new char[] { ',' });
-            //        sb.AppendFormat("{0}{1}:{2}{3},", cols[0], row + i, cols[1], row + i);
-            //    }
-            //}
-            //if (sb.Length > 0)
-            //{
-            //    sb.Remove(sb.Length - 1, 1);
-            //}
-
-            //ExcelInterop.Range colRange = sheet.get_Range(sb.ToString());
-            //Utility.AddNativieResource(colRange);
-            //colRange.RowHeight = 20;
-            //colRange.Merge();
-
-            //var border = colRange.Borders;
-            //Utility.AddNativieResource(border);
-            //border.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
-
-            for (int i = 0; i <= rowCount; i++)//<=的原因是column header也是这里处理的。
+            //标题栏
+            for (int i = 0; i < colnames.Count; i++)
             {
-                for (int j = 0; j < colnames.Count; j++)
-                {
-                    string[] cols = mergedInfo[j].Split(new char[] { ',' });
-                    ExcelInterop.Range colRange = sheet.Range[sheet.Cells[row + i, cols[0]], sheet.Cells[row + i, cols[1]]];
-                    Utility.AddNativieResource(colRange);
-                    colRange.RowHeight = 20;
-                    colRange.Merge();
-                    if (i == 0)
-                    {
-                        sheet.Cells[row, cols[0]] = colnames[j];//table header
-                    }
+                string[] cols = mergedInfo[i].Split(new char[] { ',' });
+                sheet.Cells[row, cols[0]] = colnames[i];//table header
+            }
+            StringBuilder sb = new StringBuilder();
+            for (int j = 0; j < colnames.Count; j++)
+            {
+                string[] cols = mergedInfo[j].Split(new char[] { ',' });
+                if (cols[0].ToLower() == cols[1].ToLower()) continue;
 
-                    var border = colRange.Borders;
-                    Utility.AddNativieResource(border);
-                    border.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
-                }
+                sb.AppendFormat("{0}{1}:{2}{3},", cols[0], row, cols[1], row);
             }
 
-            Utility.WriteLog("Build Formal Table - End.");
+            if (sb.Length > 0)
+            {
+                sb.Remove(sb.Length - 1, 1);
+
+                ExcelInterop.Range colRange = sheet.get_Range(sb.ToString());
+                Utility.AddNativieResource(colRange);
+                colRange.Merge();
+
+            }
+            
+            ExcelInterop.Range firstRow = sheet.get_Range(String.Format("{0}{1}:{2}{3}", startCol, row, endCol, row));
+            Utility.AddNativieResource(firstRow);
+            firstRow.RowHeight = 20;
+            var border = firstRow.Borders;
+            Utility.AddNativieResource(border);
+            border.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
+
+            firstRow.Copy();
+            row++;
+            for (int i = 0; i < rowCount; i++)
+            {
+                var destRange = sheet.get_Range(String.Format("{0}{1}:{2}{3}", startCol, row + i, endCol, row + i));
+                Utility.AddNativieResource(destRange);
+                destRange.PasteSpecial(ExcelInterop.XlPasteType.xlPasteFormats);
+                //firstRow.Copy(startCol + ":" + row + i);
+            }
+
+            SetTableHeaderFormat(sheet, row-1, startCol, row-1, endCol);
+            
             return row + rowCount + 2;
         }
 
-        public static void BuildFormalTableHeader(ExcelInterop.Worksheet sheet, int startRow, string startCol, int endRow, string endCol)
+        public static void SetTableHeaderFormat(ExcelInterop.Worksheet sheet, int startRow, string startCol, int endRow, string endCol)
         {
             ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, startCol], sheet.Cells[endRow, endCol]];
             Utility.AddNativieResource(range);
@@ -209,6 +207,8 @@ namespace MonthlyReportTool.API.Office.Excel
             var interior = range.Interior;
             Utility.AddNativieResource(interior);
             interior.Color = System.Drawing.Color.DarkGray.ToArgb();
+
+
         }
 
         public static void BuildFormalSheetTitle(ExcelInterop.Worksheet sheet, int startRow, string startCol, int endRow, string endCol, string title, int columnWidth = 16)
@@ -234,7 +234,7 @@ namespace MonthlyReportTool.API.Office.Excel
         public static void WriteLog(string msg)
         {
             string line = String.Format("{0} --- {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"), msg);
-            Console.WriteLine(line);
+            Console.WriteLine(msg);
 
             using (StreamWriter sw = new StreamWriter(@"c:\\irt\\log.txt", true))
             {

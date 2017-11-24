@@ -7,6 +7,7 @@ using ExcelInterop = Microsoft.Office.Interop.Excel;
 using Microsoft.Office.Core;
 using MonthlyReportTool.API.TFS.WorkItem;
 using MonthlyReportTool.API.TFS.TeamProject;
+using System.Diagnostics;
 
 namespace MonthlyReportTool.API.Office.Excel
 {
@@ -32,28 +33,38 @@ namespace MonthlyReportTool.API.Office.Excel
             BuildSummaryTable();
 
             int startRow = BuildFixedRateTable(14, new List<List<BugEntity>>() { this.bugList[0], this.bugList[2], this.bugList[1]});
-            startRow = BuildReasonTable(startRow, this.bugList[0]);
+            startRow = BuildReasonTable(startRow, this.bugList[3]);
             startRow = BuildNoneTable(startRow, this.bugList[4]);
             startRow = BuildCodeReviewTable(startRow, this.bugList[5]);
             startRow = BuildAddedTable(startRow, this.bugList[0]);
+            startRow = BuildNotResolvedTable(startRow, this.bugList[2]);
         }
 
         private int BuildCodeReviewTable(int startRow, List<BugEntity> list)
         {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代代码评审发现问题统计", "说明：", "B", "H",
-                new List<string>() { "BugID", "缺陷发现方式", "问题类别", "严重级别", "Bug标题"},
-                new List<string>() { "B,B", "C,C", "D,D", "E,E", "F,H"},
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代代码评审发现问题统计", "说明：", "B", "L",
+                new List<string>() { "BugID", "关键应用", "模块","缺陷发现方式", "问题类别", "严重级别", "Bug标题", "指派给", "发现人" },
+                new List<string>() { "B,B", "C,C", "D,D", "E,E", "F,F", "G,G", "H,J","K,K", "L,L" },
                 list.Count);
 
             startRow += 3;
+            object[,] arr = new object[list.Count, 12];
             for (int i = 0; i < list.Count; i++)
             {
-                sheet.Cells[startRow + i, "B"] = list[i].Id;
-                sheet.Cells[startRow + i, "C"] = list[i].DetectionMode;
-                sheet.Cells[startRow + i, "D"] = list[i].Type;
-                sheet.Cells[startRow + i, "E"] = list[i].Severity;
-                sheet.Cells[startRow + i, "F"] = list[i].Title;
+                arr[i, 0] = list[i].Id;
+                arr[i, 1] = list[i].KeyApplication;
+                arr[i, 2] = list[i].ModulesName;
+                arr[i, 3] = list[i].DetectionMode;
+                arr[i, 4] = list[i].Type;
+                arr[i, 5] = list[i].Severity;
+                arr[i, 6] = list[i].Title;
+                arr[i, 9] = Utility.GetPersonName(list[i].AssignedTo);
+                arr[i, 10] = Utility.GetPersonName(list[i].DiscoveryUser);
             }
+
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "L"]];
+            Utility.AddNativieResource(range);
+            range.Value2 = arr;
 
             return nextRow;
         }
@@ -184,7 +195,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 sheet.Cells[7 + i, "D"] = list[i].Where(bug => bug.Severity == "2 - 高").Count();
                 sheet.Cells[7 + i, "E"] = list[i].Where(bug => bug.Severity == "3 - 中").Count();
                 sheet.Cells[7 + i, "F"] = list[i].Where(bug => bug.Severity == "4 - 低").Count();
-                sheet.Cells[7 + i, "G"] = list[i].Where(bug => bug.Severity == "5 - 无（建议）").Count();
+                sheet.Cells[7 + i, "G"] = list[i].Where(bug => bug.Severity == "5 - 无").Count();
             }
         }
 
@@ -234,70 +245,163 @@ namespace MonthlyReportTool.API.Office.Excel
 
             Utility.SetupSheetPercentFormat(sheet, startRow, "F", startRow + members.Count, "F");
 
+            AddBugChart(sheet,
+                startRow-2, "G", startRow + members.Count-1, "L",
+                String.Format("B{0}:B{1},C{0}:C{1}", startRow-1/*包含标题列和标题行*/, startRow + members.Count - 1),
+                "开发人员新增bug数");
 
+            AddBugChart(sheet,
+                startRow-2, "O", startRow + members.Count - 1, "T",
+                String.Format("B{0}:B{1},F{0}:F{1}", startRow-1, startRow + members.Count - 1),
+                "开发人员修复率");
+           
             return nextRow + 1;
         }
 
         private int BuildReasonTable(int startRow, List<BugEntity> list)
         {
-            var bugs = list.Where(bug => bug.Severity.StartsWith("1") || bug.Severity.StartsWith("2")).ToList();
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "Bug产生原因分析", "说明：主要针对严重级别为1、2级的Bug进行原因分析", "B", "L",
-                new List<string>() { "BugID", "问题类别", "严重级别", "Bug标题", "原因分析", "指派给", "测试人员" },
-                new List<string>() { "B,B", "C,C", "D,D", "E,H", "I,J", "K,K", "L,L" },
-                bugs.Count);
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "Bug产生原因分析", "说明：主要针对严重级别为1、2级的Bug进行原因分析", "B", "N",
+                new List<string>() { "BugID","关键应用","模块", "问题类别", "严重级别", "Bug标题", "原因分析", "指派给", "发现人" },
+                new List<string>() { "B,B", "C,C", "D,D","E,E","F,F", "G,I", "J,J", "K,K", "L,N" },
+                list.Count);
 
             startRow += 3;
-            for (int i = 0; i < bugs.Count; i++)
+
+            object[,] arr = new object[list.Count, 14];
+            for (int i = 0; i < list.Count; i++)
             {
-                sheet.Cells[startRow + i, "B"] = bugs[i].Id;
-                sheet.Cells[startRow + i, "C"] = bugs[i].Type;
-                sheet.Cells[startRow + i, "D"] = bugs[i].Severity;
-                sheet.Cells[startRow + i, "E"] = bugs[i].Title;
-                sheet.Cells[startRow + i, "I"] = "";
-                sheet.Cells[startRow + i, "K"] = Utility.GetPersonName(bugs[i].AssignedTo);
-                sheet.Cells[startRow + i, "L"] = Utility.GetPersonName(bugs[i].TestResponsibleMan);
+                arr[i, 0] = list[i].Id;
+                arr[i, 1] = list[i].KeyApplication;
+                arr[i, 2] = list[i].ModulesName;
+                arr[i, 3] = list[i].Type;
+                arr[i, 4] = list[i].Severity;
+                arr[i, 5] = list[i].Title;
+                arr[i, 9] = Utility.GetPersonName(list[i].AssignedTo);
+                arr[i, 10] = Utility.GetPersonName(list[i].DiscoveryUser);
             }
+
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "L"]];
+            Utility.AddNativieResource(range);
+            range.Value2 = arr;
 
             return nextRow;
         }
         private int BuildAddedTable(int startRow, List<BugEntity> list)
         {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代新增Bug数", "说明：", "B", "J",
-                new List<string>() { "BugID", "问题类别", "严重级别", "Bug标题", "指派给", "发现人" },
-                new List<string>() { "B,B", "C,C", "D,D", "E,H", "I,I", "J,J" },
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代新增Bug数", "说明：", "B", "L",
+                new List<string>() { "BugID", "关键应用", "模块", "问题类别", "严重级别", "Bug标题", "指派给", "发现人" },
+                new List<string>() { "B,B", "C,C", "D,D", "E,E","F,F","G,J", "K,K", "L,L" },
                 list.Count);
 
             startRow += 3;
+            
+            object[,] arr = new object[list.Count, 12+1];
             for (int i = 0; i < list.Count; i++)
             {
-                sheet.Cells[startRow + i, "B"] = list[i].Id;
-                sheet.Cells[startRow + i, "C"] = list[i].Type;
-                sheet.Cells[startRow + i, "D"] = list[i].Severity;
-                sheet.Cells[startRow + i, "E"] = list[i].Title;
-                sheet.Cells[startRow + i, "I"] = Utility.GetPersonName(list[i].AssignedTo);
-                sheet.Cells[startRow + i, "J"] = Utility.GetPersonName(list[i].DiscoveryUser);
+                arr[i, 0] = list[i].Id;
+                arr[i, 1] = list[i].KeyApplication;
+                arr[i, 2] = list[i].ModulesName;
+                arr[i, 3] = list[i].Type;
+                arr[i, 4] = list[i].Severity;
+                arr[i, 5] = list[i].Title;
+                arr[i, 9] = Utility.GetPersonName(list[i].AssignedTo);
+                arr[i, 10] = Utility.GetPersonName(list[i].DiscoveryUser);
             }
+            
+
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "L"]];
+            Utility.AddNativieResource(range);
+            range.Value2 = arr;
+
             return nextRow;
         }
         private int BuildNoneTable(int startRow, List<BugEntity> list)
         {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代处理的不是错误/不予处理Bug分析", "说明：", "B", "L",
-                new List<string>() { "BugID", "关闭原因", "问题类别", "严重级别", "Bug标题", "不是错误/不予处理分析" },
-                new List<string>() { "B,B", "C,C", "D,D", "E,E", "F,H", "I,L" },
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代处理的不是错误/不予处理Bug分析", "说明：", "B", "N",
+                new List<string>() { "BugID", "关键应用", "模块", "关闭原因", "问题类别", "严重级别", "Bug标题","指派给", "不是错误/不予处理分析" },
+                new List<string>() { "B,B", "C,C", "D,D", "E,E","F,F", "G,G", "H,J","K,K","L,N" },
                 list.Count);
 
             startRow += 3;
+            object[,] arr = new object[list.Count, 14];
             for (int i = 0; i < list.Count; i++)
             {
-                sheet.Cells[startRow + i, "B"] = list[i].Id;
-                sheet.Cells[startRow + i, "C"] = "";
-                sheet.Cells[startRow + i, "D"] = list[i].Type;
-                sheet.Cells[startRow + i, "E"] = list[i].Severity;
-                sheet.Cells[startRow + i, "F"] = list[i].Title;
-                sheet.Cells[startRow + i, "I"] = "";
+                arr[i, 0] = list[i].Id;
+                arr[i, 1] = list[i].KeyApplication;
+                arr[i, 2] = list[i].ModulesName;
+                arr[i, 3] = list[i].ResolvedReason;
+                arr[i, 4] = list[i].Type;
+                arr[i, 5] = list[i].Severity;
+                arr[i, 6] = list[i].Title;
+                arr[i, 9] = Utility.GetPersonName(list[i].AssignedTo);
+                arr[i, 10] = "";
             }
 
+
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "N"]];
+            Utility.AddNativieResource(range);
+            range.Value2 = arr;
+
             return nextRow;
+        }
+
+        private int BuildNotResolvedTable(int startRow, List<BugEntity> list)
+        {
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代遗留Bug数", "说明：", "B", "L",
+                new List<string>() { "BugID", "关键应用", "模块", "问题类别", "严重级别", "Bug标题", "指派给", "发现人" },
+                new List<string>() { "B,B", "C,C", "D,D", "E,E", "F,F", "G,J", "K,K", "L,L" },
+                list.Count);
+
+            startRow += 3;
+            object[,] arr = new object[list.Count, 12 + 1];
+            for (int i = 0; i < list.Count; i++)
+            {
+                arr[i, 0] = list[i].Id;//这里是col对应的数字，不能按照0开始算
+                arr[i, 1] = list[i].KeyApplication;
+                arr[i, 2] = list[i].ModulesName;
+                arr[i, 3] = list[i].Type;
+                arr[i, 4] = list[i].Severity;
+                arr[i, 5] = list[i].Title;
+                arr[i, 9] = Utility.GetPersonName(list[i].AssignedTo);
+                arr[i, 10] = Utility.GetPersonName(list[i].DiscoveryUser);
+            }
+
+
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "L"]];
+            Utility.AddNativieResource(range);
+            range.Value2 = arr;
+
+            return nextRow;
+        }
+        private void AddBugChart(
+            ExcelInterop.Worksheet sheet, 
+            int chartStartRow, string chartStartCol, int chartEndRow, string chartEndCol,
+            string bugDataSource,string chartTitle) {
+
+            ExcelInterop.Range bugChartRange = sheet.Range[sheet.Cells[chartStartRow, chartStartCol], sheet.Cells[chartEndRow, chartEndCol]];
+
+            ExcelInterop.ChartObjects charts = sheet.ChartObjects(Type.Missing) as ExcelInterop.ChartObjects;
+            Utility.AddNativieResource(charts);
+
+            ExcelInterop.ChartObject bugChartObject = charts.Add(0, 0, bugChartRange.Width, bugChartRange.Height);
+            Utility.AddNativieResource(bugChartObject);
+            ExcelInterop.Chart bugChart = bugChartObject.Chart;//设置图表数据区域。
+            Utility.AddNativieResource(bugChart);
+
+            ExcelInterop.Range datasource = sheet.get_Range(bugDataSource);//不是："B14:B25","F14:F25"
+            Utility.AddNativieResource(datasource);
+            bugChart.SetSourceData(datasource);
+            bugChart.ChartType = ExcelInterop.XlChartType.xlColumnClustered;
+            //bugChart.ChartWizard(datasource, XlChartType.xlColumnClustered, Type.Missing, XlRowCol.xlColumns, 1, 1, false, chartTitle, "", "", Type.Missing);
+            bugChart.ApplyDataLabels();//图形上面显示具体的值
+            
+            //将图表移到数据区域之下。
+            bugChartObject.Left = Convert.ToDouble(bugChartRange.Left)+20;
+            bugChartObject.Top = Convert.ToDouble(bugChartRange.Top) + 20;
+
+            bugChartObject.Locked = false;
+            bugChartObject.Select();
+            bugChartObject.Activate();
         }
     }
 }

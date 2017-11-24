@@ -16,6 +16,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
         public string State;
         public string Type;
         public string Severity;
+        public string ResolvedReason;
         public string Envir;
         public string CreatedDate;
         public string ChangedDate;

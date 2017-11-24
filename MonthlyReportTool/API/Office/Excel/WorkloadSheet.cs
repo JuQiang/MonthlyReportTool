@@ -278,6 +278,8 @@ namespace MonthlyReportTool.API.Office.Excel
             GetOrderedWorkloads(workloads, out workloadCount, out standardWorkingDays, out orderedLoads);
 
             var allbugs = Bug.GetAddedBugs(this.project.Name, API.TFS.Utility.GetBestIteration(this.project.Name));
+            object[,] arr = new object[orderedLoads.Count(), 33];
+            int line = 0;
 
             foreach (var load in orderedLoads)
             {
@@ -291,62 +293,99 @@ namespace MonthlyReportTool.API.Office.Excel
                 {
                     bugCount = allbugs.Where(bug => bug.AssignedTo == load.Key).Count();
                 }
-                double leavetime = load.Where(wl => wl.Type == "请假").Sum(wl => wl.SumHours + wl.OverTimes);
+                double leavetime = load.Where(wl => wl.Type == "请假").Sum(wl => wl.SumHours);
 
                 var dev = load.Where(wl => wl.SupperType == "研发");
                 double devtime = dev.Sum(wl => wl.SumHours + wl.OverTimes);
-                double devtime1 = dev.Where(wl => wl.Type == "开发").Sum(wl => wl.SumHours + wl.OverTimes);
-                double devtime2 = dev.Where(wl => wl.Type == "需求").Sum(wl => wl.SumHours + wl.OverTimes);
-                double devtime3 = dev.Where(wl => wl.Type == "设计").Sum(wl => wl.SumHours + wl.OverTimes);
-                double devtime4 = dev.Where(wl => wl.Type == "测试设计").Sum(wl => wl.SumHours + wl.OverTimes);
-                double devtime5 = dev.Where(wl => wl.Type == "测试执行").Sum(wl => wl.SumHours + wl.OverTimes);
+                double devtime1 = dev.Where(wl => wl.Type == "开发").Sum(wl => wl.SumHours);
+                double devtime2 = dev.Where(wl => wl.Type == "需求").Sum(wl => wl.SumHours);
+                double devtime3 = dev.Where(wl => wl.Type == "设计").Sum(wl => wl.SumHours);
+                double devtime4 = dev.Where(wl => wl.Type == "测试设计").Sum(wl => wl.SumHours);
+                double devtime5 = dev.Where(wl => wl.Type == "测试执行").Sum(wl => wl.SumHours);
                 double devtime6 = devtime - (devtime1 + devtime2 + devtime3 + devtime4 + devtime5);
 
-                double mgrtime = load.Where(wl => wl.SupperType == "管理").Sum(wl => wl.SumHours + wl.OverTimes);
-                double oprtime = load.Where(wl => wl.SupperType == "运维").Sum(wl => wl.SumHours + wl.OverTimes);
-                double doctime = load.Where(wl => wl.SupperType == "文档").Sum(wl => wl.SumHours + wl.OverTimes);
-                double studytime = load.Where(wl => wl.SupperType == "学习交流").Sum(wl => wl.SumHours + wl.OverTimes);
-                double presalestime = load.Where(wl => wl.SupperType == "售前/推广").Sum(wl => wl.SumHours + wl.OverTimes);
-                double othertime = load.Sum(wl => wl.SumHours + wl.OverTimes) - (devtime + mgrtime + doctime + studytime + presalestime);
+                double mgrtime = load.Where(wl => wl.SupperType == "管理").Sum(wl => wl.SumHours);
+                double oprtime = load.Where(wl => wl.SupperType == "运维").Sum(wl => wl.SumHours);
+                double doctime = load.Where(wl => wl.SupperType == "文档").Sum(wl => wl.SumHours);
+                double studytime = load.Where(wl => wl.SupperType == "学习交流").Sum(wl => wl.SumHours);
+                double presalestime = load.Where(wl => wl.SupperType == "售前/推广").Sum(wl => wl.SumHours );
 
-                sheet.Cells[startrow, "B"] = person;
-                sheet.Cells[startrow, "C"] = standardWorkingDays * 8;
-                sheet.Cells[startrow, "D"] = load.Sum(wl => wl.SumHours + wl.OverTimes) - leavetime;
-                sheet.Cells[startrow, "E"] = leavetime;
-                sheet.Cells[startrow, "F"] = String.Format("=D{0}/C{0}", startrow);
-                sheet.Cells[startrow, "G"] = bugCount;
-                sheet.Cells[startrow, "H"] = String.Format("=G{0}/(D{0}/8)", startrow);
-                sheet.Cells[startrow, "I"] = devtime / (load.Sum(wl => wl.SumHours + wl.OverTimes) - leavetime);
-                sheet.Cells[startrow, "J"] = devtime1;
-                sheet.Cells[startrow, "K"] = String.Format("=IF(J{0}<>0,J{0}/D{0}, \"\"", startrow);
-                sheet.Cells[startrow, "L"] = devtime2;
-                sheet.Cells[startrow, "M"] = String.Format("=IF(L{0}<>0,L{0}/D{0}, \"\"", startrow);
-                sheet.Cells[startrow, "N"] = devtime3;
-                sheet.Cells[startrow, "O"] = String.Format("=IF(N{0}<>0,N{0}/D{0}, \"\"", startrow);
-                sheet.Cells[startrow, "P"] = devtime4;
-                sheet.Cells[startrow, "Q"] = String.Format("=IF(P{0}<>0,P{0}/D{0}, \"\"", startrow);
-                sheet.Cells[startrow, "R"] = devtime5;
-                sheet.Cells[startrow, "S"] = String.Format("=IF(R{0}<>0,R{0}/D{0}, \"\"", startrow);
-                sheet.Cells[startrow, "T"] = devtime6;
-                sheet.Cells[startrow, "U"] = String.Format("=IF(T{0}<>0,T{0}/D{0}, \"\"", startrow);
+                double othertime = load.Where(wl => wl.SupperType == "其他").Sum(wl => wl.SumHours)-leavetime;
 
-                sheet.Cells[startrow, "V"] = mgrtime;
-                sheet.Cells[startrow, "W"] = String.Format("=IF(V{0}<>0,V{0}/D{0}, \"\"", startrow);
-                sheet.Cells[startrow, "X"] = oprtime;
-                sheet.Cells[startrow, "Y"] = String.Format("=IF(X{0}<>0,X{0}/D{0}, \"\"", startrow);
-                sheet.Cells[startrow, "Z"] = doctime;
-                sheet.Cells[startrow, "AA"] = String.Format("=IF(Z{0}<>0,Z{0}/D{0}, \"\"", startrow);
-                sheet.Cells[startrow, "AB"] = studytime;
-                sheet.Cells[startrow, "AC"] = String.Format("=IF(AB{0}<>0,AB{0}/D{0}, \"\"", startrow);
-                sheet.Cells[startrow, "AD"] = presalestime;
-                sheet.Cells[startrow, "AE"] = String.Format("=IF(AD{0}<>0,AD{0}/D{0}, \"\"", startrow);
-                sheet.Cells[startrow, "AF"] = othertime;
-                sheet.Cells[startrow, "AG"] = String.Format("=IF(AF{0}<>0,AF{0}/D{0}, \"\"", startrow);
+                //arr[line, "B"] = person;
+                //arr[line, "C"] = standardWorkingDays * 8;
+                //arr[line, "D"] = load.Sum(wl => wl.SumHours) - leavetime;
+                //arr[line, "E"] = leavetime;
+                //arr[line, "F"] = String.Format("=D{0}/C{0}", startrow);
+                //arr[line, "G"] = bugCount;
+                //arr[line, "H"] = String.Format("=G{0}/(D{0}/8)", startrow);
+                //arr[line, "I"] = devtime / (load.Sum(wl => wl.SumHours) - leavetime);
+                //arr[line, "J"] = devtime1;
+                //arr[line, "K"] = String.Format("=IF(J{0}<>0,J{0}/D{0}, \"\"", startrow);
+                //arr[line, "L"] = devtime2;
+                //arr[line, "M"] = String.Format("=IF(L{0}<>0,L{0}/D{0}, \"\"", startrow);
+                //arr[line, "N"] = devtime3;
+                //arr[line, "O"] = String.Format("=IF(N{0}<>0,N{0}/D{0}, \"\"", startrow);
+                //arr[line, "P"] = devtime4;
+                //arr[line, "Q"] = String.Format("=IF(P{0}<>0,P{0}/D{0}, \"\"", startrow);
+                //arr[line, "R"] = devtime5;
+                //arr[line, "S"] = String.Format("=IF(R{0}<>0,R{0}/D{0}, \"\"", startrow);
+                //arr[line, "T"] = devtime6;
+                //arr[line, "U"] = String.Format("=IF(T{0}<>0,T{0}/D{0}, \"\"", startrow);
+
+                //arr[line, "V"] = mgrtime;
+                //arr[line, "W"] = String.Format("=IF(V{0}<>0,V{0}/D{0}, \"\"", startrow);
+                //arr[line, "X"] = oprtime;
+                //arr[line, "Y"] = String.Format("=IF(X{0}<>0,X{0}/D{0}, \"\"", startrow);
+                //arr[line, "Z"] = doctime;
+                //arr[line, "AA"] = String.Format("=IF(Z{0}<>0,Z{0}/D{0}, \"\"", startrow);
+                //arr[line, "AB"] = studytime;
+                //arr[line, "AC"] = String.Format("=IF(AB{0}<>0,AB{0}/D{0}, \"\"", startrow);
+                //arr[line, "AD"] = presalestime;
+                //arr[line, "AE"] = String.Format("=IF(AD{0}<>0,AD{0}/D{0}, \"\"", startrow);
+                //arr[line, "AF"] = othertime;
+                //arr[line, "AG"] = String.Format("=IF(AF{0}<>0,AF{0}/D{0}, \"\"", startrow);
+                arr[line, 0] = person;
+                arr[line, 1] = standardWorkingDays * 8;
+                arr[line, 2] = load.Sum(wl => wl.SumHours) - leavetime;
+                arr[line, 3] = leavetime;
+                arr[line, 4] = String.Format("=D{0}/C{0}", startrow);
+                arr[line, 5] = bugCount;
+                arr[line, 6] = String.Format("=G{0}/(D{0}/8)", startrow);
+                arr[line, 7] = devtime / (load.Sum(wl => wl.SumHours) - leavetime);
+                arr[line, 8] = devtime1;
+                arr[line, 9] = String.Format("=IF(J{0}<>0,J{0}/D{0}, \"\"", startrow);
+                arr[line, 10] = devtime2;
+                arr[line, 11] = String.Format("=IF(L{0}<>0,L{0}/D{0}, \"\"", startrow);
+                arr[line, 12] = devtime3;
+                arr[line, 13] = String.Format("=IF(N{0}<>0,N{0}/D{0}, \"\"", startrow);
+                arr[line, 14] = devtime4;
+                arr[line, 15] = String.Format("=IF(P{0}<>0,P{0}/D{0}, \"\"", startrow);
+                arr[line, 16] = devtime5;
+                arr[line, 17] = String.Format("=IF(R{0}<>0,R{0}/D{0}, \"\"", startrow);
+                arr[line, 18] = devtime6;
+                arr[line, 19] = String.Format("=IF(T{0}<>0,T{0}/D{0}, \"\"", startrow);
+
+                arr[line, 20] = mgrtime;
+                arr[line, 21] = String.Format("=IF(V{0}<>0,V{0}/D{0}, \"\"", startrow);
+                arr[line, 22] = oprtime;
+                arr[line, 23] = String.Format("=IF(X{0}<>0,X{0}/D{0}, \"\"", startrow);
+                arr[line, 24] = doctime;
+                arr[line, 25] = String.Format("=IF(Z{0}<>0,Z{0}/D{0}, \"\"", startrow);
+                arr[line, 26] = studytime;
+                arr[line, 27] = String.Format("=IF(AB{0}<>0,AB{0}/D{0}, \"\"", startrow);
+                arr[line, 28] = presalestime;
+                arr[line, 29] = String.Format("=IF(AD{0}<>0,AD{0}/D{0}, \"\"", startrow);
+                arr[line, 30] = othertime;
+                arr[line, 31] = String.Format("=IF(AF{0}<>0,AF{0}/D{0}, \"\"", startrow);
 
                 startrow++;
+                line++;
             }
 
             ExcelInterop.Range devRange = sheet.Range[sheet.Cells[firstrow, "B"], sheet.Cells[startrow - 1, "AG"]];
+            Utility.AddNativieResource(devRange);
+            devRange.Value2 = arr;
             devRange.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignRight;
             devRange.WrapText = true;
             devRange.RowHeight = 20;
@@ -447,7 +486,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 range.Merge();
             }
 
-            Utility.BuildFormalTableHeader(sheet, 11, "B", 13, "AG");
+            Utility.SetTableHeaderFormat(sheet, 11, "B", 13, "AG");
 
             var testlist = TFS.Utility.GetTestMembers(false);
             List<WorkloadEntity> devload = new List<WorkloadEntity>();

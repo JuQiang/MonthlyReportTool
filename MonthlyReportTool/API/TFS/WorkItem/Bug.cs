@@ -37,6 +37,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
                         State = Convert.ToString(bug["fields"]["System.State"]),
                         Type = Convert.ToString(bug["fields"]["Teld.Bug.Type"]),
                         Severity = Convert.ToString(bug["fields"]["Microsoft.VSTS.Common.Severity"]),
+                        ResolvedReason = Convert.ToString(bug["fields"]["Teld.Bug.ResolvedReason"]),                        
                         Envir = Convert.ToString(bug["fields"]["Teld.Bug.Envir"]),
                         CreatedDate = Convert.ToString(bug["fields"]["System.CreatedDate"]),
                         ChangedDate = Convert.ToString(bug["fields"]["System.ChangedDate"]),

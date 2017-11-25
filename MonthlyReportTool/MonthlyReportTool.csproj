@@ -61,6 +61,7 @@
     <Compile Include="API\Office\Excel\IExcelSheet.cs" />
     <Compile Include="API\Office\Excel\Utility.cs" />
     <Compile Include="API\PPT.cs" />
+    <Compile Include="API\TFS\Agile\Capacity.cs" />
     <Compile Include="API\TFS\Agile\IterationEntity.cs" />
     <Compile Include="API\TFS\TeamProject\Member.cs" />
     <Compile Include="API\TFS\TeamProject\MemberEntity.cs" />
@@ -71,6 +72,7 @@
     <Compile Include="API\TFS\Agile\Iteration.cs" />
     <Compile Include="API\TFS\WorkItem\Backlog.cs" />
     <Compile Include="API\TFS\WorkItem\Bug.cs" />
+    <Compile Include="API\TFS\WorkItem\CodeReview.cs" />
     <Compile Include="API\TFS\WorkItem\CodeReviewEntity.cs" />
     <Compile Include="API\TFS\WorkItem\Commitment.cs" />
     <Compile Include="API\TFS\WorkItem\CommitmentEntity.cs" />

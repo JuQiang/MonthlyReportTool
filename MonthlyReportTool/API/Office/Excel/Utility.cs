@@ -10,6 +10,7 @@ using System.IO;
 using MonthlyReportTool.API.TFS.TeamProject;
 using MonthlyReportTool.API.TFS.Agile;
 using System.Diagnostics;
+using System.Drawing;
 
 namespace MonthlyReportTool.API.Office.Excel
 {
@@ -73,11 +74,13 @@ namespace MonthlyReportTool.API.Office.Excel
             window.DisplayGridlines = false;//都不显示表格线
 
             var ite = TFS.Utility.GetBestIteration(project.Name);
-            workbook.SaveAs(String.Format("c:\\irt\\{0}总结({1}_{2}).xlsx",
+            string fname = String.Format("{0}\\{1}总结({2}_{3}).xlsx",
+                Environment.GetEnvironmentVariable("temp"),
                 ite.Path.Replace("\\", " "),
                 (DateTime.Parse(ite.StartDate)).ToString("yyyyMMdd"),
                 (DateTime.Parse(ite.EndDate)).ToString("yyyyMMdd")
-                ));
+            );
+            workbook.SaveAs(fname);
             workbook.Close();
 
             WriteLog("释放资源.");
@@ -85,19 +88,43 @@ namespace MonthlyReportTool.API.Office.Excel
             {
                 TFS.Utility.ReleaseComObject(com);
             }
+            WriteLog("附件已经保存在：" + fname);
 
             excel.Quit();
         }
 
+        public static void SetFormatBigger(ExcelInterop.Range range, double limit)
+        {
+            Utility.AddNativieResource(range);
+            ExcelInterop.FormatConditions formcond = range.FormatConditions;
+            Utility.AddNativieResource(formcond);
+            ExcelInterop.FormatCondition newcond = formcond.Add(ExcelInterop.XlFormatConditionType.xlCellValue, ExcelInterop.XlFormatConditionOperator.xlGreaterEqual, limit);
+            Utility.AddNativieResource(newcond);
+            ExcelInterop.Font condfont = newcond.Font;
+            Utility.AddNativieResource(condfont);
+            condfont.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Red); //Red letters
+        }
+
+
+        public static void SetFormatSmaller(ExcelInterop.Range range, double limit)
+        {
+            Utility.AddNativieResource(range);
+            ExcelInterop.FormatConditions formcond = range.FormatConditions;
+            Utility.AddNativieResource(formcond);
+            ExcelInterop.FormatCondition newcond = formcond.Add(ExcelInterop.XlFormatConditionType.xlCellValue, ExcelInterop.XlFormatConditionOperator.xlLess, limit);
+            Utility.AddNativieResource(newcond);
+            ExcelInterop.Font condfont = newcond.Font;
+            Utility.AddNativieResource(condfont);
+            condfont.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Red); //Red letters
+        }
         public static string GetPersonName(string fullname)
         {
             if (fullname.Trim().Length < 1) return "";
             return fullname.Split(new char[] { '<' }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
 
         }
-        public static void SetupSheetPercentFormat(ExcelInterop.Worksheet sheet, int startRow, string startCol, int endRow, string endCol)
+        public static void SetupSheetPercentFormat(ExcelInterop.Worksheet sheet, ExcelInterop.Range range)
         {
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, startCol], sheet.Cells[endRow, endCol]];
             Utility.AddNativieResource(range);
             range.NumberFormat = "0%";
         }
@@ -118,6 +145,51 @@ namespace MonthlyReportTool.API.Office.Excel
             bigrangeFont.Size = 11;
         }
 
+
+        public static void SetCellColor(ExcelInterop.Range range, System.Drawing.Color color)
+        {
+            var rangeFont = range.Font;
+            Utility.AddNativieResource(rangeFont);
+            rangeFont.Color = ColorTranslator.ToOle(color);//是OLE的颜色，不是GDI+的颜色。
+        }
+
+        public static void SetCellBorder(ExcelInterop.Range range)
+        {
+            Utility.AddNativieResource(range);
+            var borders = range.Borders;
+            Utility.AddNativieResource(borders);
+            borders.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
+        }
+
+
+        public static void SetCellColor(ExcelInterop.Range range, System.Drawing.Color color, string text, bool bold = true)
+        {
+            string fulltext = Convert.ToString(range.Text);
+            int pos = fulltext.IndexOf(text);
+
+            if (pos < 0) return;
+
+            var tmpchar = range.Characters[pos + 1, text.Length];
+            var tmpfont = tmpchar.Font;
+            Utility.AddNativieResource(tmpchar);
+            Utility.AddNativieResource(tmpfont);
+            tmpfont.Bold = bold;
+            tmpfont.Color = ColorTranslator.ToOle(color);//是OLE的颜色，不是GDI+的颜色。
+        }
+
+
+        public static void SetCellRedColor(ExcelInterop.Range range)
+        {
+            SetCellColor(range, System.Drawing.Color.Red);
+        }
+
+        public static void SetCellAlignAndWrap(ExcelInterop.Range range, ExcelInterop.XlHAlign hAlign = ExcelInterop.XlHAlign.xlHAlignLeft)
+        {
+            Utility.AddNativieResource(range);
+            range.HorizontalAlignment = hAlign;
+            range.VerticalAlignment = ExcelInterop.XlVAlign.xlVAlignCenter;
+            range.WrapText = true;
+        }
         public static int BuildFormalTable(ExcelInterop.Worksheet sheet, int row, string title, string description,
             string startCol, string endCol, List<string> colnames, List<string> mergedInfo, int rowCount)
         {
@@ -169,7 +241,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 colRange.Merge();
 
             }
-            
+
             ExcelInterop.Range firstRow = sheet.get_Range(String.Format("{0}{1}:{2}{3}", startCol, row, endCol, row));
             Utility.AddNativieResource(firstRow);
             firstRow.RowHeight = 20;
@@ -187,28 +259,27 @@ namespace MonthlyReportTool.API.Office.Excel
                 //firstRow.Copy(startCol + ":" + row + i);
             }
 
-            SetTableHeaderFormat(sheet, row-1, startCol, row-1, endCol);
-            
+            SetTableHeaderFormat(sheet, sheet.get_Range(String.Format("{0}{1}:{2}{3}", startCol, row - 1, endCol, row - 1)));
+
             return row + rowCount + 2;
         }
 
-        public static void SetTableHeaderFormat(ExcelInterop.Worksheet sheet, int startRow, string startCol, int endRow, string endCol)
+        public static void SetTableHeaderFormat(ExcelInterop.Worksheet sheet, ExcelInterop.Range range, bool bold = true)
         {
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, startCol], sheet.Cells[endRow, endCol]];
+            SetCellAlignAndWrap(range);
             Utility.AddNativieResource(range);
-            range.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignCenter;
-            range.VerticalAlignment = ExcelInterop.XlVAlign.xlVAlignCenter;
-            range.WrapText = true;
 
-            var borders = range.Borders;
-            Utility.AddNativieResource(borders);
-            borders.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
+            SetCellBorder(range);
 
             var interior = range.Interior;
             Utility.AddNativieResource(interior);
             interior.Color = System.Drawing.Color.DarkGray.ToArgb();
 
+            var font = range.Font;
+            Utility.AddNativieResource(font);
+            font.Bold = bold;
 
+            Utility.SetCellAlignAndWrap(range, ExcelInterop.XlHAlign.xlHAlignCenter);
         }
 
         public static void BuildFormalSheetTitle(ExcelInterop.Worksheet sheet, int startRow, string startCol, int endRow, string endCol, string title, int columnWidth = 16)

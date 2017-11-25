@@ -27,7 +27,14 @@ namespace MonthlyReportTool.API.Office.Excel
             var ite = TFS.Utility.GetBestIteration(project.Name);
             #region 1st paragraph
             string[] tmp = ite.Path.Split(new char[] { '\\' });
-            sheet.Cells[5, "D"] = String.Format("{0} {1} 迭代总结", project.Description, tmp[1]);
+            string title = String.Empty;
+            for (int i = 1; i < tmp.Length; i++)
+            {
+                title += tmp[i];
+                title += "\\";
+            }
+            if (title.Length > 0) title = title.Substring(0, title.Length - 1);
+            sheet.Cells[5, "D"] = String.Format("{0} {1} 迭代总结", project.Description, title);
             ExcelInterop.Range range = sheet.Range[sheet.Cells[5, "C"], sheet.Cells[6, "K"]];
             Utility.AddNativieResource(range);
             range.Merge();
@@ -137,6 +144,8 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.AddNativieResource(border4);
             border4.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
             #endregion 3rd paragraph
+
+            sheet.Cells[1, "A"] = "";
         }
     }
 }

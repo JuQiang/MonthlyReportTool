@@ -26,10 +26,13 @@ namespace MonthlyReportTool.API.Office.Excel
             startRow = BuildTable2(startRow);
             startRow = BuildTable3(startRow);
             startRow = BuildTable4(startRow);
+
+            sheet.Cells[1, "A"] = "";
         }
         private void BuildTitle()
         {
             Utility.BuildFormalSheetTitle(sheet, 2, "B", 2, "M", "迭代过程总结", columnWidth : 8);
+            Utility.SetCellRedColor(sheet.Cells[2, "B"]);
         }
 
         private void Format2Columns(int startRow)
@@ -41,7 +44,7 @@ namespace MonthlyReportTool.API.Office.Excel
         private int BuildTable1(int startRow)
         {
             //计划,需求,设计,开发,测试,发布,维护,日常管理
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "上迭代改进建议落地情况", "说明：", "B", "M",
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "上迭代改进建议落地情况", "说明：分类部分，请根据实际情况，使用下拉选择合适的分类", "B", "M",
                 new List<string>() { "序号", "分类", "待改进内容", "负责人", "是否落地", "具体改进说明" },
                 new List<string>() { "B,B", "C,C", "D,G", "H,H", "I,I", "J,M" },
                 4);
@@ -52,6 +55,7 @@ namespace MonthlyReportTool.API.Office.Excel
             sheet.Cells[startRow + 6, "B"] = 4;
 
             Format2Columns(startRow);
+            Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "分类部分，请根据实际情况，使用下拉选择合适的分类");
 
             return 12;
         }
@@ -68,7 +72,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
         private int BuildTable2(int startRow)
         {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "做得好的方面", "说明：迭代过程中好的方面", "B", "M",
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "做得好的方面", "说明：迭代过程中好的方面；分类部分，请根据实际情况，使用下拉选择合适的分类", "B", "M",
                 new List<string>() { "序号", "分类", "描述" },
                 new List<string>() { "B,B", "C,C", "D,M" },
                 4);
@@ -80,13 +84,14 @@ namespace MonthlyReportTool.API.Office.Excel
             sheet.Cells[startRow + 6, "B"] = 4; 
 
             Format2Columns(startRow);
+            Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "分类部分，请根据实际情况，使用下拉选择合适的分类");
 
             return startRow+8;
         }
 
         private int BuildTable3(int startRow)
         {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "待改进的方面", "说明：影响迭代进度、质量等方面的待改进的问题", "B", "M",
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "待改进的方面", "说明：影响迭代进度、质量等方面的待改进的问题；分类部分，请根据实际情况，使用下拉选择合适的分类", "B", "M",
                 new List<string>() { "序号", "分类", "描述" },
                 new List<string>() { "B,B", "C,C", "D,M" },
                 4);
@@ -98,13 +103,14 @@ namespace MonthlyReportTool.API.Office.Excel
             sheet.Cells[startRow + 6, "B"] = 4; 
 
             Format2Columns(startRow);
+            Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "分类部分，请根据实际情况，使用下拉选择合适的分类");
 
             return startRow + 8;
         }
 
         private int BuildTable4(int startRow)
         {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "过程改进建议/措施", "说明：待改进方面的建议及改进措施", "B", "M",
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "过程改进建议/措施", "说明：待改进方面的建议及改进措施；分类部分，请根据实际情况，使用下拉选择合适的分类", "B", "M",
                 new List<string>() { "序号", "分类", "待改进内容","负责人" },
                 new List<string>() { "B,B", "C,C", "D,L","M,M" },
                 4);
@@ -116,6 +122,7 @@ namespace MonthlyReportTool.API.Office.Excel
             sheet.Cells[startRow + 6, "B"] = 4; 
 
             Format2Columns(startRow);
+            Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "分类部分，请根据实际情况，使用下拉选择合适的分类");
 
             return startRow + 8;
         }

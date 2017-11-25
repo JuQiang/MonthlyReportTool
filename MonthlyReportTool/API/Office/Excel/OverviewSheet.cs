@@ -92,6 +92,7 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.AddNativieResource(interior);
             interior.Color = System.Drawing.Color.DarkGray.ToArgb();
 
+            sheet.Cells[1, "A"] = "";
         }
     }
 }

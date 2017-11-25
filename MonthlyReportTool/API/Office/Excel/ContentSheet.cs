@@ -29,6 +29,8 @@ namespace MonthlyReportTool.API.Office.Excel
             allrange.VerticalAlignment = ExcelInterop.XlVAlign.xlVAlignCenter;
 
             sheet.Cells[5, "D"] = "这个目录没个鸟用。";
+
+            sheet.Cells[1, "A"] = "";
         }
     }
 }

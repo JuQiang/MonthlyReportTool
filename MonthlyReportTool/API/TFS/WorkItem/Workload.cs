@@ -62,5 +62,37 @@ namespace MonthlyReportTool.API.TFS.WorkItem
             return list;
 
         }
+
+        public static Tuple<double,double,double> GetEstimated(string project, IterationEntity ite)
+        {
+            List<WorkloadEntity> list = new List<WorkloadEntity>();
+
+            string wiql = API.TFS.Utility.GetQueryClause("共享查询%2F迭代总结数据查询%2F10%20工作量统计%2F00本迭代_任务评估工作量以及实际工作量");
+            wiql = API.TFS.Utility.ReplaceProjectAndIterationFromWIQL(wiql);
+
+            string sql = String.Format(wiql,
+                project,
+                ite.Path                
+            );
+
+            string responseBody = Utility.ExecuteQueryBySQL(sql);
+            var workloads = Utility.ConvertWorkitemFlatQueryResult2Array(responseBody);
+            
+
+            double esthour = 0.0d;
+            double acthour = 0.0d;
+            double lefthour = 0.0d;
+            foreach (var workload in workloads)
+            {
+                esthour += Convert.ToDouble(workload["fields"]["Teld.Scrum.WorkItem.Task.EstimateHours"]);
+                acthour += Convert.ToDouble(workload["fields"]["Teld.Scrum.WorkItem.Task.ActualHours"]);
+                lefthour += Convert.ToDouble(workload["fields"]["Microsoft.VSTS.Scheduling.RemainingWork"]);
+            }
+
+            Tuple<double, double,double> ret = Tuple.Create<double, double, double>(esthour, acthour, lefthour);
+            return ret;
+
+        }
+        //
     }
 }

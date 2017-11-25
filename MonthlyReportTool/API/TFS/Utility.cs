@@ -145,8 +145,7 @@ namespace MonthlyReportTool.API.TFS
     workitems,
     columns
     );
-
-
+           
             using (HttpClient client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Accept.Add(
@@ -412,7 +411,7 @@ namespace MonthlyReportTool.API.TFS
             if ((false==forceRefresh) && (testMembers.Count > 0)) return testMembers;
 
             testMembers.Clear();
-            var list = API.TFS.TeamProject.Member.RetrieveMemberList("orgportal", "TestManager");
+            var list = API.TFS.TeamProject.Member.RetrieveMemberListByTeam("orgportal", "TestManager");
             foreach (var me in list)
             {
                 testMembers.Add(me.FullName);
@@ -786,6 +785,28 @@ namespace MonthlyReportTool.API.TFS
             com = null;
         }
 
+        public static int GetStandardWorkingDays(string prjName, IterationEntity ite)
+        {
+            int standardWorkingDays;
+            var daysoff = Iteration.GetProjectIterationDaysOff(prjName, ite.Id);
+            standardWorkingDays = (int)((DateTime.Parse(ite.EndDate) - DateTime.Parse(ite.StartDate)).TotalDays) + 1 - daysoff.Count;
+            for (DateTime dt = DateTime.Parse(ite.StartDate); dt < DateTime.Parse(ite.EndDate).AddDays(1); dt = dt.AddDays(1))
+            {
+                bool duplicated = false;
+                for (int i = 0; i < daysoff.Count; i++)
+                {
+                    if (dt.Equals(DateTime.Parse(daysoff[i])))
+                    {
+                        duplicated = true;
+                        break;
+                    }
+                }
+                if (duplicated) continue;//如果在迭代里面又单独设置了休息日，那么要和取出来的daysoff排除掉。
+                if (dt.DayOfWeek == DayOfWeek.Sunday) standardWorkingDays--;//再刨掉礼拜天
+            }
+
+            return standardWorkingDays;
+        }
         public static IterationEntity GetBestIteration(string project)
         {
             DateTime now = DateTime.Now;

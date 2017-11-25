@@ -38,6 +38,8 @@ namespace MonthlyReportTool.API.Office.Excel
             startRow = BuildCodeReviewTable(startRow, this.bugList[5]);
             startRow = BuildAddedTable(startRow, this.bugList[0]);
             startRow = BuildNotResolvedTable(startRow, this.bugList[2]);
+
+            sheet.Cells[1, "A"] = "";
         }
 
         private int BuildCodeReviewTable(int startRow, List<BugEntity> list)
@@ -51,7 +53,7 @@ namespace MonthlyReportTool.API.Office.Excel
             object[,] arr = new object[list.Count, 12];
             for (int i = 0; i < list.Count; i++)
             {
-                arr[i, 0] = list[i].Id;
+                arr[i, 0] = list[i].Id.ToString();
                 arr[i, 1] = list[i].KeyApplication;
                 arr[i, 2] = list[i].ModulesName;
                 arr[i, 3] = list[i].DetectionMode;
@@ -65,6 +67,8 @@ namespace MonthlyReportTool.API.Office.Excel
             ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "L"]];
             Utility.AddNativieResource(range);
             range.Value2 = arr;
+
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "B"]]);
 
             return nextRow;
         }
@@ -178,9 +182,7 @@ namespace MonthlyReportTool.API.Office.Excel
             sheet.Cells[12, "E"] = "Bug遗留率";
             sheet.Cells[12, "F"] = "=1-C12";
 
-            Utility.SetupSheetPercentFormat(sheet, 12, "C", 12, "C");
-            Utility.SetupSheetPercentFormat(sheet, 12, "F", 12, "F");
-            Utility.SetupSheetPercentFormat(sheet, 7, "I", 9, "I");
+            Utility.SetupSheetPercentFormat(sheet, sheet.get_Range("C12:C12,F12:F12,I7:I9"));
 
             List<List<BugEntity>> list = new List<List<BugEntity>>();
             list.Add(this.bugList[0]);
@@ -243,7 +245,9 @@ namespace MonthlyReportTool.API.Office.Excel
             sheet.Cells[startRow + members.Count, "E"] = String.Format("=SUM(E{0}:E{1})", startRow, startRow + members.Count - 1);
             sheet.Cells[startRow + members.Count, "F"] = String.Format("=E{0}/(D{0}+E{0})", startRow + members.Count);
 
-            Utility.SetupSheetPercentFormat(sheet, startRow, "F", startRow + members.Count, "F");
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + members.Count, "B"]]);
+            Utility.SetCellBorder(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + members.Count, "B"]]);
+            Utility.SetupSheetPercentFormat(sheet,sheet.Range[sheet.Cells[startRow, "F"],sheet.Cells[startRow + members.Count, "F"]]);
 
             AddBugChart(sheet,
                 startRow-2, "G", startRow + members.Count-1, "L",
@@ -261,7 +265,7 @@ namespace MonthlyReportTool.API.Office.Excel
         private int BuildReasonTable(int startRow, List<BugEntity> list)
         {
             int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "Bug产生原因分析", "说明：主要针对严重级别为1、2级的Bug进行原因分析", "B", "N",
-                new List<string>() { "BugID","关键应用","模块", "问题类别", "严重级别", "Bug标题", "原因分析", "指派给", "发现人" },
+                new List<string>() { "BugID","关键应用","模块", "问题类别", "严重级别", "Bug标题", "指派给", "发现人", "原因分析"},
                 new List<string>() { "B,B", "C,C", "D,D","E,E","F,F", "G,I", "J,J", "K,K", "L,N" },
                 list.Count);
 
@@ -276,13 +280,17 @@ namespace MonthlyReportTool.API.Office.Excel
                 arr[i, 3] = list[i].Type;
                 arr[i, 4] = list[i].Severity;
                 arr[i, 5] = list[i].Title;
-                arr[i, 9] = Utility.GetPersonName(list[i].AssignedTo);
-                arr[i, 10] = Utility.GetPersonName(list[i].DiscoveryUser);
+                arr[i, 8] = Utility.GetPersonName(list[i].AssignedTo);
+                arr[i, 9] = Utility.GetPersonName(list[i].DiscoveryUser);
             }
 
             ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "L"]];
             Utility.AddNativieResource(range);
             range.Value2 = arr;
+
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "B"]]);
+
+            Utility.SetCellRedColor(sheet.Cells[startRow - 1, "L"]);
 
             return nextRow;
         }
@@ -313,6 +321,8 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.AddNativieResource(range);
             range.Value2 = arr;
 
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "B"]]);
+
             return nextRow;
         }
         private int BuildNoneTable(int startRow, List<BugEntity> list)
@@ -342,6 +352,9 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.AddNativieResource(range);
             range.Value2 = arr;
 
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "B"]]);
+            Utility.SetCellRedColor(sheet.Cells[startRow - 1, "L"]);
+
             return nextRow;
         }
 
@@ -370,6 +383,8 @@ namespace MonthlyReportTool.API.Office.Excel
             ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "L"]];
             Utility.AddNativieResource(range);
             range.Value2 = arr;
+
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "B"]]);
 
             return nextRow;
         }

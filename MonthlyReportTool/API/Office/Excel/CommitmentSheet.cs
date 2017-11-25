@@ -32,6 +32,12 @@ namespace MonthlyReportTool.API.Office.Excel
             startRow = BuildFailedReasonTable(startRow, this.commitmentList[5]);
             startRow = BuildRemovedReasonTable(startRow, this.commitmentList[2]);
             BuildExceptionTable(startRow, this.commitmentList[1]);
+
+            var range = sheet.get_Range("K1:M1");
+            Utility.AddNativieResource(range);
+            range.ColumnWidth = 10;
+
+            sheet.Cells[1, "A"] = "";
         }
 
         private void BuildTitle()
@@ -111,6 +117,8 @@ namespace MonthlyReportTool.API.Office.Excel
                 }
             }
 
+            Utility.SetCellBorder(sheet.Range[sheet.Cells[5, colsname[0].Item1], sheet.Cells[5 + cols.GetLength(0) - 1, colsname[0].Item2]]);
+
             BuildTestTableTitle();
 
             sheet.Cells[7, "C"] = "=C9-C6-C8";
@@ -137,7 +145,7 @@ namespace MonthlyReportTool.API.Office.Excel
             sheet.Cells[9, "D"] = all.Where(commitment => commitment.SubmitType == "Hotfix补丁-紧急需求").Count();
             sheet.Cells[9, "E"] = all.Where(commitment => commitment.SubmitType == "Hotfix补丁-BUG").Count();
 
-            Utility.SetupSheetPercentFormat(sheet, 10, "C", 10, "E");
+            Utility.SetupSheetPercentFormat(sheet, sheet.get_Range("C10:E10"));
 
         }
         private void BuildTestTableTitle()
@@ -179,15 +187,14 @@ namespace MonthlyReportTool.API.Office.Excel
                     colRange.RowHeight = 20;
                     colRange.Merge();
                     sheet.Cells[5 + row, colsname[col].Item1] = cols[row, col];
-
-                    var border = colRange.Borders;
-                    Utility.AddNativieResource(border);
-                    border.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
                 }
             }
+            Utility.SetCellBorder(sheet.Range[sheet.Cells[5, colsname[0].Item1], sheet.Cells[5 + cols.GetLength(0) - 1, colsname[colsname.Count-1].Item2]]);
 
             BuildPerformanceTestTableTitle();
 
+            sheet.Cells[6, "I"] = this.commitmentList[4].Count;
+            sheet.Cells[7, "I"] = this.commitmentList[3].Count;
             sheet.Cells[9, "I"] = "=IF(I7<>0,I6/I7,\"\")";
         }
         private void BuildPerformanceTestTableTitle()
@@ -208,14 +215,13 @@ namespace MonthlyReportTool.API.Office.Excel
         private int BuildFailedTable(int startRow, List<CommitmentEntity> list)
         {
             var commitments = list.GroupBy(commitment => commitment.SubmitUser);
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "提交单打回次数及一次通过率，按人员统计", "说明：一次通过率=一次通过数/提交单总数\r\n按一次通过率排序", "B", "G",
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "提交单打回次数及一次通过率，按人员统计", "说明：一次通过率=一次通过数/提交单总数\r\n         按一次通过率排序", "B", "G",
                 new List<string>() { "姓名", "一次通过数", "被打回一次数", "被打回两次数", "被打回两次以上数", "一次通过率" },
                 new List<string>() { "B,B", "C,C", "D,D", "E,E", "F,F", "G,G" },
                 commitments.Count());
 
-
+            Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "按一次通过率排序");
             startRow += 3;
-            int firstRow = startRow;
 
             List<Tuple<string, int, int, int, int, double>> cells = new List<Tuple<string, int, int, int, int, double>>();
             foreach (var commitment in commitments)
@@ -246,7 +252,9 @@ namespace MonthlyReportTool.API.Office.Excel
 
             }
 
-            Utility.SetupSheetPercentFormat(sheet, firstRow, "G", startRow + cells.Count - 1, "G");
+            Utility.SetupSheetPercentFormat(sheet,sheet.Range[sheet.Cells[startRow, "G"],sheet.Cells[startRow + cells.Count - 1, "G"]]);
+            Utility.SetFormatSmaller(sheet.Range[sheet.Cells[startRow, "G"], sheet.Cells[startRow + cells.Count - 1, "G"]], 1.00d);
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + cells.Count - 1, "B"]]);
 
             return nextRow;
         }
@@ -272,14 +280,17 @@ namespace MonthlyReportTool.API.Office.Excel
                 sheet.Cells[i + startRow, "I"] = "";
                 if (commitments[i].SubmitUser.Trim().Length > 0)
                 {
-                    sheet.Cells[i + startRow, "K"] = commitments[i].SubmitUser.Split(new char[] { '<' }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+                    sheet.Cells[i + startRow, "K"] = Utility.GetPersonName(commitments[i].SubmitUser);
                 }
                 if (commitments[i].AssignedTo.Trim().Length > 0)
                 {
-                    sheet.Cells[i + startRow, "L"] = commitments[i].AssignedTo.Split(new char[] { '<' }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+                    sheet.Cells[i + startRow, "L"] = Utility.GetPersonName(commitments[i].AssignedTo);
                 }
                 sheet.Cells[i + startRow, "M"] = "";
             }
+
+            Utility.SetCellRedColor(sheet.Cells[startRow-1, "I"]);
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + commitments.Count - 1, "B"]]);
 
             return nextRow;
 
@@ -303,13 +314,16 @@ namespace MonthlyReportTool.API.Office.Excel
 
                 if (list[i].SubmitUser.Trim().Length > 0)
                 {
-                    sheet.Cells[i + startRow, "K"] = list[i].SubmitUser.Split(new char[] { '<' }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+                    sheet.Cells[i + startRow, "K"] = Utility.GetPersonName(list[i].SubmitUser);
                 }
                 if (list[i].AssignedTo.Trim().Length > 0)
                 {
-                    sheet.Cells[i + startRow, "L"] = list[i].AssignedTo.Split(new char[] { '<' }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+                    sheet.Cells[i + startRow, "L"] = Utility.GetPersonName(list[i].AssignedTo);
                 }
             }
+
+            Utility.SetCellRedColor(sheet.Cells[startRow-1, "H"]);
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "B"]]);
 
             return nextRow;
 
@@ -342,13 +356,17 @@ namespace MonthlyReportTool.API.Office.Excel
 
                 if (commitments[i].SubmitUser.Trim().Length > 0)
                 {
-                    sheet.Cells[i + startRow, "L"] = commitments[i].SubmitUser.Split(new char[] { '<' }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+                    sheet.Cells[i + startRow, "L"] = Utility.GetPersonName(commitments[i].SubmitUser);
                 }
                 if (commitments[i].AssignedTo.Trim().Length > 0)
                 {
-                    sheet.Cells[i + startRow, "M"] = commitments[i].AssignedTo.Split(new char[] { '<' }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+                    sheet.Cells[i + startRow, "M"] = Utility.GetPersonName(commitments[i].AssignedTo);
                 }
             }
+
+            Utility.SetCellRedColor(sheet.Cells[startRow-1, "I"]);
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + commitments.Count - 1, "B"]]);
+
             return nextRow;
         }
     }

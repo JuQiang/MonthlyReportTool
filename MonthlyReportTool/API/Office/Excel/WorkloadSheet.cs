@@ -52,6 +52,12 @@ namespace MonthlyReportTool.API.Office.Excel
             startRow = Build60Analysis(startRow, workloads);
             startRow = BUild50Analysis(startRow, dataRow);
 
+            ExcelInterop.Range colb = sheet.Cells[1, "B"];
+            Utility.AddNativieResource(colb);
+            colb.ColumnWidth = 10;
+
+            sheet.Cells[1, "A"] = "";
+
         }
 
         private int BUild50Analysis(int startRow, int dataRow)
@@ -63,6 +69,8 @@ namespace MonthlyReportTool.API.Office.Excel
                 5
                 );
 
+            Utility.SetCellRedColor(sheet.Cells[startRow, "B"]);
+            
             ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow + 2, "B"], sheet.Cells[startRow + 2 + 5, "U"]];
             Utility.AddNativieResource(range);
             range.Merge();
@@ -79,18 +87,18 @@ namespace MonthlyReportTool.API.Office.Excel
                 ds.Count()
                 );
 
+            Utility.SetCellRedColor(sheet.Cells[startRow + 2, "F"]);
+            startRow += 3;
             for (int i = 0; i < ds.Count(); i++)
             {
-                this.sheet.Cells[startRow + 3 + i, "B"] = ds[i].Item1;
-                this.sheet.Cells[startRow + 3 + i, "C"] = ds[i].Item3;
-                this.sheet.Cells[startRow + 3 + i, "F"] = "";
+                this.sheet.Cells[startRow+ i, "B"] = ds[i].Item1;
+                this.sheet.Cells[startRow+ i, "C"] = ds[i].Item3;
+                this.sheet.Cells[startRow+ i, "F"] = "";
             }
 
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow + 3, "B"], sheet.Cells[startRow + 3 + ds.Count() - 1, "B"]];
-            Utility.AddNativieResource(range);
-            range.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignCenter;
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + ds.Count - 1, "B"]]);
 
-            Utility.SetupSheetPercentFormat(sheet, startRow + 3, "C", startRow + 3 + ds.Count() - 1, "C");
+            Utility.SetupSheetPercentFormat(sheet,sheet.Range[sheet.Cells[ startRow , "C"],sheet.Cells[startRow + ds.Count() - 1, "C"]]);
 
             return nextRow;
         }
@@ -98,25 +106,25 @@ namespace MonthlyReportTool.API.Office.Excel
         private int Build115Analysis(int startRow, List<Tuple<string, double, double>> workloads)
         {
 
-            var ds = workloads.Where(wl => wl.Item2 >= 1.15d).ToList();
+            var ds = workloads.Where(wl => wl.Item2 >= 1.15d).OrderByDescending(wl=>wl.Item2).ToList();
             int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "工作量饱和度超115%分析", "说明：对工作量饱和度超过115%（包括115%）的同事，分别做原因分析", "B", "U",
                 new List<string>() { "团队成员", "工作量饱和度", "工作量饱和度超115%原因分析" },
                 new List<string>() { "B,B", "C,E", "F,U" },
                 ds.Count()
                 );
 
+            Utility.SetCellRedColor(sheet.Cells[startRow + 2, "F"]);
+            startRow += 3;
             for (int i = 0; i < ds.Count(); i++)
             {
-                this.sheet.Cells[startRow + 3 + i, "B"] = ds[i].Item1;
-                this.sheet.Cells[startRow + 3 + i, "C"] = ds[i].Item2;
-                this.sheet.Cells[startRow + 3 + i, "F"] = "";
+                this.sheet.Cells[startRow + i, "B"] = ds[i].Item1;
+                this.sheet.Cells[startRow + i, "C"] = ds[i].Item2;
+                this.sheet.Cells[startRow + i, "F"] = "";
             }
 
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow + 3, "B"], sheet.Cells[startRow + 3 + ds.Count() - 1, "B"]];
-            Utility.AddNativieResource(range);
-            range.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignCenter;
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + ds.Count - 1, "B"]]);
 
-            Utility.SetupSheetPercentFormat(sheet, startRow + 3, "C", startRow + 3 + ds.Count() - 1, "C");
+            Utility.SetupSheetPercentFormat(sheet,sheet.Range[sheet.Cells[startRow , "C"],sheet.Cells[startRow + ds.Count() - 1, "C"]]);
 
             return nextRow;
         }
@@ -158,7 +166,7 @@ namespace MonthlyReportTool.API.Office.Excel
         private int BuildSummaryTable()
         {
             int featuresCount = 1;
-            string[] cols = new string[] { "团队成员标准工时\r\n（迭代天数*人数×8）", "实际投入总工时", "工作\r\n饱和度", "研发投入总工时", "研发投入\r\n占比", "容量投入总工时\r\n（迭代天数×人数×容量）", "评估总工时\r\n（迭代任务的评估工时）", "剩余工时" };
+            string[] cols = new string[] { "团队成员标准工时\r\n（迭代天数*人数×8）", "实际投入总工时", "工作\r\n饱和度", "研发投入总工时", "研发投入\r\n占比", "容量投入总工时\r\n（迭代天数×人数×容量）", "评估总工时\r\n（迭代任务的评估工时）", "迭代任务的实际工时", "计划偏差", "剩余工时" };
             List<Tuple<string, string>> colsname = new List<Tuple<string, string>>(){
                 Tuple.Create<string,string>("B","E"),
                 Tuple.Create<string,string>("F","H"),
@@ -168,6 +176,9 @@ namespace MonthlyReportTool.API.Office.Excel
                 Tuple.Create<string,string>("O","Q"),
                 Tuple.Create<string,string>("R","T"),
                 Tuple.Create<string,string>("U","W"),
+                Tuple.Create<string,string>("X","Z"),
+                Tuple.Create<string,string>("AA","AC"),
+
             };
 
             for (int i = 0; i < cols.Length; i++)
@@ -177,36 +188,29 @@ namespace MonthlyReportTool.API.Office.Excel
                 colRange.Merge();
                 sheet.Cells[6, colsname[i].Item1] = cols[i];
 
-                var border = colRange.Borders;
-                Utility.AddNativieResource(border);
-                border.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
+                
             }
 
-            ExcelInterop.Range tableRange = sheet.Range[sheet.Cells[6, "B"], sheet.Cells[6, "W"]];
-            Utility.AddNativieResource(tableRange);
-            tableRange.RowHeight = 50;
-            tableRange.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignCenter;
+            
 
-            var interior = tableRange.Interior;
+            ExcelInterop.Range firstRow = sheet.Range[sheet.Cells[6, "B"], sheet.Cells[6, "AC"]];
+            Utility.AddNativieResource(firstRow);
+            var border = firstRow.Borders;
+            Utility.AddNativieResource(border);
+            border.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
+
+            firstRow.Copy();
+
+            ExcelInterop.Range nextRow = sheet.Range[sheet.Cells[7, "B"], sheet.Cells[7, "AC"]];
+            Utility.AddNativieResource(nextRow);
+            nextRow.PasteSpecial(ExcelInterop.XlPasteType.xlPasteFormats);
+
+            firstRow.RowHeight = 50;
+            firstRow.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignCenter;
+
+            var interior = firstRow.Interior;
             Utility.AddNativieResource(interior);
-            interior.Color = System.Drawing.Color.DarkGray.ToArgb();
-
-            //TODO : 放入GIT
-            for (int i = 0; i < featuresCount; i++)
-            {
-                for (int j = 0; j < cols.Length; j++)
-                {
-                    ExcelInterop.Range colRange = sheet.Range[sheet.Cells[7 + i, colsname[j].Item1], sheet.Cells[7 + i, colsname[j].Item2]];
-                    Utility.AddNativieResource(colRange);
-                    colRange.RowHeight = 20;
-                    colRange.Merge();
-                    sheet.Cells[7 + i, colsname[j].Item1] = String.Format("数据行:{0}，列{1}", 7 + i, j + 1);
-
-                    var border = colRange.Borders;
-                    Utility.AddNativieResource(border);
-                    border.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
-                }
-            }
+            interior.Color = System.Drawing.Color.LightGray.ToArgb();
 
             return 7 + featuresCount + 2;
         }
@@ -234,8 +238,7 @@ namespace MonthlyReportTool.API.Office.Excel
             titleRange.RowHeight = 120;
             titleRange.Merge();
             sheet.Cells[10, "B"] = "说明：包括测试人员的工作量统计\r\n" +
-           "        开发人员按照团队成员的研发工作量占比排序\r\n" +
-           "        测试人员按照团队成员的Bug产出率排序\r\n" +
+           "        按照实际饱和度排序（开发人员和测试人员分开排序）\r\n" +
            "        各明细工作量是实际填写的工作日志某类的工作量，和工作日志中分类一致\r\n" +
            "        Bug数：对于开发人员是本迭代被测试出的Bug总数\r\n" +
            "                 对于测试人员是本迭代测试出的Bug总数";
@@ -244,19 +247,7 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.AddNativieResource(titleFont);
             titleFont.Size = 11;
 
-            var tmpchar = titleRange.Characters[1, 3];
-
-            var tmpfont = tmpchar.Font;
-            Utility.AddNativieResource(tmpchar);
-            Utility.AddNativieResource(tmpfont);
-            tmpfont.Bold = true;
-
-            var tmpchar2 = titleRange.Characters[30, 45];
-
-            var tmpfont2 = tmpchar2.Font;
-            Utility.AddNativieResource(tmpchar2);
-            Utility.AddNativieResource(tmpfont2);
-            tmpfont2.Color = System.Drawing.Color.Red.ToArgb();
+            Utility.SetCellColor(sheet.Cells[10, "B"], System.Drawing.Color.Red, "按照实际饱和度排序（开发人员和测试人员分开排序）");
 
             ExcelInterop.Range titleRange2 = sheet.Range[sheet.Cells[10, "L"], sheet.Cells[10, "W"]];
             titleRange2.Merge();
@@ -272,10 +263,8 @@ namespace MonthlyReportTool.API.Office.Excel
         {
             int firstrow = startrow;
 
-            int standardWorkingDays = 0;
-            IOrderedEnumerable<IGrouping<string, WorkloadEntity>> orderedLoads;
-            int workloadCount = 0;
-            GetOrderedWorkloads(workloads, out workloadCount, out standardWorkingDays, out orderedLoads);
+            int standardWorkingDays = TFS.Utility.GetStandardWorkingDays(this.project.Name, TFS.Utility.GetBestIteration(this.project.Name));
+            var orderedLoads = GetOrderedWorkloads(workloads);
 
             var allbugs = Bug.GetAddedBugs(this.project.Name, API.TFS.Utility.GetBestIteration(this.project.Name));
             object[,] arr = new object[orderedLoads.Count(), 33];
@@ -283,7 +272,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
             foreach (var load in orderedLoads)
             {
-                string person = load.Key.Split(new char[] { '<' }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+                string person = Utility.GetPersonName(load.Key);
                 int bugCount = 0;
                 if (isTester)
                 {
@@ -296,7 +285,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 double leavetime = load.Where(wl => wl.Type == "请假").Sum(wl => wl.SumHours);
 
                 var dev = load.Where(wl => wl.SupperType == "研发");
-                double devtime = dev.Sum(wl => wl.SumHours + wl.OverTimes);
+                double devtime = dev.Sum(wl => wl.SumHours);
                 double devtime1 = dev.Where(wl => wl.Type == "开发").Sum(wl => wl.SumHours);
                 double devtime2 = dev.Where(wl => wl.Type == "需求").Sum(wl => wl.SumHours);
                 double devtime3 = dev.Where(wl => wl.Type == "设计").Sum(wl => wl.SumHours);
@@ -308,43 +297,10 @@ namespace MonthlyReportTool.API.Office.Excel
                 double oprtime = load.Where(wl => wl.SupperType == "运维").Sum(wl => wl.SumHours);
                 double doctime = load.Where(wl => wl.SupperType == "文档").Sum(wl => wl.SumHours);
                 double studytime = load.Where(wl => wl.SupperType == "学习交流").Sum(wl => wl.SumHours);
-                double presalestime = load.Where(wl => wl.SupperType == "售前/推广").Sum(wl => wl.SumHours );
+                double presalestime = load.Where(wl => wl.SupperType == "售前/推广").Sum(wl => wl.SumHours);
 
-                double othertime = load.Where(wl => wl.SupperType == "其他").Sum(wl => wl.SumHours)-leavetime;
+                double othertime = load.Where(wl => wl.SupperType == "其他").Sum(wl => wl.SumHours) - leavetime;
 
-                //arr[line, "B"] = person;
-                //arr[line, "C"] = standardWorkingDays * 8;
-                //arr[line, "D"] = load.Sum(wl => wl.SumHours) - leavetime;
-                //arr[line, "E"] = leavetime;
-                //arr[line, "F"] = String.Format("=D{0}/C{0}", startrow);
-                //arr[line, "G"] = bugCount;
-                //arr[line, "H"] = String.Format("=G{0}/(D{0}/8)", startrow);
-                //arr[line, "I"] = devtime / (load.Sum(wl => wl.SumHours) - leavetime);
-                //arr[line, "J"] = devtime1;
-                //arr[line, "K"] = String.Format("=IF(J{0}<>0,J{0}/D{0}, \"\"", startrow);
-                //arr[line, "L"] = devtime2;
-                //arr[line, "M"] = String.Format("=IF(L{0}<>0,L{0}/D{0}, \"\"", startrow);
-                //arr[line, "N"] = devtime3;
-                //arr[line, "O"] = String.Format("=IF(N{0}<>0,N{0}/D{0}, \"\"", startrow);
-                //arr[line, "P"] = devtime4;
-                //arr[line, "Q"] = String.Format("=IF(P{0}<>0,P{0}/D{0}, \"\"", startrow);
-                //arr[line, "R"] = devtime5;
-                //arr[line, "S"] = String.Format("=IF(R{0}<>0,R{0}/D{0}, \"\"", startrow);
-                //arr[line, "T"] = devtime6;
-                //arr[line, "U"] = String.Format("=IF(T{0}<>0,T{0}/D{0}, \"\"", startrow);
-
-                //arr[line, "V"] = mgrtime;
-                //arr[line, "W"] = String.Format("=IF(V{0}<>0,V{0}/D{0}, \"\"", startrow);
-                //arr[line, "X"] = oprtime;
-                //arr[line, "Y"] = String.Format("=IF(X{0}<>0,X{0}/D{0}, \"\"", startrow);
-                //arr[line, "Z"] = doctime;
-                //arr[line, "AA"] = String.Format("=IF(Z{0}<>0,Z{0}/D{0}, \"\"", startrow);
-                //arr[line, "AB"] = studytime;
-                //arr[line, "AC"] = String.Format("=IF(AB{0}<>0,AB{0}/D{0}, \"\"", startrow);
-                //arr[line, "AD"] = presalestime;
-                //arr[line, "AE"] = String.Format("=IF(AD{0}<>0,AD{0}/D{0}, \"\"", startrow);
-                //arr[line, "AF"] = othertime;
-                //arr[line, "AG"] = String.Format("=IF(AF{0}<>0,AF{0}/D{0}, \"\"", startrow);
                 arr[line, 0] = person;
                 arr[line, 1] = standardWorkingDays * 8;
                 arr[line, 2] = load.Sum(wl => wl.SumHours) - leavetime;
@@ -391,15 +347,11 @@ namespace MonthlyReportTool.API.Office.Excel
             devRange.RowHeight = 20;
             devRange.ColumnWidth = 7;
 
-            var borderDevRange = devRange.Borders;
-            Utility.AddNativieResource(borderDevRange);
-            borderDevRange.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
+            Utility.SetCellBorder(devRange);
 
-            ExcelInterop.Range devRange2 = sheet.Range[sheet.Cells[firstrow, "B"], sheet.Cells[startrow - 1, "B"]];
-            Utility.AddNativieResource(devRange2);
-            devRange2.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignCenter;
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[firstrow, "B"], sheet.Cells[firstrow + orderedLoads.Count() - 1, "B"]]);
 
-            Utility.SetupSheetPercentFormat(sheet, firstrow, "F", startrow - 1, "F");
+            Utility.SetupSheetPercentFormat(sheet,sheet.Range[sheet.Cells[firstrow, "F"],sheet.Cells[startrow - 1, "F"]]);
 
             ExcelInterop.Range bugrange = sheet.Range[sheet.Cells[firstrow, "H"], sheet.Cells[startrow - 1, "H"]];
             Utility.AddNativieResource(bugrange);
@@ -409,39 +361,30 @@ namespace MonthlyReportTool.API.Office.Excel
             {
                 Utility.SetupSheetPercentFormat(sheet, firstrow, col, startrow - 1, col);
             }
+
+            Utility.SetFormatBigger(sheet.Range[sheet.Cells[firstrow, "F"], sheet.Cells[startrow - 1, "F"]], 1.15d);
+            Utility.SetFormatSmaller(sheet.Range[sheet.Cells[firstrow, "F"], sheet.Cells[startrow - 1, "F"]], 1.00d);
+            Utility.SetFormatSmaller(sheet.Range[sheet.Cells[firstrow, "I"], sheet.Cells[startrow - 1, "I"]], 0.60d);
+
             return startrow;
         }
 
-        private void GetOrderedWorkloads(List<WorkloadEntity> workloads, out int workloadCount, out int standardWorkingDays, out IOrderedEnumerable<IGrouping<string, WorkloadEntity>> orderedLoads)
+        private IOrderedEnumerable<IGrouping<string, WorkloadEntity>> GetOrderedWorkloads(List<WorkloadEntity> workloads)
         {
             var loads = workloads.GroupBy(wl => wl.AssignedTo);
-            var ite = TFS.Utility.GetBestIteration(project.Name);
-            var daysoff = Iteration.GetProjectIterationDaysOff(this.project.Name, ite.Id);
-            standardWorkingDays = (int)((DateTime.Parse(ite.EndDate) - DateTime.Parse(ite.StartDate)).TotalDays) + 1 - daysoff.Count;
-            for (DateTime dt = DateTime.Parse(ite.StartDate); dt < DateTime.Parse(ite.EndDate).AddDays(1); dt = dt.AddDays(1))
-            {
-                bool duplicated = false;
-                for (int i = 0; i < daysoff.Count; i++)
-                {
-                    if (dt.Equals(DateTime.Parse(daysoff[i]))){
-                        duplicated = true;
-                        break;
-                    }
-                }
-                if (duplicated) continue;//如果在迭代里面又单独设置了休息日，那么要和取出来的daysoff排除掉。
-                if (dt.DayOfWeek == DayOfWeek.Sunday) standardWorkingDays--;//再刨掉礼拜天
-            }
 
-            orderedLoads = loads.OrderByDescending(
+            return loads.OrderByDescending(
                 load => (
-                    load.Sum(wl => wl.SumHours + wl.OverTimes)
+                    (
+                    load.Sum(wl => wl.SumHours)
                     -
-                    load.Where(wl => wl.SupperType == "请假").Sum(wl => wl.SumHours + wl.OverTimes)
+                    load.Where(wl => wl.SupperType == "请假").Sum(wl => wl.SumHours)
+                    )
                 )
             );
-
-            workloadCount = loads.Count();
         }
+
+        
 
         private int BuildDevelopmentTable()
         {
@@ -486,7 +429,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 range.Merge();
             }
 
-            Utility.SetTableHeaderFormat(sheet, 11, "B", 13, "AG");
+            Utility.SetTableHeaderFormat(sheet, sheet.get_Range("B11:AG13"), false);
 
             var testlist = TFS.Utility.GetTestMembers(false);
             List<WorkloadEntity> devload = new List<WorkloadEntity>();
@@ -508,6 +451,26 @@ namespace MonthlyReportTool.API.Office.Excel
             int startrow = 14;
             startrow = FillWorkloadData(devload, startrow, false);
             startrow = FillWorkloadData(testload, startrow + 1, true);
+            FillSummaryData(startrow);
+
+            var ite = TFS.Utility.GetBestIteration(this.project.Name);
+            int totalDays = (DateTime.Parse(ite.EndDate).AddDays(1) - DateTime.Parse(ite.StartDate)).Days;
+            sheet.Cells[7, "O"] = TFS.Agile.Capacity.GetIterationCapacities(this.project.Name, ite.Id) * totalDays;
+
+            var estimated = TFS.WorkItem.Workload.GetEstimated(this.project.Name, ite);
+            sheet.Cells[7, "R"] = estimated.Item1;
+            sheet.Cells[7, "U"] = estimated.Item2;
+            sheet.Cells[7, "X"] = "=(U7-R7)/R7";
+            sheet.Cells[7, "AA"] = estimated.Item3;
+
+            Utility.SetupSheetPercentFormat(sheet, sheet.Cells[7, "X"]);
+
+            return startrow + 2;
+        }
+
+        private void FillSummaryData(int startrow)
+        {
+            Utility.SetCellBorder(sheet.Range[sheet.Cells[startrow, "B"], sheet.Cells[startrow, "AG"]]);            
 
             sheet.Cells[startrow, "B"] = "合计";
             sheet.Cells[startrow, "C"] = String.Format("=sum(C14:C{0}", startrow - 1);
@@ -515,7 +478,8 @@ namespace MonthlyReportTool.API.Office.Excel
             sheet.Cells[startrow, "E"] = String.Format("=sum(E14:E{0}", startrow - 1);
             sheet.Cells[startrow, "F"] = String.Format("=IF(C{0}<>0,D{0}/C{0},\"\")", startrow);
             sheet.Cells[startrow, "G"] = String.Format("=sum(G14:G{0}", startrow - 1);
-
+            sheet.Cells[startrow, "H"] = String.Format("=G{0}/(D{0}/8)", startrow);
+            sheet.Cells[startrow, "I"] = String.Format("=(J{0} + L{0} + N{0} + P{0} + R{0} + T{0}) / D{0}", startrow);
             sheet.Cells[startrow, "J"] = String.Format("=sum(J14:J{0}", startrow - 1);
             sheet.Cells[startrow, "K"] = String.Format("=J{0}/D{0}", startrow);
             sheet.Cells[startrow, "L"] = String.Format("=sum(L14:L{0}", startrow - 1);
@@ -547,7 +511,7 @@ namespace MonthlyReportTool.API.Office.Excel
             sheet.Cells[7, "K"] = String.Format("=J{0}+L{0}+N{0}+P{0}+R{0}+T{0}", startrow);
             sheet.Cells[7, "M"] = String.Format("=K7/F7", startrow);
 
-            Utility.SetupSheetPercentFormat(sheet, startrow, "F", startrow, "F");
+            Utility.SetupSheetPercentFormat(sheet, sheet.Cells[startrow, "F"]);
 
             for (int i = 9; i <= 33; i += 2)
             {
@@ -557,47 +521,9 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.SetupSheetPercentFormat(sheet, 7, 9, 7, 9);
             Utility.SetupSheetPercentFormat(sheet, 7, 13, 7, 13);
 
-            #region 画图，暂时作废，藏起来
-            //int chartstart = startrow + 2;
-
-            //ExcelInterop.Range workloadChartRange = sheet.Range[sheet.Cells[chartstart, "B"], sheet.Cells[chartstart + 10, "AG"]];
-
-            //ExcelInterop.ChartObjects charts = sheet.ChartObjects(Type.Missing) as ExcelInterop.ChartObjects;
-            //Utility.AddNativieResource(charts);
-
-            //ExcelInterop.ChartObject workloadChartObject = charts.Add(0, 0, workloadChartRange.Width, workloadChartRange.Height);
-            //Utility.AddNativieResource(workloadChartObject);
-            //ExcelInterop.Chart workloadChart = workloadChartObject.Chart;//设置图表数据区域。
-            //Utility.AddNativieResource(workloadChart);
-
-            ////=工作量统计!$B$14:$B$33,工作量统计!$F$14:$F$33
-            //ExcelInterop.Range datasource = sheet.get_Range(String.Format("B14:B{0},F14:F{0}", startrow - 1));//不是："B14:B25","F14:F25"
-            ////ExcelInterop.Range datasource = sheet.get_Range("B14:B25,F14:F25");//不是："B14:B25","F14:F25"
-            //Utility.AddNativieResource(datasource);
-            //workloadChart.ChartWizard(datasource, XlChartType.xlColumnClustered, Type.Missing, XlRowCol.xlColumns, 1, 1, false, "工作量饱和度", "人员", "工作量", Type.Missing);
-            //workloadChart.ApplyDataLabels();//图形上面显示具体的值
-            ////将图表移到数据区域之下。
-            //workloadChartObject.Left = Convert.ToDouble(workloadChartRange.Left);
-            //workloadChartObject.Top = Convert.ToDouble(workloadChartRange.Top) + 20;
-
-            //chartstart += 12;
-            //ExcelInterop.Range bugChartRange = sheet.Range[sheet.Cells[chartstart, "B"], sheet.Cells[chartstart + 10, "K"]];
-            //ExcelInterop.ChartObject bugChartObject = charts.Add(0, 0, bugChartRange.Width, bugChartRange.Height);
-            //Utility.AddNativieResource(bugChartObject);
-            //ExcelInterop.Chart bugChart = bugChartObject.Chart;//设置图表数据区域。
-            //Utility.AddNativieResource(bugChart);
-
-            ////=工作量统计!$B$14:$B$33,工作量统计!$F$14:$F$33
-            //ExcelInterop.Range datasource2 = sheet.get_Range(String.Format("B{0}:B{1},G{0}:G{1}", 14 + devload.Count + 2 - 1, startrow - 1));//不是："B14:B25","F14:F25"
-            ////ExcelInterop.Range datasource = sheet.get_Range("B14:B25,F14:F25");//不是："B14:B25","F14:F25"
-            //Utility.AddNativieResource(datasource2);
-            //bugChart.ChartWizard(datasource2, XlChartType.xlColumnClustered, Type.Missing, XlRowCol.xlColumns, 1, 1, false, "测试人员BUG数", "人员", "BUG数", Type.Missing);
-            //bugChart.ApplyDataLabels();//图形上面显示具体的值
-            ////将图表移到数据区域之下。
-            //bugChartObject.Left = Convert.ToDouble(bugChartRange.Left);
-            //bugChartObject.Top = Convert.ToDouble(bugChartRange.Top) + 20;
-            #endregion 画图，暂时作废，藏起来
-            return startrow + 2;
+            ExcelInterop.Range bugrange = sheet.Cells[startrow, "H"];
+            Utility.AddNativieResource(bugrange);
+            bugrange.NumberFormat = "#0.00";
         }
     }
 }

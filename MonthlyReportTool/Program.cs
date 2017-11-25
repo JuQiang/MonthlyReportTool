@@ -1,6 +1,7 @@
 ﻿using MonthlyReportTool.API.TFS.WorkItem;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -45,6 +46,27 @@ namespace MonthlyReportTool
                 return;
             }
 
+            string fname = string.Format("{0}\\{1}总结({2}_{3}).xlsx", new object[]
+                        {
+                            Environment.GetEnvironmentVariable("temp"),
+                            ite.Path.Replace("\\", " "),
+                            DateTime.Parse(ite.StartDate).ToString("yyyyMMdd"),
+                            DateTime.Parse(ite.EndDate).ToString("yyyyMMdd")
+                        });
+            try
+            {
+                File.Delete(fname);
+            }
+            catch (Exception ex)
+            {
+                if(ex.TargetSite.Name == "WinIOError")
+                {
+                    Console.WriteLine("=============================================");
+                    Console.WriteLine("!!! 文件 《" + fname + "》 正在被使用 ，请关闭Excel再重新运行本程序！！！");
+                    Console.WriteLine("=============================================");
+                    return;
+                }
+            }
             Console.WriteLine("TELD (R) TFS Report Tool Version 1.0");
             Console.WriteLine("Written by JuQiang.");
             API.Office.Excel.Utility.WriteLog("");

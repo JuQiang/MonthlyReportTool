@@ -307,7 +307,7 @@ namespace MonthlyReportTool.API.Office.Excel
             string line = String.Format("{0} --- {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"), msg);
             Console.WriteLine(msg);
 
-            using (StreamWriter sw = new StreamWriter(@"c:\\irt\\log.txt", true))
+            using (StreamWriter sw = new StreamWriter(Environment.GetEnvironmentVariable("temp")+"\\log.txt", true))
             {
                 sw.WriteLine(line);
             }

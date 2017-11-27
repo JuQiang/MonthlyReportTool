@@ -10,32 +10,32 @@ namespace MonthlyReportTool.API.TFS.WorkItem
 {
     public class Feature
     {
-        public static List<List<FeatureEntity>> GetAll(string project,IterationEntity ite)
+        public static List<List<FeatureEntity>> GetAll(string project, IterationEntity ite)
         {
             List<List<FeatureEntity>> list = new List<List<FeatureEntity>>();
-            
-            var all = GetFeatureListByIteration(project,ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F00本迭代_产品特性总数",
-                                                                
+
+            var all = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F00本迭代_产品特性总数",
+
                 Tuple.Create<string, string, string>("[System.TeamProject] =",
-                "[Microsoft.VSTS.Scheduling.TargetDate] >=",
-                "[Microsoft.VSTS.Scheduling.TargetDate] <"));
+                "[Teld.Scrum.IterationTargetDate] >=",
+                "[Teld.Scrum.IterationTargetDate] <"));
 
             var completed = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F05本迭代_已完成产品特性总数",
                 Tuple.Create<string, string, string>("[System.TeamProject] =",
-                "[Microsoft.VSTS.Scheduling.TargetDate] >=",
-                "[Microsoft.VSTS.Scheduling.TargetDate] <"));
+                "[Teld.Scrum.IterationTargetDate] >=",
+                "[Teld.Scrum.IterationTargetDate] <"));
             var removed = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F20本迭代_已中止或已移除产品特性总数",
                 Tuple.Create<string, string, string>("[System.TeamProject] =",
-                "[Microsoft.VSTS.Scheduling.TargetDate] >=",
-                "[Microsoft.VSTS.Scheduling.TargetDate] <"));
+                "[Teld.Scrum.IterationTargetDate] >=",
+                "[Teld.Scrum.IterationTargetDate] <"));
             var delayed = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F10本迭代_拖期产品特性总数",
                 Tuple.Create<string, string, string>("[System.TeamProject] =",
-                "[Microsoft.VSTS.Scheduling.TargetDate] >=",
-                "[Microsoft.VSTS.Scheduling.TargetDate] <"));
+               "[Teld.Scrum.IterationTargetDate] >=",
+                "[Teld.Scrum.IterationTargetDate] <"));
             var perfect = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F25本迭代_按计划完成产品特性总数",
                 Tuple.Create<string, string, string>("[System.TeamProject] =",
-                "[Microsoft.VSTS.Scheduling.TargetDate] >=",
-                "[Microsoft.VSTS.Scheduling.TargetDate] <"));
+                "[Teld.Scrum.IterationTargetDate] >=",
+                "[Teld.Scrum.IterationTargetDate] <"));
 
             list.Add(all);
             list.Add(completed);
@@ -45,8 +45,8 @@ namespace MonthlyReportTool.API.TFS.WorkItem
 
             return list;
         }
-        
-        private static List<FeatureEntity> GetFeatureListByIteration(string project,IterationEntity ite,string query, Tuple<string,string,string> tuple)
+
+        private static List<FeatureEntity> GetFeatureListByIteration(string project, IterationEntity ite, string query, Tuple<string, string, string> tuple)
         {
             List<FeatureEntity> list = new List<FeatureEntity>();
             string wiql = API.TFS.Utility.GetQueryClause(query);
@@ -86,6 +86,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
                         ReleaseFinishedDate = Convert.ToString(feature["fields"]["Teld.Scrum.ReleaseFinishedDate"]),
                         TeamProject = Convert.ToString(feature["fields"]["System.TeamProject"]),
                         InitTargetDate = Convert.ToString(feature["fields"]["Teld.Scrum.Scheduling.InitTargetDate"]),
+                        IterationTargetDate = Convert.ToString(feature["fields"]["Teld.Scrum.IterationTargetDate"]),
                         TargetDate = Convert.ToString(feature["fields"]["Microsoft.VSTS.Scheduling.TargetDate"]),
                         IsDevelopment = Convert.ToString(feature["fields"]["Teld.Scrum.IsDevelopment"]) == "是",
                     }

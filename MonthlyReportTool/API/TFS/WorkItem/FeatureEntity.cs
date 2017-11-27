@@ -23,7 +23,8 @@ namespace MonthlyReportTool.API.TFS.WorkItem
         public string ReleaseFinishedDate;
         public string TeamProject;
         public string InitTargetDate;
-        public string TargetDate;        
+        public string TargetDate;
+        public string IterationTargetDate;
         public bool IsDevelopment;
         public string FunctionMenu;
 

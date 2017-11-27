@@ -41,11 +41,11 @@ namespace MonthlyReportTool.API.Office.Excel
         }
         private void BuildTitle()
         {
-            Utility.BuildFormalSheetTitle(sheet, 2, "B", 2, "O", "Backlog统计分析");
+            Utility.BuildFormalSheetTitle(sheet, 2, "B", 2, "Q", "Backlog统计分析");
         }
         private void BuildSubTitle()
         {
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[4, "B"], sheet.Cells[4, "O"]];
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[4, "B"], sheet.Cells[4, "K"]];
             Utility.AddNativieResource(range);
             range.Merge();
             sheet.Cells[4, "B"] = "本迭代所有计划backlog完成情况统计";
@@ -58,7 +58,7 @@ namespace MonthlyReportTool.API.Office.Excel
         }
         private void BuildDescription()
         {
-            ExcelInterop.Range titleRange = sheet.Range[sheet.Cells[5, "B"], sheet.Cells[5, "O"]];
+            ExcelInterop.Range titleRange = sheet.Range[sheet.Cells[5, "B"], sheet.Cells[5, "K"]];
             Utility.AddNativieResource(titleRange);
             titleRange.Merge();
             sheet.Cells[5, "B"] = "说明";
@@ -145,12 +145,12 @@ namespace MonthlyReportTool.API.Office.Excel
             sheet.Cells[13, "E"] = "=IF(D13<>0,D13/D16,\"\")";
             sheet.Cells[14, "D"] = this.backlogList[5].Count;
             sheet.Cells[14, "E"] = "=IF(D14<>0,D14/D16,\"\")";
-            sheet.Cells[15, "D"] = "=D16-D13";
+            sheet.Cells[15, "D"] = "=D16-D14";
             sheet.Cells[15, "E"] = "=IF(D15<>0,D15/D16,\"\")";
             sheet.Cells[16, "D"] = this.backlogList[6].Count;
             sheet.Cells[16, "E"] = "'--";
 
-            Utility.SetupSheetPercentFormat(sheet, sheet.get_Range("E7:E16"));
+            Utility.SetCellPercentFormat(sheet.get_Range("E7:E16"));
 
             sheet.Cells[7, "D"] = this.backlogList[0].Count;
             sheet.Cells[9, "D"] = this.backlogList[1].Count;
@@ -160,7 +160,9 @@ namespace MonthlyReportTool.API.Office.Excel
             sheet.Cells[14, "D"] = this.backlogList[5].Count;
             sheet.Cells[16, "D"] = this.backlogList[6].Count;
 
-
+            Utility.SetFormatBigger(sheet.Cells[10, "D"], 0.0001d);
+            Utility.SetFormatBigger(sheet.Cells[11, "D"], 0.0001d);
+            Utility.SetFormatBigger(sheet.Cells[15, "D"], 0.0001d);
             return 17;
         }
 
@@ -323,7 +325,9 @@ namespace MonthlyReportTool.API.Office.Excel
             sheet.Cells[startRow, "M"] = "编写用例总条数"; sheet.Cells[startRow++, "P"] = this.backlogList[10].Count;
             sheet.Cells[startRow, "M"] = "用例未执行数目"; sheet.Cells[startRow++, "P"] = "不知道哪里找";
             sheet.Cells[startRow, "M"] = "测试用例覆盖率"; sheet.Cells[startRow++, "P"] = "=IF(P8<>0,P9/P8,\"\")";
+            Utility.SetCellPercentFormat(sheet.Cells[startRow-1, "P"]);
 
+            Utility.SetCellColor(sheet.Cells[startRow, "M"], System.Drawing.Color.Black, "测试用例设计及执行统计", true);
 
         }
     }

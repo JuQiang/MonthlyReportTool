@@ -145,7 +145,7 @@ namespace MonthlyReportTool.API.Office.Excel
             sheet.Cells[9, "D"] = all.Where(commitment => commitment.SubmitType == "Hotfix补丁-紧急需求").Count();
             sheet.Cells[9, "E"] = all.Where(commitment => commitment.SubmitType == "Hotfix补丁-BUG").Count();
 
-            Utility.SetupSheetPercentFormat(sheet, sheet.get_Range("C10:E10"));
+            Utility.SetCellPercentFormat(sheet.get_Range("C10:E10"));
 
         }
         private void BuildTestTableTitle()
@@ -189,13 +189,14 @@ namespace MonthlyReportTool.API.Office.Excel
                     sheet.Cells[5 + row, colsname[col].Item1] = cols[row, col];
                 }
             }
-            Utility.SetCellBorder(sheet.Range[sheet.Cells[5, colsname[0].Item1], sheet.Cells[5 + cols.GetLength(0) - 1, colsname[colsname.Count-1].Item2]]);
+            Utility.SetCellBorder(sheet.Range[sheet.Cells[5, colsname[0].Item1], sheet.Cells[5 + cols.GetLength(0) - 1, colsname[colsname.Count - 1].Item2]]);
 
             BuildPerformanceTestTableTitle();
 
             sheet.Cells[6, "I"] = this.commitmentList[4].Count;
             sheet.Cells[7, "I"] = this.commitmentList[3].Count;
             sheet.Cells[9, "I"] = "=IF(I7<>0,I6/I7,\"\")";
+            Utility.SetCellPercentFormat(sheet.Cells[9, "I"]);
         }
         private void BuildPerformanceTestTableTitle()
         {
@@ -252,17 +253,35 @@ namespace MonthlyReportTool.API.Office.Excel
 
             }
 
-            Utility.SetupSheetPercentFormat(sheet,sheet.Range[sheet.Cells[startRow, "G"],sheet.Cells[startRow + cells.Count - 1, "G"]]);
+            Utility.SetCellPercentFormat(sheet.Range[sheet.Cells[startRow, "G"], sheet.Cells[startRow + cells.Count - 1, "G"]]);
             Utility.SetFormatSmaller(sheet.Range[sheet.Cells[startRow, "G"], sheet.Cells[startRow + cells.Count - 1, "G"]], 1.00d);
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + cells.Count - 1, "B"]]);
 
+            FillSummaryData(startRow, cells.Count);
             return nextRow;
         }
 
+        private void FillSummaryData(int startRow, int rowCount)
+        {
+            int curRow = startRow + rowCount;
+            Utility.SetCellBorder(sheet.Range[sheet.Cells[curRow, "B"], sheet.Cells[curRow, "G"]]);
+
+            sheet.Cells[curRow, "B"] = "合计";
+            sheet.Cells[curRow, "C"] = String.Format("=sum(C{0}:C{1}", startRow, curRow - 1);
+            sheet.Cells[curRow, "D"] = String.Format("=sum(D{0}:D{1}", startRow, curRow - 1);
+            sheet.Cells[curRow, "E"] = String.Format("=sum(E{0}:E{1}", startRow, curRow - 1);
+            sheet.Cells[curRow, "F"] = String.Format("=sum(F{0}:F{1}", startRow, curRow - 1);
+            sheet.Cells[curRow, "G"] = String.Format("=C{0}/(C{0}+D{0}+E{0}+F{0})", curRow - 0);
+
+
+            Utility.SetCellPercentFormat(sheet.Cells[curRow, "G"]);
+
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[curRow, "B"], sheet.Cells[curRow, "B"]], hAlign: ExcelInterop.XlHAlign.xlHAlignCenter);
+        }
         private int BuildFailedReasonTable(int startRow, List<CommitmentEntity> list)
         {
-            
-            var commitments = list.OrderByDescending(comm=>comm.BackNum).ToList();
+
+            var commitments = list.OrderByDescending(comm => comm.BackNum).ToList();
 
             int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "提交单打回原因分析", "说明：", "B", "O",
                 new List<string>() { "提交单ID", "提交单类型", "提交单名称", "状态", "打回次数", "打回原因", "功能负责人", "测试负责人", "后续改进措施" },
@@ -289,7 +308,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 sheet.Cells[i + startRow, "M"] = "";
             }
 
-            Utility.SetCellRedColor(sheet.Cells[startRow-1, "I"]);
+            Utility.SetCellRedColor(sheet.Cells[startRow - 1, "I"]);
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + commitments.Count - 1, "B"]]);
 
             return nextRow;
@@ -299,8 +318,8 @@ namespace MonthlyReportTool.API.Office.Excel
         private int BuildRemovedReasonTable(int startRow, List<CommitmentEntity> list)
         {
             int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "已移除提交单原因分析", "说明：", "B", "L",
-                new List<string>() { "提交单ID", "提交单类型", "提交单名称", "状态", "原因分析", "功能负责人", "测试负责人"},
-                new List<string>() { "B,B", "C,C", "D,F", "G,G", "H,J", "K,K", "L,L"},
+                new List<string>() { "提交单ID", "提交单类型", "提交单名称", "状态", "原因分析", "功能负责人", "测试负责人" },
+                new List<string>() { "B,B", "C,C", "D,F", "G,G", "H,J", "K,K", "L,L" },
                 list.Count);
 
             startRow += 3;
@@ -322,7 +341,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 }
             }
 
-            Utility.SetCellRedColor(sheet.Cells[startRow-1, "H"]);
+            Utility.SetCellRedColor(sheet.Cells[startRow - 1, "H"]);
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "B"]]);
 
             return nextRow;
@@ -332,15 +351,15 @@ namespace MonthlyReportTool.API.Office.Excel
         private int BuildExceptionTable(int startRow, List<CommitmentEntity> list)
         {
             var commitments = list.Where(comm => (
-            comm.TestFinishedTime.Trim().Length>0 &&
+            comm.TestFinishedTime.Trim().Length > 0 &&
             comm.SubmitDate.Trim().Length > 0 &&
             (DateTime.Parse(comm.TestFinishedTime) - DateTime.Parse(comm.SubmitDate)).TotalDays >= 14.0d
             )
             ).ToList();
 
             int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "提交单持续时间超过2周的异常分析", "说明：提交单状态从【提交测试】到【测试通过】这段时间超过2周的\r\n提交日期和测试通过时间比较", "B", "M",
-                new List<string>() { "提交单ID", "提交单类型", "提交单名称","状态","持续时间", "原因分析", "功能负责人", "测试负责人" },
-                new List<string>() { "B,B", "C,C", "D,F", "G,G", "H,H","I,K","L,L","M,M" },
+                new List<string>() { "提交单ID", "提交单类型", "提交单名称", "状态", "持续时间", "原因分析", "功能负责人", "测试负责人" },
+                new List<string>() { "B,B", "C,C", "D,F", "G,G", "H,H", "I,K", "L,L", "M,M" },
                 commitments.Count);
 
             startRow += 3;
@@ -364,7 +383,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 }
             }
 
-            Utility.SetCellRedColor(sheet.Cells[startRow-1, "I"]);
+            Utility.SetCellRedColor(sheet.Cells[startRow - 1, "I"]);
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + commitments.Count - 1, "B"]]);
 
             return nextRow;

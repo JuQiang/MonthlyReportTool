@@ -58,7 +58,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
             return list;
         }
 
-        public static List<BugEntity> GetAddedBugs(string project, IterationEntity ite)
+        public static List<BugEntity> GetAddedBugsByIteration(string project, IterationEntity ite)
         {
             var added = GetBugListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F25%20Bug统计分析%2F00本迭代_新增Bug总数",
             Tuple.Create<string, string, string, string>("[System.TeamProject] =",
@@ -70,7 +70,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
 
             return added;
         }
-        public static List<List<BugEntity>> GetAll(string project, IterationEntity ite)
+        public static List<List<BugEntity>> GetAllByIteration(string project, IterationEntity ite)
         {
             List<List<BugEntity>> list = new List<List<BugEntity>>();
 
@@ -129,6 +129,61 @@ namespace MonthlyReportTool.API.TFS.WorkItem
             list.Add(review);
 
 
+            return list;
+        }
+
+        public static List<BugEntity> GetAllByDate(string project, string query, string startDate, string endDate)
+        {
+            List<BugEntity> list = new List<BugEntity>();
+            string wiql = API.TFS.Utility.GetQueryClause(query);
+            var tuple = Tuple.Create<string, string, string, string>("[System.TeamProject] =",
+                "[System.CreatedDate] >=",
+                "[System.CreatedDate] <",
+                "[Teld.Scrum.BelongTeamProject] ="
+                );
+
+            wiql = API.TFS.Utility.ReplacePrjAndDateAndPrjFromWIQL(wiql, tuple);
+
+            string sql = String.Format(wiql,
+                project,
+                startDate,//第一天是大于等于
+                endDate,//最后一天要加一
+                project
+            );
+
+            string responseBody = Utility.ExecuteQueryBySQL(sql);
+            var bugs = Utility.ConvertWorkitemFlatQueryResult2Array(responseBody);
+            foreach (var bug in bugs)
+            {
+                list.Add(
+                    new BugEntity()
+                    {
+                        Id = Convert.ToInt32(bug["fields"]["System.Id"]),
+                        KeyApplication = Convert.ToString(bug["fields"]["Teld.Scrum.KeyApplication"]),
+                        ModulesName = Convert.ToString(bug["fields"]["Teld.Scrum.ModulesName"]),
+                        Title = Convert.ToString(bug["fields"]["System.Title"]),
+                        AssignedTo = Convert.ToString(bug["fields"]["System.AssignedTo"]),
+                        State = Convert.ToString(bug["fields"]["System.State"]),
+                        Type = Convert.ToString(bug["fields"]["Teld.Bug.Type"]),
+                        Severity = Convert.ToString(bug["fields"]["Microsoft.VSTS.Common.Severity"]),
+                        ResolvedReason = Convert.ToString(bug["fields"]["Teld.Bug.ResolvedReason"]),
+                        Envir = Convert.ToString(bug["fields"]["Teld.Bug.Envir"]),
+                        CreatedDate = Convert.ToString(bug["fields"]["System.CreatedDate"]),
+                        ChangedDate = Convert.ToString(bug["fields"]["System.ChangedDate"]),
+                        DetectionMode = Convert.ToString(bug["fields"]["Teld.Bug.DetectionMode"]),
+                        DetectionPhase = Convert.ToString(bug["fields"]["Teld.Bug.DetectionPhase"]),
+                        HopeFixSubmitTime = Convert.ToString(bug["fields"]["Teld.Bug.HopeFixSubmitTime"]),
+                        TeamProject = Convert.ToString(bug["fields"]["System.TeamProject"]),
+                        CreatedBy = Convert.ToString(bug["fields"]["System.CreatedBy"]),
+                        IterationPath = Convert.ToString(bug["fields"]["System.IterationPath"]),
+                        TestResponsibleMan = Convert.ToString(bug["fields"]["Teld.Scrum.TestResponsibleMan"]),
+                        DiscoveryUser = Convert.ToString(bug["fields"]["Teld.Bug.DiscoveryUser"]),
+                        FunctionMenu = Convert.ToString(bug["fields"]["Teld.Bug.FunctionMenu"]),
+                        DevResponsibleMan = Convert.ToString(bug["fields"]["Teld.Scrum.DevResponsibleMan"]),
+                        Source = Convert.ToString(bug["fields"]["Teld.Scrum.Source"]),
+                    }
+                );
+            }
             return list;
         }
     }

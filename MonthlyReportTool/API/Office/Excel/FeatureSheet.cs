@@ -86,11 +86,11 @@ namespace MonthlyReportTool.API.Office.Excel
 
             string[] cols1 = new string[] { "已完成数", "拖期数", "中止/移除数", "按计划完成数", "本迭代计划总数" };
             string[] cols2 = new string[] { "=IF(E11<>0,E7/E11,\"\")", "=IF(E11<>0,E8/E11,\"\")", "'--", "=IF(E11<>0,E9/E11,\"\")", "'--" };
-            string[] cols3 = new string[] { "已完成数：已完成本月目标的产品特性个数\r\n占比：已完成数/本迭代计划总数",
+            string[] cols3 = new string[] { "已完成数：已完成本迭代目标的产品特性个数\r\n占比：已完成数/本迭代计划总数",
                 "拖期数：未完成本迭代目标的产品特性个数\r\n占比：拖期数/本迭代计划总数",
-                "中止/移除数：本迭代中止/移除的产品特性个数\r\n占比：移除数/本迭代计划总数",
-                "按计划完成数：按本月目标日期完成的产品特性个数\r\n占比：按计划完成数/本迭代计划总数",
-                "本迭代时间范围内所有迭代产品特性总数本迭代计划总数=已完成数+拖期数" };
+                "中止/移除数：本迭代期间内中止/移除的产品特性个数\r\n占比：移除数/本迭代计划总数",
+                "按计划完成数：按本迭代目标日期完成的产品特性个数\r\n占比：按计划完成数/本迭代计划总数",
+                "本迭代内的所有产品特性总数（本迭代目标日期在本迭代期间内的所有）" };
 
             for (int row = 7; row <= 11; row++)
             {
@@ -106,18 +106,21 @@ namespace MonthlyReportTool.API.Office.Excel
             sheet.Cells[11, "E"] = this.featureList[0].Count;
             //sheet.Cells[12, "E"] = "=SUM(E7: E11)";
 
-            Utility.SetupSheetPercentFormat(sheet, sheet.get_Range("F7:F11"));
+            Utility.SetCellPercentFormat(sheet.get_Range("F7:F11"));
 
             ExcelInterop.Range range = sheet.Range[sheet.Cells[7, "B"], sheet.Cells[12, "B"]];
             Utility.AddNativieResource(range);
             range.RowHeight = 40;
+
+            Utility.SetFormatBigger(sheet.Cells[8, "E"], 0.0001d);
+            Utility.SetFormatBigger(sheet.Cells[9, "E"], 0.0001d);
         }
 
         private int BuildDelayTable(int startRow, List<FeatureEntity> features)
         {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代拖期产品特性分析", "说明：按关键应用、模块排序；非研发类的为无", "B", "S",
-                new List<string>() { "ID", "关键应用", "模块", "产品特性名称", "本月目标状态", "当前状态", "目标日期", "负责人", "移除/中止原因说明" },
-                new List<string>() { "B,B", "C,D", "E,F", "G,J", "K,L", "M,M", "N,N", "O,O", "P,S" },
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代拖期产品特性分析", "说明：按关键应用、模块排序；非研发类的为无", "B", "T",
+                new List<string>() { "ID", "关键应用", "模块", "产品特性名称", "本迭代目标状态", "当前状态", "迭代目标日期","目标日期", "负责人", "移除/中止原因说明" },
+                new List<string>() { "B,B", "C,D", "E,F", "G,J", "K,L", "M,M", "N,N", "O,O","P,P", "Q,T" },
                 features.Count);
 
             Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "按关键应用、模块排序");
@@ -131,21 +134,22 @@ namespace MonthlyReportTool.API.Office.Excel
                 sheet.Cells[startRow + i, "G"] = orderedFeatures[i].Title;
                 sheet.Cells[startRow + i, "K"] = orderedFeatures[i].MonthState;
                 sheet.Cells[startRow + i, "M"] = orderedFeatures[i].State;
-                sheet.Cells[startRow + i, "N"] = DateTime.Parse(orderedFeatures[i].TargetDate).AddHours(8).ToString("yyyy-MM-dd");
-                sheet.Cells[startRow + i, "O"] = Utility.GetPersonName(orderedFeatures[i].AssignedTo);
-                sheet.Cells[startRow + i, "P"] = "";
+                sheet.Cells[startRow + i, "N"] = DateTime.Parse(orderedFeatures[i].IterationTargetDate).AddHours(8).ToString("yyyy-MM-dd");
+                sheet.Cells[startRow + i, "O"] = DateTime.Parse(orderedFeatures[i].TargetDate).AddHours(8).ToString("yyyy-MM-dd");
+                sheet.Cells[startRow + i, "P"] = Utility.GetPersonName(orderedFeatures[i].AssignedTo);
+                sheet.Cells[startRow + i, "Q"] = "";
             }
 
-            Utility.SetCellRedColor(sheet.Cells[startRow - 1, "P"]);
+            Utility.SetCellRedColor(sheet.Cells[startRow - 1, "Q"]);
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedFeatures.Count - 1, "B"]]);
 
             return nextRow;
         }
         private int BuildAnadonTable(int startRow, List<FeatureEntity> features)
         {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代移除/中止产品特性分析", "说明：按关键应用、模块排序；非研发类的为无", "B", "S",
-                new List<string>() { "ID", "关键应用", "模块", "产品特性名称","本月目标状态","当前状态","目标日期", "负责人", "移除/中止原因说明" },
-                new List<string>() { "B,B", "C,D", "E,F", "G,J", "K,L", "M,M","N,N","O,O","P,S" },
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代移除/中止产品特性分析", "说明：按关键应用、模块排序；非研发类的为无", "B", "T",
+                new List<string>() { "ID", "关键应用", "模块", "产品特性名称", "本迭代目标状态", "当前状态","迭代目标日期", "目标日期", "负责人", "移除/中止原因说明" },
+                new List<string>() { "B,B", "C,D", "E,F", "G,J", "K,L", "M,M","N,N","O,O","P,P","Q,T" },
                 features.Count);
 
             Utility.SetCellColor(sheet.Cells[startRow+1, "B"], System.Drawing.Color.Red, "按关键应用、模块排序");
@@ -159,20 +163,21 @@ namespace MonthlyReportTool.API.Office.Excel
                 sheet.Cells[startRow + i, "G"] = orderedFeatures[i].Title;
                 sheet.Cells[startRow + i, "K"] = orderedFeatures[i].MonthState;
                 sheet.Cells[startRow + i, "M"] = orderedFeatures[i].State;
-                sheet.Cells[startRow + i, "N"] = DateTime.Parse(orderedFeatures[i].TargetDate).AddHours(8).ToString("yyyy-MM-dd");
-                sheet.Cells[startRow + i, "O"] = Utility.GetPersonName(orderedFeatures[i].AssignedTo);
-                sheet.Cells[startRow + i, "P"] = "";
+                sheet.Cells[startRow + i, "N"] = DateTime.Parse(orderedFeatures[i].IterationTargetDate).AddHours(8).ToString("yyyy-MM-dd");
+                sheet.Cells[startRow + i, "O"] = DateTime.Parse(orderedFeatures[i].TargetDate).AddHours(8).ToString("yyyy-MM-dd");
+                sheet.Cells[startRow + i, "P"] = Utility.GetPersonName(orderedFeatures[i].AssignedTo);
+                sheet.Cells[startRow + i, "Q"] = "";
             }
 
-            Utility.SetCellRedColor(sheet.Cells[startRow - 1, "P"]);
+            Utility.SetCellRedColor(sheet.Cells[startRow - 1, "Q"]);
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedFeatures.Count - 1, "B"]]);
             return nextRow;
         }
         private int BuildTable(int startRow, List<FeatureEntity> features)
         {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代产品特性列表", "说明：如果一个单元格的内容太多，请考虑换行显示\r\n      如果本迭代实际的产品特性数多于模板预制的行数，请自行插入行，然后用格式刷刷新增的行的格式\r\n      按关键应用、模块排序；非研发类的为无", "B", "O",
-                new List<string>() { "ID", "关键应用", "模块", "产品特性名称", "本月目标状态", "当前状态", "目标日期", "负责人"},
-                new List<string>() { "B,B", "C,D", "E,F", "G,J", "K,L", "M,M", "N,N", "O,O" },
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代产品特性列表", "说明：如果一个单元格的内容太多，请考虑换行显示\r\n      如果本迭代实际的产品特性数多于模板预制的行数，请自行插入行，然后用格式刷刷新增的行的格式\r\n      按关键应用、模块排序；非研发类的为无", "B", "P",
+                new List<string>() { "ID", "关键应用", "模块", "产品特性名称", "本迭代目标状态", "当前状态", "迭代目标日期","目标日期", "负责人"},
+                new List<string>() { "B,B", "C,D", "E,F", "G,J", "K,L", "M,M", "N,N", "O,O","P,P" },
                 features.Count);
 
             Utility.SetCellColor(sheet.Cells[14, "B"], System.Drawing.Color.Red, "按关键应用、模块排序");
@@ -188,8 +193,9 @@ namespace MonthlyReportTool.API.Office.Excel
                 arr[i, 5] = orderedFeatures[i].Title;
                 arr[i, 9] = orderedFeatures[i].MonthState;
                 arr[i, 11] = orderedFeatures[i].State;
-                arr[i, 12] = DateTime.Parse(orderedFeatures[i].TargetDate).AddHours(8).ToString("yyyy-MM-dd");
-                arr[i, 13] = Utility.GetPersonName(orderedFeatures[i].AssignedTo);
+                arr[i, 12] = DateTime.Parse(orderedFeatures[i].IterationTargetDate).AddHours(8).ToString("yyyy-MM-dd");
+                arr[i, 13] = DateTime.Parse(orderedFeatures[i].TargetDate).AddHours(8).ToString("yyyy-MM-dd");
+                arr[i, 14] = Utility.GetPersonName(orderedFeatures[i].AssignedTo);
             }
             ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedFeatures.Count - 1, "O"]];
             Utility.AddNativieResource(range);

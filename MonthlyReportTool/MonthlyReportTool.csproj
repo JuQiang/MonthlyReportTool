@@ -60,7 +60,8 @@
     <Compile Include="API\Office\Excel\ExcelSheetBase.cs" />
     <Compile Include="API\Office\Excel\IExcelSheet.cs" />
     <Compile Include="API\Office\Excel\Utility.cs" />
-    <Compile Include="API\PPT.cs" />
+    <Compile Include="API\Office\PowerPoint\PPT.cs" />
+    <Compile Include="API\Office\PowerPoint\Utility.cs" />
     <Compile Include="API\TFS\Agile\Capacity.cs" />
     <Compile Include="API\TFS\Agile\IterationEntity.cs" />
     <Compile Include="API\TFS\TeamProject\Member.cs" />
@@ -83,8 +84,6 @@
     <Compile Include="API\TFS\TeamProject\ProjectEntity.cs" />
     <Compile Include="API\TFS\WorkItem\Workload.cs" />
     <Compile Include="API\TFS\WorkItem\WorkloadEntity.cs" />
-    <Compile Include="Entity\ReleasePlan.cs" />
-    <Compile Include="Entity\TeamMember.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

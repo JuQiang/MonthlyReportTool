@@ -49,6 +49,7 @@ namespace MonthlyReportTool.API.Office.Excel
             }
 
             startRow = Build115Analysis(startRow, workloads);
+            startRow = Build100Analysis(startRow, workloads);
             startRow = Build60Analysis(startRow, workloads);
             startRow = BUild50Analysis(startRow, dataRow);
 
@@ -66,14 +67,16 @@ namespace MonthlyReportTool.API.Office.Excel
             int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "计划偏差大于50%分析", "说明：", "B", "U",
                 new List<string>() { "计划偏差大于50%分析", "说明：", "研发占比低于60%原因分析" },
                 new List<string>() { "B,B", "C,E", "F,U" },
-                5
+                5,
+                nodata:true
                 );
 
-            Utility.SetCellRedColor(sheet.Cells[startRow, "B"]);
-            
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow + 2, "B"], sheet.Cells[startRow + 2 + 5, "U"]];
-            Utility.AddNativieResource(range);
-            range.Merge();
+            sheet.Cells[startRow + 2, "B"] = "计划偏差大于50%分析";
+            Utility.SetCellRedColor(sheet.Cells[startRow+2, "B"]);
+
+            //ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow + 2, "B"], sheet.Cells[startRow + 2 + 5, "U"]];
+            //Utility.AddNativieResource(range);
+            //range.Merge();
 
             return nextRow;
         }
@@ -98,7 +101,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + ds.Count - 1, "B"]]);
 
-            Utility.SetupSheetPercentFormat(sheet,sheet.Range[sheet.Cells[ startRow , "C"],sheet.Cells[startRow + ds.Count() - 1, "C"]]);
+            Utility.SetCellPercentFormat(sheet.Range[sheet.Cells[ startRow , "C"],sheet.Cells[startRow + ds.Count() - 1, "C"]]);
 
             return nextRow;
         }
@@ -124,11 +127,36 @@ namespace MonthlyReportTool.API.Office.Excel
 
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + ds.Count - 1, "B"]]);
 
-            Utility.SetupSheetPercentFormat(sheet,sheet.Range[sheet.Cells[startRow , "C"],sheet.Cells[startRow + ds.Count() - 1, "C"]]);
+            Utility.SetCellPercentFormat(sheet.Range[sheet.Cells[startRow , "C"],sheet.Cells[startRow + ds.Count() - 1, "C"]]);
 
             return nextRow;
         }
 
+        private int Build100Analysis(int startRow, List<Tuple<string, double, double>> workloads)
+        {
+
+            var ds = workloads.Where(wl => wl.Item2 < 1.00d).OrderByDescending(wl => wl.Item2).ToList();
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "工作量饱和度不足100%分析", "说明：对工作量饱和度不足100%%（不包括100%）的同事，分别做原因分析", "B", "U",
+                new List<string>() { "团队成员", "工作量饱和度", "工作量饱和度不足100%原因分析" },
+                new List<string>() { "B,B", "C,E", "F,U" },
+                ds.Count()
+                );
+
+            Utility.SetCellRedColor(sheet.Cells[startRow + 2, "F"]);
+            startRow += 3;
+            for (int i = 0; i < ds.Count(); i++)
+            {
+                this.sheet.Cells[startRow + i, "B"] = ds[i].Item1;
+                this.sheet.Cells[startRow + i, "C"] = ds[i].Item2;
+                this.sheet.Cells[startRow + i, "F"] = "";
+            }
+
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + ds.Count - 1, "B"]]);
+
+            Utility.SetCellPercentFormat(sheet.Range[sheet.Cells[startRow, "C"], sheet.Cells[startRow + ds.Count() - 1, "C"]]);
+
+            return nextRow;
+        }
         private void BuildTitle()
         {
             Utility.BuildFormalSheetTitle(sheet, 2, "B", 2, "AG", "工作量统计分析");
@@ -266,7 +294,7 @@ namespace MonthlyReportTool.API.Office.Excel
             int standardWorkingDays = TFS.Utility.GetStandardWorkingDays(this.project.Name, TFS.Utility.GetBestIteration(this.project.Name));
             var orderedLoads = GetOrderedWorkloads(workloads);
 
-            var allbugs = Bug.GetAddedBugs(this.project.Name, API.TFS.Utility.GetBestIteration(this.project.Name));
+            var allbugs = Bug.GetAddedBugsByIteration(this.project.Name, API.TFS.Utility.GetBestIteration(this.project.Name));
             object[,] arr = new object[orderedLoads.Count(), 33];
             int line = 0;
 
@@ -303,7 +331,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
                 arr[line, 0] = person;
                 arr[line, 1] = standardWorkingDays * 8;
-                arr[line, 2] = load.Sum(wl => wl.SumHours) - leavetime;
+                arr[line, 2] = load.Where(wl => wl.Type != "请假").Sum(wl => wl.SumHours);
                 arr[line, 3] = leavetime;
                 arr[line, 4] = String.Format("=D{0}/C{0}", startrow);
                 arr[line, 5] = bugCount;
@@ -351,7 +379,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[firstrow, "B"], sheet.Cells[firstrow + orderedLoads.Count() - 1, "B"]]);
 
-            Utility.SetupSheetPercentFormat(sheet,sheet.Range[sheet.Cells[firstrow, "F"],sheet.Cells[startrow - 1, "F"]]);
+            Utility.SetCellPercentFormat(sheet.Range[sheet.Cells[firstrow, "F"],sheet.Cells[startrow - 1, "F"]]);
 
             ExcelInterop.Range bugrange = sheet.Range[sheet.Cells[firstrow, "H"], sheet.Cells[startrow - 1, "H"]];
             Utility.AddNativieResource(bugrange);
@@ -359,7 +387,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
             for (int col = 9; col <= 33; col += 2)
             {
-                Utility.SetupSheetPercentFormat(sheet, firstrow, col, startrow - 1, col);
+                Utility.SetCellPercentFormat(sheet, firstrow, col, startrow - 1, col);
             }
 
             Utility.SetFormatBigger(sheet.Range[sheet.Cells[firstrow, "F"], sheet.Cells[startrow - 1, "F"]], 1.15d);
@@ -375,13 +403,9 @@ namespace MonthlyReportTool.API.Office.Excel
 
             return loads.OrderByDescending(
                 load => (
-                    (
-                    load.Sum(wl => wl.SumHours)
-                    -
-                    load.Where(wl => wl.SupperType == "请假").Sum(wl => wl.SumHours)
+                    load.Where(eachload => eachload.Type != "请假").Sum(eachload => eachload.SumHours)
                     )
-                )
-            );
+                );
         }
 
         
@@ -429,7 +453,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 range.Merge();
             }
 
-            Utility.SetTableHeaderFormat(sheet, sheet.get_Range("B11:AG13"), false);
+            Utility.SetTableHeaderFormat(sheet.get_Range("B11:AG13"), false);
 
             var testlist = TFS.Utility.GetTestMembers(false);
             List<WorkloadEntity> devload = new List<WorkloadEntity>();
@@ -463,67 +487,69 @@ namespace MonthlyReportTool.API.Office.Excel
             sheet.Cells[7, "X"] = "=(U7-R7)/R7";
             sheet.Cells[7, "AA"] = estimated.Item3;
 
-            Utility.SetupSheetPercentFormat(sheet, sheet.Cells[7, "X"]);
+            Utility.SetCellPercentFormat(sheet.Cells[7, "X"]);
 
             return startrow + 2;
         }
 
-        private void FillSummaryData(int startrow)
+        private void FillSummaryData(int startRow)
         {
-            Utility.SetCellBorder(sheet.Range[sheet.Cells[startrow, "B"], sheet.Cells[startrow, "AG"]]);            
+            Utility.SetCellBorder(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow, "AG"]]);            
 
-            sheet.Cells[startrow, "B"] = "合计";
-            sheet.Cells[startrow, "C"] = String.Format("=sum(C14:C{0}", startrow - 1);
-            sheet.Cells[startrow, "D"] = String.Format("=sum(D14:D{0}", startrow - 1);
-            sheet.Cells[startrow, "E"] = String.Format("=sum(E14:E{0}", startrow - 1);
-            sheet.Cells[startrow, "F"] = String.Format("=IF(C{0}<>0,D{0}/C{0},\"\")", startrow);
-            sheet.Cells[startrow, "G"] = String.Format("=sum(G14:G{0}", startrow - 1);
-            sheet.Cells[startrow, "H"] = String.Format("=G{0}/(D{0}/8)", startrow);
-            sheet.Cells[startrow, "I"] = String.Format("=(J{0} + L{0} + N{0} + P{0} + R{0} + T{0}) / D{0}", startrow);
-            sheet.Cells[startrow, "J"] = String.Format("=sum(J14:J{0}", startrow - 1);
-            sheet.Cells[startrow, "K"] = String.Format("=J{0}/D{0}", startrow);
-            sheet.Cells[startrow, "L"] = String.Format("=sum(L14:L{0}", startrow - 1);
-            sheet.Cells[startrow, "M"] = String.Format("=L{0}/D{0}", startrow);
-            sheet.Cells[startrow, "N"] = String.Format("=sum(N14:N{0}", startrow - 1);
-            sheet.Cells[startrow, "O"] = String.Format("=N{0}/D{0}", startrow);
-            sheet.Cells[startrow, "P"] = String.Format("=sum(P14:P{0}", startrow - 1);
-            sheet.Cells[startrow, "Q"] = String.Format("=P{0}/D{0}", startrow);
-            sheet.Cells[startrow, "R"] = String.Format("=sum(R14:R{0}", startrow - 1);
-            sheet.Cells[startrow, "S"] = String.Format("=R{0}/D{0}", startrow);
-            sheet.Cells[startrow, "T"] = String.Format("=sum(T14:T{0}", startrow - 1);
-            sheet.Cells[startrow, "U"] = String.Format("=T{0}/D{0}", startrow);
-            sheet.Cells[startrow, "V"] = String.Format("=sum(V14:V{0}", startrow - 1);
-            sheet.Cells[startrow, "W"] = String.Format("=V{0}/D{0}", startrow);
-            sheet.Cells[startrow, "X"] = String.Format("=sum(X14:X{0}", startrow - 1);
-            sheet.Cells[startrow, "Y"] = String.Format("=X{0}/D{0}", startrow);
-            sheet.Cells[startrow, "Z"] = String.Format("=sum(Z14:Z{0}", startrow - 1);
-            sheet.Cells[startrow, "AA"] = String.Format("=Z{0}/D{0}", startrow);
-            sheet.Cells[startrow, "AB"] = String.Format("=sum(AB14:AB{0}", startrow - 1);
-            sheet.Cells[startrow, "AC"] = String.Format("=AB{0}/D{0}", startrow);
-            sheet.Cells[startrow, "AD"] = String.Format("=sum(AD14:AD{0}", startrow - 1);
-            sheet.Cells[startrow, "AE"] = String.Format("=AD{0}/D{0}", startrow);
-            sheet.Cells[startrow, "AF"] = String.Format("=sum(AF14:AF{0}", startrow - 1);
-            sheet.Cells[startrow, "AG"] = String.Format("=AF{0}/D{0}", startrow);
+            sheet.Cells[startRow, "B"] = "合计";
+            sheet.Cells[startRow, "C"] = String.Format("=sum(C14:C{0}", startRow - 1);
+            sheet.Cells[startRow, "D"] = String.Format("=sum(D14:D{0}", startRow - 1);
+            sheet.Cells[startRow, "E"] = String.Format("=sum(E14:E{0}", startRow - 1);
+            sheet.Cells[startRow, "F"] = String.Format("=IF(C{0}<>0,D{0}/C{0},\"\")", startRow);
+            sheet.Cells[startRow, "G"] = String.Format("=sum(G14:G{0}", startRow - 1);
+            sheet.Cells[startRow, "H"] = String.Format("=G{0}/(D{0}/8)", startRow);
+            sheet.Cells[startRow, "I"] = String.Format("=(J{0} + L{0} + N{0} + P{0} + R{0} + T{0}) / D{0}", startRow);
+            sheet.Cells[startRow, "J"] = String.Format("=sum(J14:J{0}", startRow - 1);
+            sheet.Cells[startRow, "K"] = String.Format("=J{0}/D{0}", startRow);
+            sheet.Cells[startRow, "L"] = String.Format("=sum(L14:L{0}", startRow - 1);
+            sheet.Cells[startRow, "M"] = String.Format("=L{0}/D{0}", startRow);
+            sheet.Cells[startRow, "N"] = String.Format("=sum(N14:N{0}", startRow - 1);
+            sheet.Cells[startRow, "O"] = String.Format("=N{0}/D{0}", startRow);
+            sheet.Cells[startRow, "P"] = String.Format("=sum(P14:P{0}", startRow - 1);
+            sheet.Cells[startRow, "Q"] = String.Format("=P{0}/D{0}", startRow);
+            sheet.Cells[startRow, "R"] = String.Format("=sum(R14:R{0}", startRow - 1);
+            sheet.Cells[startRow, "S"] = String.Format("=R{0}/D{0}", startRow);
+            sheet.Cells[startRow, "T"] = String.Format("=sum(T14:T{0}", startRow - 1);
+            sheet.Cells[startRow, "U"] = String.Format("=T{0}/D{0}", startRow);
+            sheet.Cells[startRow, "V"] = String.Format("=sum(V14:V{0}", startRow - 1);
+            sheet.Cells[startRow, "W"] = String.Format("=V{0}/D{0}", startRow);
+            sheet.Cells[startRow, "X"] = String.Format("=sum(X14:X{0}", startRow - 1);
+            sheet.Cells[startRow, "Y"] = String.Format("=X{0}/D{0}", startRow);
+            sheet.Cells[startRow, "Z"] = String.Format("=sum(Z14:Z{0}", startRow - 1);
+            sheet.Cells[startRow, "AA"] = String.Format("=Z{0}/D{0}", startRow);
+            sheet.Cells[startRow, "AB"] = String.Format("=sum(AB14:AB{0}", startRow - 1);
+            sheet.Cells[startRow, "AC"] = String.Format("=AB{0}/D{0}", startRow);
+            sheet.Cells[startRow, "AD"] = String.Format("=sum(AD14:AD{0}", startRow - 1);
+            sheet.Cells[startRow, "AE"] = String.Format("=AD{0}/D{0}", startRow);
+            sheet.Cells[startRow, "AF"] = String.Format("=sum(AF14:AF{0}", startRow - 1);
+            sheet.Cells[startRow, "AG"] = String.Format("=AF{0}/D{0}", startRow);
 
-            sheet.Cells[7, "B"] = String.Format("=C{0}", startrow);
-            sheet.Cells[7, "F"] = String.Format("=D{0}", startrow);
-            sheet.Cells[7, "I"] = String.Format("=F7/B7", startrow);
-            sheet.Cells[7, "K"] = String.Format("=J{0}+L{0}+N{0}+P{0}+R{0}+T{0}", startrow);
-            sheet.Cells[7, "M"] = String.Format("=K7/F7", startrow);
+            sheet.Cells[7, "B"] = String.Format("=C{0}", startRow);
+            sheet.Cells[7, "F"] = String.Format("=D{0}", startRow);
+            sheet.Cells[7, "I"] = String.Format("=F7/B7", startRow);
+            sheet.Cells[7, "K"] = String.Format("=J{0}+L{0}+N{0}+P{0}+R{0}+T{0}", startRow);
+            sheet.Cells[7, "M"] = String.Format("=K7/F7", startRow);
 
-            Utility.SetupSheetPercentFormat(sheet, sheet.Cells[startrow, "F"]);
+            Utility.SetCellPercentFormat(sheet.Cells[startRow, "F"]);
 
             for (int i = 9; i <= 33; i += 2)
             {
-                Utility.SetupSheetPercentFormat(sheet, startrow, i, startrow, i);
+                Utility.SetCellPercentFormat(sheet, startRow, i, startRow, i);
             }
 
-            Utility.SetupSheetPercentFormat(sheet, 7, 9, 7, 9);
-            Utility.SetupSheetPercentFormat(sheet, 7, 13, 7, 13);
+            Utility.SetCellPercentFormat(sheet, 7, 9, 7, 9);
+            Utility.SetCellPercentFormat(sheet, 7, 13, 7, 13);
 
-            ExcelInterop.Range bugrange = sheet.Cells[startrow, "H"];
+            ExcelInterop.Range bugrange = sheet.Cells[startRow, "H"];
             Utility.AddNativieResource(bugrange);
             bugrange.NumberFormat = "#0.00";
+
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow, "B"]], hAlign: ExcelInterop.XlHAlign.xlHAlignCenter);
         }
     }
 }

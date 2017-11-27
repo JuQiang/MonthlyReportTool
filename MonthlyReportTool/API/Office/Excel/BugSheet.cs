@@ -24,7 +24,7 @@ namespace MonthlyReportTool.API.Office.Excel
         public void Build(ProjectEntity project)
         {
             this.project = project;
-            this.bugList = Bug.GetAll(project.Name, TFS.Utility.GetBestIteration(project.Name));
+            this.bugList = Bug.GetAllByIteration(project.Name, TFS.Utility.GetBestIteration(project.Name));
             BuildTitle();
             BuildSubTitle();
 
@@ -154,25 +154,11 @@ namespace MonthlyReportTool.API.Office.Excel
                     colRange.Merge();
                     sheet.Cells[start + row, colsname[col].Item1] = cols[row, col];
 
-                    var border = colRange.Borders;
-                    Utility.AddNativieResource(border);
-                    border.LineStyle = ExcelInterop.XlLineStyle.xlContinuous;
                 }
             }
 
-            ExcelInterop.Range tableRange = sheet.Range[sheet.Cells[start, "B"], sheet.Cells[start, "I"]];
-            Utility.AddNativieResource(tableRange);
-            tableRange.RowHeight = 20;
-            tableRange.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignCenter;
-
-            var interior = tableRange.Interior;
-            Utility.AddNativieResource(interior);
-            interior.Color = System.Drawing.Color.DarkGray.ToArgb();
-
-            var tableFont = tableRange.Font;
-            Utility.AddNativieResource(tableFont);
-            tableFont.Bold = true;
-
+            Utility.SetCellBorder(sheet.Range[sheet.Cells[start, "B"], sheet.Cells[start + cols.GetLength(0) - 1, "I"]]);
+            Utility.SetTableHeaderFormat(sheet.Range[sheet.Cells[start, "B"], sheet.Cells[start, "I"]],true);
 
             sheet.Cells[7, "H"] = "=SUM(C7:G7)"; sheet.Cells[8, "H"] = "=SUM(C8:G8)"; sheet.Cells[9, "H"] = "=SUM(C9:G9)"; sheet.Cells[10, "H"] = "=SUM(C10:G10)"; sheet.Cells[11, "H"] = "=SUM(C11:G11)";
             sheet.Cells[7, "I"] = "=(C7+D7)/H7"; sheet.Cells[8, "I"] = "=(C8+D8)/H8"; sheet.Cells[9, "I"] = "=(C9+D9)/H9"; 
@@ -182,7 +168,7 @@ namespace MonthlyReportTool.API.Office.Excel
             sheet.Cells[12, "E"] = "Bug遗留率";
             sheet.Cells[12, "F"] = "=1-C12";
 
-            Utility.SetupSheetPercentFormat(sheet, sheet.get_Range("C12:C12,F12:F12,I7:I9"));
+            Utility.SetCellPercentFormat(sheet.get_Range("C12:C12,F12:F12,I7:I9"));
 
             List<List<BugEntity>> list = new List<List<BugEntity>>();
             list.Add(this.bugList[0]);
@@ -245,9 +231,9 @@ namespace MonthlyReportTool.API.Office.Excel
             sheet.Cells[startRow + members.Count, "E"] = String.Format("=SUM(E{0}:E{1})", startRow, startRow + members.Count - 1);
             sheet.Cells[startRow + members.Count, "F"] = String.Format("=E{0}/(D{0}+E{0})", startRow + members.Count);
 
-            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + members.Count, "B"]]);
-            Utility.SetCellBorder(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + members.Count, "B"]]);
-            Utility.SetupSheetPercentFormat(sheet,sheet.Range[sheet.Cells[startRow, "F"],sheet.Cells[startRow + members.Count, "F"]]);
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow + members.Count, "B"], sheet.Cells[startRow + members.Count, "B"]],hAlign:ExcelInterop.XlHAlign.xlHAlignCenter);
+            Utility.SetCellBorder(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + members.Count, "F"]]);
+            Utility.SetCellPercentFormat(sheet.Range[sheet.Cells[startRow, "F"],sheet.Cells[startRow + members.Count, "F"]]);
 
             AddBugChart(sheet,
                 startRow-2, "G", startRow + members.Count-1, "L",

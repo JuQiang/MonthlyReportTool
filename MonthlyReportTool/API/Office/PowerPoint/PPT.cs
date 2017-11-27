@@ -9,7 +9,7 @@ using OfficeInterop = Microsoft.Office.Core;
 using Microsoft.Office.Core;
 using MonthlyReportTool.API.TFS.WorkItem;
 
-namespace MonthlyReportTool.API
+namespace MonthlyReportTool.API.Office.PowerPoint
 {
     public class PPT
     {
@@ -116,7 +116,7 @@ namespace MonthlyReportTool.API
 
 
         public void BuildSlides()
-        {
+        {            
             //var allbugs = (new TFS.Utility()).RetrieveAllBugsByDate("2017-10-01", "2017-11-01");
             //var teambugs = allbugs.GroupBy(wi => wi.SystemTeamProject);
 

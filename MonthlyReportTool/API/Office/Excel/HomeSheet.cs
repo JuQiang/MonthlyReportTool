@@ -9,7 +9,7 @@ using MonthlyReportTool.API.TFS.TeamProject;
 
 namespace MonthlyReportTool.API.Office.Excel
 {
-    public class HomeSheet : ExcelSheetBase,IExcelSheet
+    public class HomeSheet : ExcelSheetBase, IExcelSheet
     {
         private ExcelInterop.Worksheet sheet;
         public HomeSheet(ExcelInterop.Worksheet sheet) : base(sheet)
@@ -50,9 +50,14 @@ namespace MonthlyReportTool.API.Office.Excel
                             "      用途：用于各团队项目编制迭代总结的参考。\r\n" +
                             "      标题：团队项目全称 + SprintXX + 总结。例如：公共技术Sprint34总结。\r\n" +
                             "文档命名：团队项目简称 + SprintXX + 总结 +（报告期间）。例如：TTP Sprint34总结（20171009_20171028）\r\n" +
-                            "      页眉：和文档标题一致。例如：公共技术Sprint34总结。\r\n" +
                             "      注解：正文中倾斜字体部分需要替换成实际内容，且修改为非倾斜字体。\r\n";
             sheet.Cells[10, "C"] = text;
+
+            Utility.SetCellColor(sheet.Cells[10, "C"], System.Drawing.Color.Black, "模板说明：", true);
+            Utility.SetCellColor(sheet.Cells[10, "C"], System.Drawing.Color.Black, "用途：", true);
+            Utility.SetCellColor(sheet.Cells[10, "C"], System.Drawing.Color.Black, "标题：", true);
+            Utility.SetCellColor(sheet.Cells[10, "C"], System.Drawing.Color.Black, "文档命名：", true);
+            Utility.SetCellColor(sheet.Cells[10, "C"], System.Drawing.Color.Black, "注解：", true);
 
             ExcelInterop.Range range2 = sheet.Range[sheet.Cells[10, "C"], sheet.Cells[17, "J"]];
             Utility.AddNativieResource(range2);
@@ -90,8 +95,16 @@ namespace MonthlyReportTool.API.Office.Excel
             #endregion 2nd paragraph
 
             #region 3rd paragraph
-            text = "表格内容使用说明：1、表格中需要公式计算的地方已添加公式，填入统计数据后，派生数据会自动生成，底色为绿色的不要随意改动；";
+            text = 
+                "表格内容使用说明：\r\n" +
+                "    1、表格中需要公式计算的地方已添加公式，填入统计数据后，派生数据会自动生成，底色为绿色的不要随意改动；\r\n" +
+                "    2、报告中所有统计数据来源的查询，都在OrgPortal/共享查询/ 迭代总结数据查询目录下的相关子目录下。\r\n" +
+                "    3、红色字体标题或者说明部分，是需要在自动生成的数据基础上做加工处理或者需要手工填充数据的。";
             sheet.Cells[19, "C"] = text;
+
+            Utility.SetCellColor(sheet.Cells[19, "C"], System.Drawing.Color.Red, "OrgPortal/共享查询/ 迭代总结数据查询");
+            Utility.SetCellColor(sheet.Cells[19, "C"], System.Drawing.Color.Black, "表格内容使用说明：",true);
+            Utility.SetCellColor(sheet.Cells[19, "C"], System.Drawing.Color.Red, "3、红色字体标题或者说明部分，是需要在自动生成的数据基础上做加工处理或者需要手工填充数据的。");
 
             ExcelInterop.Range range3 = sheet.Range[sheet.Cells[19, "C"], sheet.Cells[23, "J"]];
             Utility.AddNativieResource(range3);
@@ -99,17 +112,9 @@ namespace MonthlyReportTool.API.Office.Excel
             range3.UseStandardHeight = true;
             range3.WrapText = true;
             range3.VerticalAlignment = ExcelInterop.XlVAlign.xlVAlignCenter;
-            var font3 = range3.Font;
-            Utility.AddNativieResource(font3);
-            font3.Size = 11;
-            font3.Name = "微软雅黑";
+            
 
-            var tmpcharc3 = range3.Characters[1, 9];
-            var tmpfont3 = tmpcharc3.Font;
-            tmpfont3.Bold = true;
-
-            Utility.AddNativieResource(tmpfont3);
-            Utility.AddNativieResource(tmpcharc3);
+            
 
 
             var border3 = range3.Borders;
@@ -118,7 +123,7 @@ namespace MonthlyReportTool.API.Office.Excel
             #endregion 3rd paragraph
 
             #region 4th paragraph
-            text = "项目模板定义：1、此模板为组织级模板，各团队项目根据人员投入及团队项目情况定义自己的模板，团队项目模板生成后，每次直接填写数据即可，不必每次调整模板格式；";
+            text = "项目模板定义：\r\n1、此模板为组织级模板，各团队项目根据人员投入及团队项目情况定义自己的模板，团队项目模板生成后，每次直接填写数据即可，不必每次调整模板格式；";
             sheet.Cells[25, "C"] = text;
 
             ExcelInterop.Range range4 = sheet.Range[sheet.Cells[25, "C"], sheet.Cells[28, "J"]];
@@ -127,17 +132,8 @@ namespace MonthlyReportTool.API.Office.Excel
             range4.UseStandardHeight = true;
             range4.WrapText = true;
             range4.VerticalAlignment = ExcelInterop.XlVAlign.xlVAlignCenter;
-            var font4 = range4.Font;
-            Utility.AddNativieResource(font4);
-            font4.Size = 11;
-            font4.Name = "微软雅黑";
 
-            var tmpcharc4 = range4.Characters[1, 9];
-            var tmpfont4 = tmpcharc4.Font;
-            tmpfont4.Bold = true;
-
-            Utility.AddNativieResource(tmpfont4);
-            Utility.AddNativieResource(tmpcharc4);
+            Utility.SetCellColor(sheet.Cells[25, "C"], System.Drawing.Color.Black, "项目模板定义：", true);
 
 
             var border4 = range4.Borders;

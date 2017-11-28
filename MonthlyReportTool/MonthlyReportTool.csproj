@@ -60,6 +60,13 @@
     <Compile Include="API\Office\Excel\ExcelSheetBase.cs" />
     <Compile Include="API\Office\Excel\IExcelSheet.cs" />
     <Compile Include="API\Office\Excel\Utility.cs" />
+    <Compile Include="API\Office\PowerPoint\Quality\BugCategorySlide.cs" />
+    <Compile Include="API\Office\PowerPoint\Quality\ContentSlide.cs" />
+    <Compile Include="API\Office\PowerPoint\Quality\IntroductionSlide.cs" />
+    <Compile Include="API\Office\PowerPoint\Quality\BugOverviewSlide.cs" />
+    <Compile Include="API\Office\PowerPoint\Quality\IPowerPointSlide.cs" />
+    <Compile Include="API\Office\PowerPoint\MyGraph.cs" />
+    <Compile Include="API\Office\PowerPoint\PowerPointSlideBase.cs" />
     <Compile Include="API\Office\PowerPoint\PPT.cs" />
     <Compile Include="API\Office\PowerPoint\Utility.cs" />
     <Compile Include="API\TFS\Agile\Capacity.cs" />
@@ -104,6 +111,15 @@
     </COMReference>
     <COMReference Include="Microsoft.Office.Interop.Excel">
       <Guid>{00020813-0000-0000-C000-000000000046}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>9</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>primary</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="Microsoft.Office.Interop.Graph">
+      <Guid>{00020802-0000-0000-C000-000000000046}</Guid>
       <VersionMajor>1</VersionMajor>
       <VersionMinor>9</VersionMinor>
       <Lcid>0</Lcid>

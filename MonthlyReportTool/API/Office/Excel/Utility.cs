@@ -58,7 +58,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 nativeResources.Add(sheet);
                 sheet.Name = allSheets[i].Item1;
 
-                WriteLog("\t" + sheet.Name);
+                Console.WriteLine("\t" + sheet.Name);
 
                 Type t = allSheets[i].Item2;
                 var ci = t.GetConstructor(new Type[] { typeof(ExcelInterop.Worksheet) });
@@ -66,7 +66,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 t.InvokeMember("Build", BindingFlags.InvokeMethod, null, obj, new object[] { project });
             }
 
-            WriteLog("保存文件.");
+            Console.WriteLine("保存文件.");
             sheets.Select();//选择所有的sheet
 
             var window = excel.ActiveWindow;
@@ -83,12 +83,12 @@ namespace MonthlyReportTool.API.Office.Excel
             workbook.SaveAs(fname);
             workbook.Close();
 
-            WriteLog("释放资源.");
+            Console.WriteLine("释放资源.");
             foreach (object com in nativeResources)
             {
                 TFS.Utility.ReleaseComObject(com);
             }
-            WriteLog("附件已经保存在：" + fname);
+            Console.WriteLine("附件已经保存在：" + fname);
 
             excel.Quit();
         }
@@ -321,16 +321,7 @@ namespace MonthlyReportTool.API.Office.Excel
             colA.ColumnWidth = 2;
         }
 
-        public static void WriteLog(string msg)
-        {
-            string line = String.Format("{0} --- {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"), msg);
-            Console.WriteLine(msg);
-
-            using (StreamWriter sw = new StreamWriter(Environment.GetEnvironmentVariable("temp") + "\\log.txt", true))
-            {
-                sw.WriteLine(line);
-            }
-        }
+        
 
     }
 }

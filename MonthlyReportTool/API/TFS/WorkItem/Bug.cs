@@ -132,13 +132,14 @@ namespace MonthlyReportTool.API.TFS.WorkItem
             return list;
         }
 
-        public static List<BugEntity> GetAllByDate(string project, string query, string startDate, string endDate)
+        public static List<BugEntity> GetAllByDate(string project, string startDate, string endDate)
         {
             List<BugEntity> list = new List<BugEntity>();
-            string wiql = API.TFS.Utility.GetQueryClause(query);
+                                                          
+            string wiql = API.TFS.Utility.GetQueryClause("共享查询%2F研发月度运营会议数据统计%2F产品质量分析报告%2FBUG总体数量及类别分布分析");
             var tuple = Tuple.Create<string, string, string, string>("[System.TeamProject] =",
                 "[System.CreatedDate] >=",
-                "[System.CreatedDate] <",
+                "[System.CreatedDate] <=",
                 "[Teld.Scrum.BelongTeamProject] ="
                 );
 
@@ -146,8 +147,8 @@ namespace MonthlyReportTool.API.TFS.WorkItem
 
             string sql = String.Format(wiql,
                 project,
-                startDate,//第一天是大于等于
-                endDate,//最后一天要加一
+                startDate,
+                endDate,
                 project
             );
 
@@ -165,22 +166,11 @@ namespace MonthlyReportTool.API.TFS.WorkItem
                         AssignedTo = Convert.ToString(bug["fields"]["System.AssignedTo"]),
                         State = Convert.ToString(bug["fields"]["System.State"]),
                         Type = Convert.ToString(bug["fields"]["Teld.Bug.Type"]),
-                        Severity = Convert.ToString(bug["fields"]["Microsoft.VSTS.Common.Severity"]),
-                        ResolvedReason = Convert.ToString(bug["fields"]["Teld.Bug.ResolvedReason"]),
-                        Envir = Convert.ToString(bug["fields"]["Teld.Bug.Envir"]),
-                        CreatedDate = Convert.ToString(bug["fields"]["System.CreatedDate"]),
-                        ChangedDate = Convert.ToString(bug["fields"]["System.ChangedDate"]),
-                        DetectionMode = Convert.ToString(bug["fields"]["Teld.Bug.DetectionMode"]),
-                        DetectionPhase = Convert.ToString(bug["fields"]["Teld.Bug.DetectionPhase"]),
-                        HopeFixSubmitTime = Convert.ToString(bug["fields"]["Teld.Bug.HopeFixSubmitTime"]),
+                        Severity = Convert.ToString(bug["fields"]["Microsoft.VSTS.Common.Severity"]),                       
+                        CreatedDate = Convert.ToString(bug["fields"]["System.CreatedDate"]),                        
                         TeamProject = Convert.ToString(bug["fields"]["System.TeamProject"]),
-                        CreatedBy = Convert.ToString(bug["fields"]["System.CreatedBy"]),
-                        IterationPath = Convert.ToString(bug["fields"]["System.IterationPath"]),
-                        TestResponsibleMan = Convert.ToString(bug["fields"]["Teld.Scrum.TestResponsibleMan"]),
-                        DiscoveryUser = Convert.ToString(bug["fields"]["Teld.Bug.DiscoveryUser"]),
-                        FunctionMenu = Convert.ToString(bug["fields"]["Teld.Bug.FunctionMenu"]),
-                        DevResponsibleMan = Convert.ToString(bug["fields"]["Teld.Scrum.DevResponsibleMan"]),
-                        Source = Convert.ToString(bug["fields"]["Teld.Scrum.Source"]),
+                        BelongTeamProject = Convert.ToString(bug["fields"]["Teld.Scrum.BelongTeamProject"]),
+                        AreaPath = Convert.ToString(bug["fields"]["System.AreaPath"]),
                     }
                 );
             }

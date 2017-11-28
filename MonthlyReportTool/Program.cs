@@ -12,17 +12,16 @@ namespace MonthlyReportTool
     {
         static void Main(string[] args)
         {
-            string user, pass, type, proj, path;
+            string user, pass, type, proj, path, date;
 
             ShowVersion();
 
             try
             {
-                if (!IsValidArgument(args, out user, out pass, out type, out proj, out path)) return;
+                if (!IsValidArgument(args, out user, out pass, out type, out proj, out path, out date)) return;
 
                 API.TFS.Utility.User = user;
                 API.TFS.Utility.Pass = pass;
-
 
                 if (type == "iteration")
                 {
@@ -30,11 +29,11 @@ namespace MonthlyReportTool
                 }
                 else if (type == "quality")
                 {
-                    GenerateMonthQualityReport(proj, path);
+                    GenerateMonthQualityReport(proj, path, date);
                 }
                 else if (type == "month")
                 {
-                    GenerateMonthReport(path);
+                    GenerateMonthReport(path, date);
                 }
                 else
                 {
@@ -45,7 +44,7 @@ namespace MonthlyReportTool
             {
                 if (exception.TargetSite.Name == "EnsureSuccessStatusCode")
                 {
-                    API.Office.Excel.Utility.WriteLog("请确保网络通畅，或者TFS的用户名、密码、项目名称都是正确的。");
+                    Console.WriteLine("请确保网络通畅，或者TFS的用户名、密码、项目名称都是正确的。");
                 }
                 StringBuilder sb = new StringBuilder("！！！出错了！！！");
                 for (Exception ex = exception; ex != null; ex = ex.InnerException)
@@ -53,13 +52,13 @@ namespace MonthlyReportTool
                     sb.AppendLine(ex.Message);
                     sb.AppendLine(ex.StackTrace);
                 }
-                API.Office.Excel.Utility.WriteLog(sb.ToString());
+                Console.WriteLine(sb.ToString());
             }
 
 
         }
 
-        private static void GenerateMonthReport(string path)
+        private static void GenerateMonthReport(string path, string date)
         {
             var today = DateTime.Now;
             var lastMonth = today.AddMonths(-1);
@@ -84,16 +83,16 @@ namespace MonthlyReportTool
                 }
             }
 
-            API.Office.Excel.Utility.WriteLog("");
-            API.Office.Excel.Utility.WriteLog("！！！注意！！！程序运行时，不要使用剪贴板！！！");
-            API.Office.Excel.Utility.WriteLog("！！！一分钟左右就能出来结果，别着急！！！");
-            API.Office.Excel.Utility.WriteLog("");
-            API.Office.Excel.Utility.WriteLog(string.Format("正在生成 云平台月度经营报告（{0}）.pptx", lastMonth.ToString("yyyy年MM月")));
+            Console.WriteLine("");
+            Console.WriteLine("！！！注意！！！程序运行时，不要使用剪贴板！！！");
+            Console.WriteLine("！！！一分钟左右就能出来结果，别着急！！！");
+            Console.WriteLine("");
+            Console.WriteLine(string.Format("正在生成 云平台月度经营报告（{0}）.pptx", lastMonth.ToString("yyyy年MM月")));
 
             API.Office.PowerPoint.Utility.BuildMonthReport(lastMonth.Year, lastMonth.Month);
         }
 
-        private static void GenerateMonthQualityReport(string proj, string path)
+        private static void GenerateMonthQualityReport(string proj, string path, string date)
         {
             var project = API.TFS.TeamProject.Project.RetrieveProjectList().Where(prj => prj.Name.ToLower() == proj.ToLower()).ToList()[0];
 
@@ -117,13 +116,13 @@ namespace MonthlyReportTool
                 }
             }
 
-            API.Office.Excel.Utility.WriteLog("");
-            API.Office.Excel.Utility.WriteLog("！！！注意！！！程序运行时，不要使用剪贴板！！！");
-            API.Office.Excel.Utility.WriteLog("！！！一分钟左右就能出来结果，别着急！！！");
-            API.Office.Excel.Utility.WriteLog("");
-            API.Office.Excel.Utility.WriteLog("正在生成 《" + project.Description + "》 质量分析报告...");
+            Console.WriteLine("");
+            Console.WriteLine("！！！注意！！！程序运行时，不要使用剪贴板！！！");
+            Console.WriteLine("！！！一分钟左右就能出来结果，别着急！！！");
+            Console.WriteLine("");
+            Console.WriteLine("正在生成 《" + project.Description + "》 质量分析报告...");
 
-            API.Office.PowerPoint.Utility.BuildQualityReport(project);
+            API.Office.PowerPoint.Utility.BuildQualityReport(project, date);
         }
 
         private static void GenerateIterationReport(string proj, string path)
@@ -159,19 +158,19 @@ namespace MonthlyReportTool
 
             var project = API.TFS.TeamProject.Project.RetrieveProjectList().Where(prj => prj.Name.ToLower() == proj.ToLower()).ToList()[0];
 
-            API.Office.Excel.Utility.WriteLog("");
-            API.Office.Excel.Utility.WriteLog("！！！注意！！！程序运行时，不要使用剪贴板！！！");
-            API.Office.Excel.Utility.WriteLog("！！！一分钟左右就能出来结果，别着急！！！");
-            API.Office.Excel.Utility.WriteLog("");
-            API.Office.Excel.Utility.WriteLog("正在生成 《" + project.Description + "》 迭代总结报告...");
+            Console.WriteLine("");
+            Console.WriteLine("！！！注意！！！程序运行时，不要使用剪贴板！！！");
+            Console.WriteLine("！！！一分钟左右就能出来结果，别着急！！！");
+            Console.WriteLine("");
+            Console.WriteLine("正在生成 《" + project.Description + "》 迭代总结报告...");
 
-            API.Office.Excel.Utility.BuildIterationReport(project,path);
+            API.Office.Excel.Utility.BuildIterationReport(project, path);
 
         }
 
-        private static bool IsValidArgument(string[] args, out string user, out string pass, out string type, out string proj, out string path)
+        private static bool IsValidArgument(string[] args, out string user, out string pass, out string type, out string proj, out string path, out string date)
         {
-            user = pass = type = proj = path = "";
+            user = pass = type = proj = path = date = "";
 
             if (args.Length != 6 && args.Length != 8 && args.Length != 10)
             {
@@ -195,9 +194,11 @@ namespace MonthlyReportTool
                         proj = args[i + 1].ToLower().Trim();
                         continue;
                     case "-path":
-                        path = args[i + 1].ToLower().Trim();                        
+                        path = args[i + 1].ToLower().Trim();
                         continue;
-
+                    case "-date":
+                        date = args[i + 1].ToLower().Trim();
+                        continue;
                     default:
                         goto INVALID;
                 }
@@ -211,9 +212,9 @@ namespace MonthlyReportTool
 
             var prjlist = API.TFS.TeamProject.Project.RetrieveProjectList().OrderBy(prj => prj.Name);
 
-            if ((false==String.IsNullOrEmpty(path)) && (false==Directory.Exists(path)))
+            if ((false == String.IsNullOrEmpty(path)) && (false == Directory.Exists(path)))
             {
-                Console.WriteLine("目录不存在："+path);
+                Console.WriteLine("目录不存在：" + path);
                 return false;
             }
             if (String.IsNullOrEmpty(path))
@@ -237,7 +238,14 @@ namespace MonthlyReportTool
                 goto INVALID;
             }
 
-
+            if (type == "quality" || type == "month")
+            {
+                if (String.IsNullOrEmpty(date))
+                {
+                    Console.WriteLine("月度经营报告或者月度质量分析报告，必须要指定-date时间。");
+                    return false;
+                }
+            }
 
             goto SUCCESS;
 
@@ -280,11 +288,14 @@ namespace MonthlyReportTool
             Console.WriteLine("       |-当-type是month时，会忽略这个参数。");
             Console.WriteLine("");
             Console.WriteLine("       -path");
-            Console.WriteLine("       |-这是一个目录。当-path，则默认输出到程序当前目录下。");
+            Console.WriteLine("       |-这是一个目录。当-path为空，则默认输出到程序当前目录下。");
+            Console.WriteLine("");
+            Console.WriteLine("       -date");
+            Console.WriteLine("       |-这是一个日期，格式是201705这样的六位表达。");
             Console.WriteLine("举例：");
             Console.WriteLine("     trt -user juqiang -pass MyPassword -proj list，获得项目列表");
             Console.WriteLine("     trt -user juqiang -pass MyPassword -proj bdp -type iteration，生成BDP的迭代总结报告");
-            Console.WriteLine("     trt -user juqiang -pass MyPassword -proj bdp -type quality，生成BDP的月度经营报告中的质量分析报告");
+            Console.WriteLine("     trt -user juqiang -pass MyPassword -proj bdp -type quality -date 201711，生成BDP的11月份的月度经营报告中的质量分析报告");
             Console.WriteLine("     trt -user juqiang -pass MyPassword -type month，生成整个平台的月度经营报告（不包含各二级部门的质量分析报告）");
             Console.WriteLine("     trt -user juqiang -pass MyPassword -proj bdp -type iteration -path c:\\temp，生成BDP的迭代总结报告到c:\\temp目录下");
             Console.WriteLine("");

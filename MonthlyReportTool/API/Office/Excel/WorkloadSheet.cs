@@ -48,7 +48,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 workloads.Add(Tuple.Create<string, double, double>(this.sheet.Cells[i, "B"].Text, Convert.ToDouble(textf.Replace("%", "")) / 100.00d, Convert.ToDouble(texti.Replace("%", "")) / 100.00d));
             }
 
-            startRow = Build115Analysis(startRow, workloads);
+            startRow = Build120Analysis(startRow, workloads);
             startRow = Build100Analysis(startRow, workloads);
             startRow = Build60Analysis(startRow, workloads);
             startRow = BUild50Analysis(startRow, dataRow);
@@ -106,12 +106,12 @@ namespace MonthlyReportTool.API.Office.Excel
             return nextRow;
         }
 
-        private int Build115Analysis(int startRow, List<Tuple<string, double, double>> workloads)
+        private int Build120Analysis(int startRow, List<Tuple<string, double, double>> workloads)
         {
 
-            var ds = workloads.Where(wl => wl.Item2 >= 1.15d).OrderByDescending(wl=>wl.Item2).ToList();
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "工作量饱和度超115%分析", "说明：对工作量饱和度超过115%（包括115%）的同事，分别做原因分析", "B", "U",
-                new List<string>() { "团队成员", "工作量饱和度", "工作量饱和度超115%原因分析" },
+            var ds = workloads.Where(wl => wl.Item2 >= 1.20d).OrderByDescending(wl=>wl.Item2).ToList();
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "工作量饱和度超120%分析", "说明：对工作量饱和度超过120%（包括120%）的同事，分别做原因分析", "B", "U",
+                new List<string>() { "团队成员", "工作量饱和度", "工作量饱和度超120%原因分析" },
                 new List<string>() { "B,B", "C,E", "F,U" },
                 ds.Count()
                 );
@@ -390,7 +390,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 Utility.SetCellPercentFormat(sheet, firstrow, col, startrow - 1, col);
             }
 
-            Utility.SetFormatBigger(sheet.Range[sheet.Cells[firstrow, "F"], sheet.Cells[startrow - 1, "F"]], 1.15d);
+            Utility.SetFormatBigger(sheet.Range[sheet.Cells[firstrow, "F"], sheet.Cells[startrow - 1, "F"]], 1.20d);
             Utility.SetFormatSmaller(sheet.Range[sheet.Cells[firstrow, "F"], sheet.Cells[startrow - 1, "F"]], 1.00d);
             Utility.SetFormatSmaller(sheet.Range[sheet.Cells[firstrow, "I"], sheet.Cells[startrow - 1, "I"]], 0.60d);
 

@@ -33,6 +33,9 @@ namespace MonthlyReportTool.API.TFS.WorkItem
         public string Source;
         public string AreaPath;
         public string BelongTeamProject;
+        public string Principal;
+        public string WarningGrade;
+
     }
 //    select[System.Id], [Teld.Scrum.KeyApplication], [Teld.Scrum.ModulesName], [System.Title], 
 //[System.AssignedTo], [System.State], [Teld.Bug.Type], [Microsoft.VSTS.Common.Severity], [Teld.Bug.Envir], 

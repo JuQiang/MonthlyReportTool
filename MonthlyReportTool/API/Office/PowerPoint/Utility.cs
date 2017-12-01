@@ -24,15 +24,18 @@ namespace MonthlyReportTool.API.Office.PowerPoint
 
             List<Tuple<string, Type>> allSlides = new List<Tuple<string, Type>>()
             {
-                Tuple.Create<string, Type>("说明",typeof(IntroductionSlide)),
-                Tuple.Create<string, Type>("目录",typeof(ContentSlide)),
-                Tuple.Create<string, Type>("一、Bug数量及分布情况统计分析",typeof(BugOverviewSlide)),
-                Tuple.Create<string, Type>("一、Bug数量及分布情况统计分析2",typeof(BugCategorySlide)),
-                 Tuple.Create<string, Type>("一、Bug数量及分布情况统计分析3",typeof(BugModuleSlide)),
-                 Tuple.Create<string, Type>("一、Bug数量及分布情况统计分析4",typeof(BugDeveloperSlide)),
-                 Tuple.Create<string, Type>("一、Bug数量及分布情况统计分析5",typeof(BugSeveritySlide)),
-                 Tuple.Create<string, Type>("二、Bug修复情况",typeof(BugFixSlide)),
-
+                //Tuple.Create<string, Type>("说明",typeof(IntroductionSlide)),
+                //Tuple.Create<string, Type>("目录",typeof(ContentSlide)),
+                //Tuple.Create<string, Type>("一、Bug数量及分布情况统计分析",typeof(BugOverviewSlide)),
+                //Tuple.Create<string, Type>("一、Bug数量及分布情况统计分析2",typeof(BugCategorySlide)),
+                // Tuple.Create<string, Type>("一、Bug数量及分布情况统计分析3",typeof(BugModuleSlide)),
+                // Tuple.Create<string, Type>("一、Bug数量及分布情况统计分析4",typeof(BugDeveloperSlide)),
+                // Tuple.Create<string, Type>("一、Bug数量及分布情况统计分析5",typeof(BugSeveritySlide)),
+                // Tuple.Create<string, Type>("二、Bug修复情况",typeof(BugFixSlide)),
+                // Tuple.Create<string, Type>("二、Bug修复情况2",typeof(BugFixDeveloperSlide)),
+                 //Tuple.Create<string, Type>("三、Bug原因分析",typeof(BugAnalysisCriticalSlide)),
+                 //Tuple.Create<string, Type>("三、Bug原因分析2",typeof(BugAnalysisReasonSlide)),
+                 Tuple.Create<string, Type>("四、预警工单分析",typeof(BugAlertSlide)),
             };
 
             for (int i = 0; i < allSlides.Count; i++)

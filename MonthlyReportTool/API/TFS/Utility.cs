@@ -173,6 +173,7 @@ namespace MonthlyReportTool.API.TFS
             string date2 = original.Item3;
             string prj2 = original.Item4;
 
+            wiql = wiql.Replace("@project", "'{0}'");
             int pos = wiql.IndexOf(prj);
             pos = wiql.IndexOf("'", pos + prj.Length);
             int pos2 = wiql.IndexOf("'", pos + 1);

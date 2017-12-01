@@ -140,11 +140,27 @@ namespace MonthlyReportTool.API.TFS.WorkItem
         {
             return GetByDate("共享查询%2F研发月度运营会议数据统计%2F产品质量分析报告%2F02Bug修复情况%2F未关闭BUG统计", project, startDate, endDate);
         }
+
+        public static List<BugEntity> GetCriticalByDate(string project, string startDate, string endDate)
+        {
+            return GetByDate("共享查询%2F研发月度运营会议数据统计%2F产品质量分析报告%2F03Bug原因分析%2F维护库一二级BUG统计", project, startDate, endDate);
+        }
+
+        public static List<BugEntity> GetDevErrorByDate(string project, string startDate, string endDate)
+        {
+            return GetByDate("共享查询%2F研发月度运营会议数据统计%2F产品质量分析报告%2F03Bug原因分析%2F维护库程序错误类BUG统计", project, startDate, endDate);
+        }
+
+        public static List<BugEntity> GetAlertByDate(string project, string startDate, string endDate)
+        {
+             return GetByDate("共享查询%2F研发月度运营会议数据统计%2F产品质量分析报告%2F04预警工单分析%2F预警工单统计", project, startDate, endDate);
+        }
         private static List<BugEntity> GetByDate(string query, string project, string startDate, string endDate)
         {
             List<BugEntity> list = new List<BugEntity>();
                                                           
             string wiql = API.TFS.Utility.GetQueryClause(query);
+            wiql = wiql.Replace("[System.TeamProject] = @project and", "");//这里面要过滤掉？但是TFS UI上没有定义，我这里为啥又能搞出来呢？
             var tuple = Tuple.Create<string, string, string, string>("[System.TeamProject] =",
                 "[System.CreatedDate] >=",
                 "[System.CreatedDate] <=",
@@ -179,6 +195,8 @@ namespace MonthlyReportTool.API.TFS.WorkItem
                         TeamProject = Convert.ToString(bug["fields"]["System.TeamProject"]),
                         BelongTeamProject = Convert.ToString(bug["fields"]["Teld.Scrum.BelongTeamProject"]),
                         AreaPath = Convert.ToString(bug["fields"]["System.AreaPath"]),
+                        Principal = Convert.ToString(bug["fields"]["Teld.Scrum.Principal"]),
+                        WarningGrade = Convert.ToString(bug["fields"]["Teld.Scrum.WarningGrade"]),
                     }
                 );
             }

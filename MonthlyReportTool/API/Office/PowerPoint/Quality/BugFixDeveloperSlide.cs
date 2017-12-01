@@ -13,10 +13,10 @@ using MonthlyReportTool.API.TFS.WorkItem;
 
 namespace MonthlyReportTool.API.Office.PowerPoint.Quality
 {
-    public class BugFixSlide : PowerPointSlideBase, IPowerPointQualitySlide
+    public class BugFixDeveloperSlide : PowerPointSlideBase, IPowerPointQualitySlide
     {
         private PowerPointInterop.Slide slide;
-        public BugFixSlide(PowerPointInterop.Slide slide) : base(slide)
+        public BugFixDeveloperSlide(PowerPointInterop.Slide slide) : base(slide)
         {
             this.slide = slide;
         }
@@ -37,7 +37,7 @@ namespace MonthlyReportTool.API.Office.PowerPoint.Quality
             var subframe = slide.Shapes.AddLabel(MsoTextOrientation.msoTextOrientationHorizontal, 60.0f, 110f, 12.0f, 6.0f).TextFrame;
             // Add title
             var subtitle = subframe.TextRange;
-            subtitle.Text = "1、未关闭Bug状态统计、原因分析";
+            subtitle.Text = "2、未关闭Bug按开发人员统计分析";
             subtitle.Font.NameFarEast = "微软雅黑";
             subtitle.Font.Bold = MsoTriState.msoTrue;
             subtitle.Font.Color.RGB = 0x00C07000;
@@ -71,24 +71,22 @@ namespace MonthlyReportTool.API.Office.PowerPoint.Quality
             ExcelInterop.Worksheet sheet = chart.ChartData.Workbook.Worksheets["Sheet1"];
             sheet.Cells.Clear();
 
-            var buglist = allbugs.GroupBy(bug => bug.State);
+            var buglist = allbugs.GroupBy(bug =>Utility.GetPersonName(bug.AssignedTo)).OrderByDescending(bug=>bug.Count());
 
             int num = buglist.Count();
-            var data = new object[3, num + 1];
-            data[0, 0] = "";
-            int col = 1;
+            var data = new object[num + 1,2];
+            data[0, 0] = "开发人员";
+            data[0, 1] = "BUG个数";
+            int row = 1;
             foreach (var bug in buglist)
             {
-                data[0, col] = bug.Key;
-                data[1, col] = bug.Where(bug2 => bug2.TeamProject.ToLower() != "bugs").Count();
-                data[2, col] = bug.Where(bug2 => bug2.TeamProject.ToLower() == "bugs").Count();
-                col++;
+                data[row, 0] = bug.Key;
+                data[row, 1] = bug.Count();
+                row++;
 
             }
-            data[1, 0] = "项目库";
-            data[2, 0] = "维护库";
 
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[1, 1], sheet.Cells[3, num + 1]];
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[1, 1], sheet.Cells[num + 1,2]];
             range.Value = data;
 
 
@@ -97,7 +95,7 @@ namespace MonthlyReportTool.API.Office.PowerPoint.Quality
             //chart.SeriesCollection(1).Name = "开发人员";
             chart.HasTitle = true;
             chart.ApplyDataLabels(PowerPointInterop.XlDataLabelsType.xlDataLabelsShowValue);
-            chart.ChartTitle.Text = "未关闭BUG数据分布";
+            chart.ChartTitle.Text = "按开发人员统计";
 
             chart.Refresh();
             workbook.Close();

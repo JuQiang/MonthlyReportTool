@@ -132,11 +132,19 @@ namespace MonthlyReportTool.API.TFS.WorkItem
             return list;
         }
 
-        public static List<BugEntity> GetAllByDate(string project, string startDate, string endDate)
+        public static List<BugEntity> GetAllByDate(string project, string startDate, string endDate) {
+            return GetByDate("共享查询%2F研发月度运营会议数据统计%2F产品质量分析报告%2F01BUG数量及分布情况统计分析%2FBUG数量及分布情况统计分析",project,startDate,endDate);
+        }
+
+        public static List<BugEntity> GetFixByDate(string project, string startDate, string endDate)
+        {
+            return GetByDate("共享查询%2F研发月度运营会议数据统计%2F产品质量分析报告%2F02Bug修复情况%2F未关闭BUG统计", project, startDate, endDate);
+        }
+        private static List<BugEntity> GetByDate(string query, string project, string startDate, string endDate)
         {
             List<BugEntity> list = new List<BugEntity>();
                                                           
-            string wiql = API.TFS.Utility.GetQueryClause("共享查询%2F研发月度运营会议数据统计%2F产品质量分析报告%2FBUG总体数量及类别分布分析");
+            string wiql = API.TFS.Utility.GetQueryClause(query);
             var tuple = Tuple.Create<string, string, string, string>("[System.TeamProject] =",
                 "[System.CreatedDate] >=",
                 "[System.CreatedDate] <=",
@@ -176,5 +184,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
             }
             return list;
         }
+
+        
     }
 }

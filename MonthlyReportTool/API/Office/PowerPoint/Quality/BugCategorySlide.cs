@@ -8,6 +8,7 @@ using PowerPointInterop = Microsoft.Office.Interop.PowerPoint;
 using Microsoft.Office.Core;
 using Microsoft.Office.Interop.PowerPoint;
 using System.Drawing;
+using ExcelInterop = Microsoft.Office.Interop.Excel;
 
 namespace MonthlyReportTool.API.Office.PowerPoint.Quality
 {
@@ -146,46 +147,96 @@ namespace MonthlyReportTool.API.Office.PowerPoint.Quality
 
             #region 画柱状图
 
-            var chartShape = slide.Shapes.AddChart2(Type: XlChartType.xlColumnClustered,Left:500,Top:150,Width:300.0f,Height:150.0f);
-            var chart = chartShape.Chart;
-            chart.ShowDataLabelsOverMaximum = true;
+            DrawChart(dateseries, bugtbl.Table);
+            DrawChart2(dateseries, bugtbl.Table);
+            return;
             
-            var chartdata = chart.ChartData;
-            var wb = chartdata.Workbook;
-
-            var ws = wb.Worksheets[1];
-
-            ws.ListObjects("Table1").Resize(ws.Range("A1:C7"));
-            ws.Range("Table1[[#Headers],[Series 1]]").Value = "项目库";
-            ws.Range("Table1[[#Headers],[Series 2]]").Value = "维护库";
-            for (int i = 0; i < dateseries.Count; i++)
-            {
-                ws.Cells(2 + i, 1).Value = dateseries[i].Substring(5,2);
-                ws.Cells(2 + i, 2).Value = Convert.ToInt32(bugtbl.Table.Cell(3 + i, 2).Shape.TextFrame.TextRange.Text);
-                ws.Cells(2 + i, 3).Value = Convert.ToInt32(bugtbl.Table.Cell(3 + i, 4).Shape.TextFrame.TextRange.Text);
-            }
-
-            var chartShape2 = slide.Shapes.AddChart2(Type: XlChartType.xlColumnClustered, Left: 500, Top: 400, Width: 300.0f, Height: 150.0f);
-            var chart2 = chartShape2.Chart;
-            chart2.ShowDataLabelsOverMaximum = true;
-
-            var chartdata2 = chart2.ChartData;
-            var wb2 = chartdata2.Workbook;
-
-            var ws2 = wb2.Worksheets[2];
-
-            ws2.ListObjects("Table1").Resize(ws.Range("A1:C7"));
-            ws2.Range("Table1[[#Headers],[Series 1]]").Value = "项目库";
-            ws2.Range("Table1[[#Headers],[Series 2]]").Value = "维护库";
-            for (int i = 0; i < dateseries.Count; i++)
-            {
-                ws2.Cells(2 + i, 1).Value = dateseries[i].Substring(5, 2);
-                ws2.Cells(2 + i, 2).Value = Convert.ToInt32(bugtbl.Table.Cell(3 + i, 3).Shape.TextFrame.TextRange.Text);
-                ws2.Cells(2 + i, 3).Value = Convert.ToInt32(bugtbl.Table.Cell(3 + i, 5).Shape.TextFrame.TextRange.Text);
-            }
-
 
             #endregion 画柱状图
+        }
+
+        private void DrawChart(List<string> dateseries, PowerPointInterop.Table table)
+        {
+            #region copy
+            var chartShape = slide.Shapes.AddChart2(Type: XlChartType.xlColumnClustered, Left: 500, Top: 120, Width: 400.0f, Height: 200.0f);
+            var chart = chartShape.Chart;
+            chart.ShowDataLabelsOverMaximum = true;
+            //input data
+            chart.ChartData.Activate();
+            
+            ExcelInterop.Workbook workbook = chart.ChartData.Workbook;
+            ExcelInterop.Worksheet sheet = chart.ChartData.Workbook.Worksheets["Sheet1"];
+            sheet.Cells.Clear();
+
+            ExcelInterop.Range range;
+            object[] objHeaders = { "时间","项目库", "维护库" };
+            range = sheet.get_Range("A1", "C1");
+            range.Value = objHeaders;
+
+            int num = dateseries.Count();
+            var data = new object[num, 3];
+            foreach (int n in Enumerable.Range(0, num))
+            {
+                data[n, 0] = dateseries[n];
+                data[n, 1] = Convert.ToInt32(table.Cell(3 + n, 2).Shape.TextFrame.TextRange.Text);
+                data[n, 2] = Convert.ToInt32(table.Cell(3 + n, 4).Shape.TextFrame.TextRange.Text);
+            }
+
+            range = sheet.get_Range("A2", "C" + (num + 1));
+            range.Value = data;
+            //sheet.get_Range("B1").Value = title;
+            chart.SetSourceData("'Sheet1'!$A$2:$C$"+(num+1));
+            chart.SeriesCollection(1).Name = "项目库";
+            chart.SeriesCollection(2).Name = "维护库";
+            chart.HasTitle = true;
+            chart.ApplyDataLabels(PowerPointInterop.XlDataLabelsType.xlDataLabelsShowValue);
+            chart.ChartTitle.Text = "项目库和维护库BUG个数分布";
+
+            workbook.Close();
+
+            #endregion copy
+        }
+
+        private void DrawChart2(List<string> dateseries, PowerPointInterop.Table table)
+        {
+            #region copy
+            var chartShape = slide.Shapes.AddChart2(Type: XlChartType.xlColumnClustered, Left: 500, Top: 320, Width: 400.0f, Height: 200.0f);
+            var chart = chartShape.Chart;
+            chart.ShowDataLabelsOverMaximum = true;
+            //input data
+            chart.ChartData.Activate();
+
+            ExcelInterop.Workbook workbook = chart.ChartData.Workbook;
+            ExcelInterop.Worksheet sheet = chart.ChartData.Workbook.Worksheets["Sheet1"];
+            sheet.Cells.Clear();
+
+            ExcelInterop.Range range;
+            object[] objHeaders = { "时间", "项目库", "维护库" };
+            range = sheet.get_Range("A1", "C1");
+            range.Value = objHeaders;
+
+            int num = dateseries.Count();
+            var data = new object[num, 3];
+            foreach (int n in Enumerable.Range(0, num))
+            {
+                data[n, 0] = dateseries[n];
+                data[n, 1] = table.Cell(3 + n, 3).Shape.TextFrame.TextRange.Text;
+                data[n, 2] = table.Cell(3 + n, 5).Shape.TextFrame.TextRange.Text;
+            }
+
+            range = sheet.get_Range("A2", "C" + (num + 1));
+            range.Value = data;
+            //sheet.get_Range("B1").Value = title;
+            chart.SetSourceData("'Sheet1'!$A$2:$C$" + (num + 1));
+            chart.SeriesCollection(1).Name = "项目库";
+            chart.SeriesCollection(2).Name = "维护库";
+            chart.HasTitle = true;
+            chart.ApplyDataLabels(PowerPointInterop.XlDataLabelsType.xlDataLabelsShowValue);
+            chart.ChartTitle.Text = "项目库和维护库BUG占比分析";
+
+            workbook.Close();
+
+            #endregion copy
         }
     }
 }

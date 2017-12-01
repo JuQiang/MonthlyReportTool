@@ -12,7 +12,7 @@ namespace MonthlyReportTool.API.Office.PowerPoint
 {
     public class Utility
     {
-        public static void BuildQualityReport(ProjectEntity project,string yearmonth)
+        public static void BuildQualityReport(ProjectEntity project, string yearmonth)
         {
             var pptApplication = new PowerPointInterop.Application();
             // Create the Presentation File
@@ -28,6 +28,10 @@ namespace MonthlyReportTool.API.Office.PowerPoint
                 Tuple.Create<string, Type>("目录",typeof(ContentSlide)),
                 Tuple.Create<string, Type>("一、Bug数量及分布情况统计分析",typeof(BugOverviewSlide)),
                 Tuple.Create<string, Type>("一、Bug数量及分布情况统计分析2",typeof(BugCategorySlide)),
+                 Tuple.Create<string, Type>("一、Bug数量及分布情况统计分析3",typeof(BugModuleSlide)),
+                 Tuple.Create<string, Type>("一、Bug数量及分布情况统计分析4",typeof(BugDeveloperSlide)),
+                 Tuple.Create<string, Type>("一、Bug数量及分布情况统计分析5",typeof(BugSeveritySlide)),
+                 Tuple.Create<string, Type>("二、Bug修复情况",typeof(BugFixSlide)),
 
             };
 
@@ -46,6 +50,12 @@ namespace MonthlyReportTool.API.Office.PowerPoint
 
         }
 
+        public static string GetPersonName(string fullname)
+        {
+            if (fullname.Trim().Length < 1) return "";
+            return fullname.Split(new char[] { '<' }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+
+        }
         public static void BuildMonthReport(int year, int month)
         {
 

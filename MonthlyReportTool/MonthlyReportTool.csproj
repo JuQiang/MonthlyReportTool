@@ -60,6 +60,10 @@
     <Compile Include="API\Office\Excel\ExcelSheetBase.cs" />
     <Compile Include="API\Office\Excel\IExcelSheet.cs" />
     <Compile Include="API\Office\Excel\Utility.cs" />
+    <Compile Include="API\Office\PowerPoint\Quality\BugFixSlide.cs" />
+    <Compile Include="API\Office\PowerPoint\Quality\BugSeveritySlide.cs" />
+    <Compile Include="API\Office\PowerPoint\Quality\BugDeveloperSlide.cs" />
+    <Compile Include="API\Office\PowerPoint\Quality\BugModuleSlide.cs" />
     <Compile Include="API\Office\PowerPoint\Quality\BugCategorySlide.cs" />
     <Compile Include="API\Office\PowerPoint\Quality\ContentSlide.cs" />
     <Compile Include="API\Office\PowerPoint\Quality\IntroductionSlide.cs" />

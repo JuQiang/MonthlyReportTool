@@ -33,9 +33,9 @@ namespace MonthlyReportTool.API.Office.PowerPoint
                 // Tuple.Create<string, Type>("一、Bug数量及分布情况统计分析5",typeof(BugSeveritySlide)),
                 // Tuple.Create<string, Type>("二、Bug修复情况",typeof(BugFixSlide)),
                 // Tuple.Create<string, Type>("二、Bug修复情况2",typeof(BugFixDeveloperSlide)),
-                 //Tuple.Create<string, Type>("三、Bug原因分析",typeof(BugAnalysisCriticalSlide)),
-                 //Tuple.Create<string, Type>("三、Bug原因分析2",typeof(BugAnalysisReasonSlide)),
-                 Tuple.Create<string, Type>("四、预警工单分析",typeof(BugAlertSlide)),
+                 Tuple.Create<string, Type>("三、Bug原因分析",typeof(BugAnalysisCriticalSlide)),
+                // Tuple.Create<string, Type>("三、Bug原因分析2",typeof(BugAnalysisReasonSlide)),
+                // Tuple.Create<string, Type>("四、预警工单分析",typeof(BugAlertSlide)),
             };
 
             for (int i = 0; i < allSlides.Count; i++)

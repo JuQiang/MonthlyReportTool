@@ -10,13 +10,24 @@ namespace MonthlyReportTool.API.TFS.Agile
 {
     public class Capacity
     {
-        public static int GetIterationCapacities(string prj,string iterationId)
+        public static double GetIterationCapacities(string prj, string iterationId)
         {
+            var list = GetIterationCapacitiesForTeamMember(prj, iterationId);
+            double capacities = 0;
+            foreach (var p in list.Keys)
+            {
+                capacities += list[p];
+            }
+
+            return capacities;
+        }
+
+        public static Dictionary<string,double> GetIterationCapacitiesForTeamMember(string prj, string iterationId)
+        {
+            Dictionary<string, double> list = new Dictionary<string, double>();
             string ret = TFS.Utility.GetHttpResponseByUrl(
                 String.Format("http://tfs.teld.cn:8080/tfs/teld/{0}/_apis/work/teamsettings/iterations/{1}?api-version=v2.0-preview", prj, iterationId)
             );
-
-            int capacities = 0;
 
             string url = (JsonConvert.DeserializeObject(ret) as JObject)["_links"]["capacity"]["href"].ToString().Trim();
             ret = TFS.Utility.GetHttpResponseByUrl(url);
@@ -26,11 +37,17 @@ namespace MonthlyReportTool.API.TFS.Agile
                 var arr = jo["activities"] as JArray;
                 if (arr.Count > 0)
                 {
-                    capacities += Convert.ToInt32(arr[0]["capacityPerDay"]);
+                    double capacity = 0.0d;
+                    foreach (var p in arr)
+                    {
+                        capacity += Convert.ToDouble(p["capacityPerDay"]);
+                        
+                    }
+                    list.Add(jo["teamMember"]["displayName"].ToString(),capacity);
                 }
             }
 
-            return capacities;
+            return list;
         }
     }
 }

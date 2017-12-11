@@ -298,6 +298,8 @@ namespace MonthlyReportTool.API.Office.Excel
             object[,] arr = new object[orderedLoads.Count(), 33];
             int line = 0;
 
+            var capacities = TFS.Agile.Capacity.GetIterationCapacitiesForTeamMember(this.project.Name, TFS.Utility.GetBestIteration(this.project.Name).Id);
+
             foreach (var load in orderedLoads)
             {
                 string person = Utility.GetPersonName(load.Key);
@@ -330,7 +332,15 @@ namespace MonthlyReportTool.API.Office.Excel
                 double othertime = load.Where(wl => wl.SupperType == "其他").Sum(wl => wl.SumHours) - leavetime;
 
                 arr[line, 0] = person;
-                arr[line, 1] = standardWorkingDays * 8;
+                if (capacities.ContainsKey(load.Key))
+                {
+                    arr[line, 1] = capacities[load.Key] * standardWorkingDays;
+                }
+                else
+                {
+                    arr[line, 1] = 9999;// "未在迭代settings中定义【"+Utility.GetPersonName(load.Key)+"】的容量";
+                }
+                //arr[line, 1] = standardWorkingDays * 8;//capacities[load.Key] * standardWorkingDays;// standardWorkingDays * 8;
                 arr[line, 2] = load.Where(wl => wl.Type != "请假").Sum(wl => wl.SumHours);
                 arr[line, 3] = leavetime;
                 arr[line, 4] = String.Format("=D{0}/C{0}", startrow);

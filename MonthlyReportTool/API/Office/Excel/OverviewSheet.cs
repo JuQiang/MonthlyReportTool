@@ -67,7 +67,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
             Utility.SetCellColor(sheet.Cells[4, "B"], System.Drawing.Color.Red, "迭代期间及人员情况综述", true);
             var ie = TFS.Utility.GetBestIteration(project.Name);
-            sheet.Cells[5, "C"] = String.Format("{0} - {1}", DateTime.Parse(ie.StartDate).ToString("yyyy-MM-dd"), DateTime.Parse(ie.EndDate).ToString("yyyy-MM-dd"));
+            sheet.Cells[5, "C"] = String.Format("{0} - {1}", DateTime.Parse(ie.StartDate).ToString("yyyy.MM.dd"), DateTime.Parse(ie.EndDate).ToString("yyyy.MM.dd"));
 
             #endregion 表格
 

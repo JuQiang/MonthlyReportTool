@@ -35,43 +35,14 @@ namespace MonthlyReportTool.API.Office.Excel
             int startRow = BuildFixedRateTable(14, new List<List<BugEntity>>() { this.bugList[0], this.bugList[2], this.bugList[1]});
             startRow = BuildReasonTable(startRow, this.bugList[3]);
             startRow = BuildNoneTable(startRow, this.bugList[4]);
-            startRow = BuildCodeReviewTable(startRow, this.bugList[5]);
+            //startRow = BuildCodeReviewTable(startRow, this.bugList[5]);
             startRow = BuildAddedTable(startRow, this.bugList[0]);
             startRow = BuildNotResolvedTable(startRow, this.bugList[2]);
 
             sheet.Cells[1, "A"] = "";
         }
 
-        private int BuildCodeReviewTable(int startRow, List<BugEntity> list)
-        {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代代码评审发现问题统计", "说明：", "B", "L",
-                new List<string>() { "BugID", "关键应用", "模块","缺陷发现方式", "问题类别", "严重级别", "Bug标题", "指派给", "发现人" },
-                new List<string>() { "B,B", "C,C", "D,D", "E,E", "F,F", "G,G", "H,J","K,K", "L,L" },
-                list.Count);
-
-            startRow += 3;
-            object[,] arr = new object[list.Count, 12];
-            for (int i = 0; i < list.Count; i++)
-            {
-                arr[i, 0] = list[i].Id.ToString();
-                arr[i, 1] = list[i].KeyApplication;
-                arr[i, 2] = list[i].ModulesName;
-                arr[i, 3] = list[i].DetectionMode;
-                arr[i, 4] = list[i].Type;
-                arr[i, 5] = list[i].Severity;
-                arr[i, 6] = list[i].Title;
-                arr[i, 9] = Utility.GetPersonName(list[i].AssignedTo);
-                arr[i, 10] = Utility.GetPersonName(list[i].DiscoveryUser);
-            }
-
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "L"]];
-            Utility.AddNativieResource(range);
-            range.Value2 = arr;
-
-            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "B"]]);
-
-            return nextRow;
-        }
+        
 
         private void BuildTitle()
         {

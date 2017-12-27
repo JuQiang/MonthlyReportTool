@@ -119,7 +119,7 @@ namespace MonthlyReportTool.API.Office.Excel
         private int BuildDelayTable(int startRow, List<FeatureEntity> features)
         {
             int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代拖期产品特性分析", "说明：按关键应用、模块排序；非研发类的为无", "B", "T",
-                new List<string>() { "ID", "关键应用", "模块", "产品特性名称", "本迭代目标状态", "当前状态", "迭代目标日期","本月目标日期", "负责人", "移除/中止原因说明" },
+                new List<string>() { "ID", "关键应用", "模块", "产品特性名称", "本迭代目标状态", "当前状态", "本迭代目标日期","目标日期", "负责人", "拖期原因说明" },
                 new List<string>() { "B,B", "C,D", "E,F", "G,J", "K,L", "M,M", "N,N", "O,O","P,P", "Q,T" },
                 features.Count);
 
@@ -143,12 +143,12 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.SetCellRedColor(sheet.Cells[startRow - 1, "Q"]);
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedFeatures.Count - 1, "B"]]);
 
-            return nextRow;
+            return nextRow-1;
         }
         private int BuildAnadonTable(int startRow, List<FeatureEntity> features)
         {
             int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代移除/中止产品特性分析", "说明：按关键应用、模块排序；非研发类的为无", "B", "T",
-                new List<string>() { "ID", "关键应用", "模块", "产品特性名称", "本迭代目标状态", "当前状态","迭代目标日期", "本月目标日期", "负责人", "移除/中止原因说明" },
+                new List<string>() { "ID", "关键应用", "模块", "产品特性名称", "本迭代目标状态", "当前状态","本迭代目标日期", "目标日期", "负责人", "移除/中止原因说明" },
                 new List<string>() { "B,B", "C,D", "E,F", "G,J", "K,L", "M,M","N,N","O,O","P,P","Q,T" },
                 features.Count);
 
@@ -171,7 +171,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
             Utility.SetCellRedColor(sheet.Cells[startRow - 1, "Q"]);
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedFeatures.Count - 1, "B"]]);
-            return nextRow;
+            return nextRow-1;
         }
         private int BuildTable(int startRow, List<FeatureEntity> features)
         {
@@ -203,7 +203,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedFeatures.Count - 1, "B"]]);
 
-            return nextRow;
+            return nextRow-1;
 
         }
     }

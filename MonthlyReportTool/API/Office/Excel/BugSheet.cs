@@ -249,7 +249,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
             Utility.SetCellRedColor(sheet.Cells[startRow - 1, "L"]);
 
-            return nextRow;
+            return nextRow-1;
         }
         private int BuildAddedTable(int startRow, List<BugEntity> list)
         {
@@ -280,7 +280,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "B"]]);
 
-            return nextRow;
+            return nextRow-1;
         }
         private int BuildNoneTable(int startRow, List<BugEntity> list)
         {
@@ -312,7 +312,7 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "B"]]);
             Utility.SetCellRedColor(sheet.Cells[startRow - 1, "L"]);
 
-            return nextRow;
+            return nextRow-1;
         }
 
         private int BuildNotResolvedTable(int startRow, List<BugEntity> list)
@@ -343,7 +343,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "B"]]);
 
-            return nextRow;
+            return nextRow-1;
         }
         private void AddBugChart(
             ExcelInterop.Worksheet sheet, 

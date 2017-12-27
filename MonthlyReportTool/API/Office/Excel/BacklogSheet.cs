@@ -163,7 +163,7 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.SetFormatBigger(sheet.Cells[10, "D"], 0.0001d);
             Utility.SetFormatBigger(sheet.Cells[11, "D"], 0.0001d);
             Utility.SetFormatBigger(sheet.Cells[15, "D"], 0.0001d);
-            return 17;
+            return 18;
         }
 
         private void BuildSummaryTableTitle()
@@ -246,7 +246,7 @@ namespace MonthlyReportTool.API.Office.Excel
             }
 
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + all.Count - 1, "B"]]);
-            return nextRow;
+            return nextRow-1;
         }
 
         private int BuildAbandonTable(int startRow)
@@ -274,7 +274,7 @@ namespace MonthlyReportTool.API.Office.Excel
             }
 
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + all.Count - 1, "B"]]);
-            return nextRow;
+            return nextRow-1;
         }
 
         private int BuildTable(int startRow)
@@ -308,7 +308,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + all.Count - 1, "B"]]);
 
-            return nextRow;
+            return nextRow-1;
         }
 
         private void BuildTestCase(int startRow)

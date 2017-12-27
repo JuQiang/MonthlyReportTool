@@ -49,7 +49,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 sheet.Cells[startRow + i, "B"] =Utility.GetPersonName(persons[i].DisplayName);
             }
 
-            return nextRow;
+            return nextRow-1;
         }
     }
 }

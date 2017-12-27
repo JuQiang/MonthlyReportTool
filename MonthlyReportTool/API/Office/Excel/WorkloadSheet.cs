@@ -78,7 +78,7 @@ namespace MonthlyReportTool.API.Office.Excel
             //Utility.AddNativieResource(range);
             //range.Merge();
 
-            return nextRow;
+            return nextRow-1;
         }
 
         private int Build60Analysis(int startRow, List<Tuple<string, double, double>> workloads)
@@ -103,7 +103,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
             Utility.SetCellPercentFormat(sheet.Range[sheet.Cells[ startRow , "C"],sheet.Cells[startRow + ds.Count() - 1, "C"]]);
 
-            return nextRow;
+            return nextRow-1;
         }
 
         private int Build120Analysis(int startRow, List<Tuple<string, double, double>> workloads)
@@ -129,7 +129,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
             Utility.SetCellPercentFormat(sheet.Range[sheet.Cells[startRow , "C"],sheet.Cells[startRow + ds.Count() - 1, "C"]]);
 
-            return nextRow;
+            return nextRow-1;
         }
 
         private int Build100Analysis(int startRow, List<Tuple<string, double, double>> workloads)
@@ -155,7 +155,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
             Utility.SetCellPercentFormat(sheet.Range[sheet.Cells[startRow, "C"], sheet.Cells[startRow + ds.Count() - 1, "C"]]);
 
-            return nextRow;
+            return nextRow-1;
         }
         private void BuildTitle()
         {
@@ -281,10 +281,11 @@ namespace MonthlyReportTool.API.Office.Excel
             titleRange2.Merge();
             Utility.AddNativieResource(titleRange2);
             titleRange.Merge();
-            sheet.Cells[10, "L"] = "      标准工作量：迭代天数*8\r\n" +
+            sheet.Cells[10, "L"] = "      标准工作量：迭代天数*8（跨多个团队项目的人员，请手工调整每个团队投入的标准工作量=迭代天数×计划投入到此团队的占的8里的数据）\r\n" +
                                    "      实际投入工作量：不包含请假实际的工作量\r\n" +
                                    "      实际饱和度：实际投入工作量 / 标准工作量\r\n" +
                                    "      Bug产出率：bug数 / 实际投入工作量";
+            Utility.SetCellColor(sheet.Cells[10, "L"], System.Drawing.Color.Red, "跨多个团队项目的人员，请手工调整每个团队投入的标准工作量=迭代天数×计划投入到此团队的占的8里的数据", true);
         }
 
         private int FillWorkloadData(List<WorkloadEntity> workloads, int startrow, bool isTester)

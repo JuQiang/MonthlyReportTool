@@ -12,6 +12,7 @@ namespace MonthlyReportTool.API.Office.Excel
     public class OverviewSheet : ExcelSheetBase, IExcelSheet
     {
         private ExcelInterop.Worksheet sheet;
+        private ProjectEntity project;
         public OverviewSheet(ExcelInterop.Worksheet sheet) : base(sheet)
         {
             this.sheet = sheet;
@@ -19,6 +20,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
         public void Build(ProjectEntity project)
         {
+            this.project = project;
             Utility.BuildFormalSheetTitle(sheet, 2, "B", 2, "J", "项目整体说明");
 
             #region 标题2
@@ -73,10 +75,10 @@ namespace MonthlyReportTool.API.Office.Excel
 
             int nextRow = Utility.BuildFormalTable(this.sheet, 14, "迭代燃尽图", "说明：主要针对以下几种异常情况做说明：\r\n1、迭代初期任务安排不饱和\r\n2、迭代进行中，剩余工作偏离理想趋势太多\r\n3、迭代结束，剩余工作还有很多未完成\r\n4、可用容量和理想趋势差别较大",
                 "B", "J",
-                new List<string>() {  },
-                new List<string>() {  },
+                new List<string>() { },
+                new List<string>() { },
                 5,
-                nodata:true
+                nodata: true
                 );
 
             sheet.Cells[16, "B"] = "此处对燃尽异常进行分析说明";
@@ -94,6 +96,42 @@ namespace MonthlyReportTool.API.Office.Excel
             interior.Color = System.Drawing.Color.DarkGray.ToArgb();
 
             sheet.Cells[1, "A"] = "";
+
+            FillPersonData();
         }
+
+        private void FillPersonData()
+        {
+            var workloadList = TFS.WorkItem.Workload.GetAll(this.project.Name, TFS.Utility.GetBestIteration(this.project.Name));
+            var testMembers = TFS.Utility.GetTestMembers(false);
+            List<string> devlist = new List<string>();
+            List<string> testlist = new List<string>();
+
+            for (int i = 0; i < workloadList.Count(); i++)
+            {
+                bool isTester = testMembers.Where(tester => tester == workloadList[i].AssignedTo).Count() > 0;
+                string p = Utility.GetPersonName(workloadList[i].AssignedTo);
+                if (isTester)
+                {                    
+                    if (false==testlist.Contains(p))testlist.Add(p);
+                }
+                else
+                {
+                    if (false == devlist.Contains(p)) devlist.Add(p);
+
+                }
+            }
+
+            string devs = String.Empty;
+            string tests = String.Empty;
+
+            foreach (var d in devlist.OrderBy(s=>s)) { devs += d; devs += "，"; }
+            foreach (var t in testlist.OrderBy(s => s)) { tests += t; tests += "，"; }
+            if (devs.Length > 0) devs = devs.Substring(0, devs.Length - 1);
+            if (tests.Length > 0) tests = tests.Substring(0, tests.Length - 1);
+
+            sheet.Cells[8, "C"] = devs;
+            sheet.Cells[12, "C"] = tests;
+        }        
     }
 }

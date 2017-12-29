@@ -119,8 +119,8 @@ namespace MonthlyReportTool.API.Office.Excel
         private int BuildDelayTable(int startRow, List<FeatureEntity> features)
         {
             int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代拖期产品特性分析", "说明：按关键应用、模块排序；非研发类的为无", "B", "T",
-                new List<string>() { "ID", "关键应用", "模块", "产品特性名称", "本迭代目标状态", "当前状态", "本迭代目标日期","目标日期", "负责人", "拖期原因说明" },
-                new List<string>() { "B,B", "C,D", "E,F", "G,J", "K,L", "M,M", "N,N", "O,O","P,P", "Q,T" },
+                new List<string>() { "ID", "关键应用", "模块", "产品特性名称", "本迭代目标状态", "当前状态", "本迭代目标日期", "目标日期", "负责人", "拖期原因说明" },
+                new List<string>() { "B,B", "C,D", "E,F", "G,J", "K,L", "M,M", "N,N", "O,O", "P,P", "Q,T" },
                 features.Count);
 
             Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "按关键应用、模块排序");
@@ -135,7 +135,14 @@ namespace MonthlyReportTool.API.Office.Excel
                 sheet.Cells[startRow + i, "K"] = orderedFeatures[i].MonthState;
                 sheet.Cells[startRow + i, "M"] = orderedFeatures[i].State;
                 sheet.Cells[startRow + i, "N"] = DateTime.Parse(orderedFeatures[i].IterationTargetDate).AddHours(8).ToString("yyyy-MM-dd");
-                sheet.Cells[startRow + i, "O"] = DateTime.Parse(orderedFeatures[i].TargetDate).AddHours(8).ToString("yyyy-MM-dd");
+                if (String.IsNullOrEmpty(orderedFeatures[i].TargetDate))
+                {
+                    sheet.Cells[startRow + i, "O"] = "";
+                }
+                else
+                {
+                    sheet.Cells[startRow + i, "O"] = DateTime.Parse(orderedFeatures[i].TargetDate).AddHours(8).ToString("yyyy-MM-dd");
+                }
                 sheet.Cells[startRow + i, "P"] = Utility.GetPersonName(orderedFeatures[i].AssignedTo);
                 sheet.Cells[startRow + i, "Q"] = "";
             }
@@ -143,16 +150,16 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.SetCellRedColor(sheet.Cells[startRow - 1, "Q"]);
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedFeatures.Count - 1, "B"]]);
 
-            return nextRow-1;
+            return nextRow - 1;
         }
         private int BuildAnadonTable(int startRow, List<FeatureEntity> features)
         {
             int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代移除/中止产品特性分析", "说明：按关键应用、模块排序；非研发类的为无", "B", "T",
-                new List<string>() { "ID", "关键应用", "模块", "产品特性名称", "本迭代目标状态", "当前状态","本迭代目标日期", "目标日期", "负责人", "移除/中止原因说明" },
-                new List<string>() { "B,B", "C,D", "E,F", "G,J", "K,L", "M,M","N,N","O,O","P,P","Q,T" },
+                new List<string>() { "ID", "关键应用", "模块", "产品特性名称", "本迭代目标状态", "当前状态", "本迭代目标日期", "目标日期", "负责人", "移除/中止原因说明" },
+                new List<string>() { "B,B", "C,D", "E,F", "G,J", "K,L", "M,M", "N,N", "O,O", "P,P", "Q,T" },
                 features.Count);
 
-            Utility.SetCellColor(sheet.Cells[startRow+1, "B"], System.Drawing.Color.Red, "按关键应用、模块排序");
+            Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "按关键应用、模块排序");
             var orderedFeatures = features.OrderBy(feature => feature.KeyApplication).ThenBy(feature => feature.ModulesName).ToList();
             startRow += 3;
             for (int i = 0; i < orderedFeatures.Count; i++)
@@ -164,20 +171,27 @@ namespace MonthlyReportTool.API.Office.Excel
                 sheet.Cells[startRow + i, "K"] = orderedFeatures[i].MonthState;
                 sheet.Cells[startRow + i, "M"] = orderedFeatures[i].State;
                 sheet.Cells[startRow + i, "N"] = DateTime.Parse(orderedFeatures[i].IterationTargetDate).AddHours(8).ToString("yyyy-MM-dd");
-                sheet.Cells[startRow + i, "O"] = DateTime.Parse(orderedFeatures[i].TargetDate).AddHours(8).ToString("yyyy-MM-dd");
+                if (String.IsNullOrEmpty(orderedFeatures[i].TargetDate))
+                {
+                    sheet.Cells[startRow + i, "O"] = "";
+                }
+                else
+                {
+                    sheet.Cells[startRow + i, "O"] = DateTime.Parse(orderedFeatures[i].TargetDate).AddHours(8).ToString("yyyy-MM-dd");
+                }
                 sheet.Cells[startRow + i, "P"] = Utility.GetPersonName(orderedFeatures[i].AssignedTo);
                 sheet.Cells[startRow + i, "Q"] = "";
             }
 
             Utility.SetCellRedColor(sheet.Cells[startRow - 1, "Q"]);
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedFeatures.Count - 1, "B"]]);
-            return nextRow-1;
+            return nextRow - 1;
         }
         private int BuildTable(int startRow, List<FeatureEntity> features)
         {
             int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代产品特性列表", "说明：如果一个单元格的内容太多，请考虑换行显示\r\n      如果本迭代实际的产品特性数多于模板预制的行数，请自行插入行，然后用格式刷刷新增的行的格式\r\n      按关键应用、模块排序；非研发类的为无", "B", "P",
-                new List<string>() { "ID", "关键应用", "模块", "产品特性名称", "本迭代目标状态", "当前状态", "迭代目标日期","本月目标日期", "负责人"},
-                new List<string>() { "B,B", "C,D", "E,F", "G,J", "K,L", "M,M", "N,N", "O,O","P,P" },
+                new List<string>() { "ID", "关键应用", "模块", "产品特性名称", "本迭代目标状态", "当前状态", "迭代目标日期", "本月目标日期", "负责人" },
+                new List<string>() { "B,B", "C,D", "E,F", "G,J", "K,L", "M,M", "N,N", "O,O", "P,P" },
                 features.Count);
 
             Utility.SetCellColor(sheet.Cells[14, "B"], System.Drawing.Color.Red, "按关键应用、模块排序");
@@ -194,7 +208,14 @@ namespace MonthlyReportTool.API.Office.Excel
                 arr[i, 9] = orderedFeatures[i].MonthState;
                 arr[i, 11] = orderedFeatures[i].State;
                 arr[i, 12] = DateTime.Parse(orderedFeatures[i].IterationTargetDate).AddHours(8).ToString("yyyy-MM-dd");
-                arr[i, 13] = DateTime.Parse(orderedFeatures[i].TargetDate).AddHours(8).ToString("yyyy-MM-dd");
+                if (String.IsNullOrEmpty(orderedFeatures[i].TargetDate))
+                {
+                    arr[i, 13] = "";
+                }
+                else
+                {
+                    arr[i, 13] = DateTime.Parse(orderedFeatures[i].TargetDate).AddHours(8).ToString("yyyy-MM-dd");
+                }
                 arr[i, 14] = Utility.GetPersonName(orderedFeatures[i].AssignedTo);
             }
             ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedFeatures.Count - 1, "O"]];
@@ -203,7 +224,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedFeatures.Count - 1, "B"]]);
 
-            return nextRow-1;
+            return nextRow - 1;
 
         }
     }

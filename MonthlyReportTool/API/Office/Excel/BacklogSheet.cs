@@ -252,12 +252,14 @@ namespace MonthlyReportTool.API.Office.Excel
         private int BuildAbandonTable(int startRow)
         {
             var all = this.backlogList[2];
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "移除/中止backlog分析", "说明：分析每个移除/中止Backlog的处理原因", "B", "T",
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "移除/中止backlog分析", "说明：分析每个移除/中止Backlog的处理原因。这个表格很长，请右拉把后面列都填写上。", "B", "T",
                 new List<string>() { "ID", "关键应用", "模块", "backlog名称", "类别", "负责人", "验收标准", "状态", "移除/中止原因分析" },
                 new List<string>() { "B,B", "C,C", "D,E", "F,J", "K,K", "L,L", "M,N", "O,O", "P,T" },
                 all.Count);
 
             Utility.SetCellRedColor(sheet.get_Range(String.Format("P{0}:P{0}", startRow + 2)));
+            Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "这个表格很长，请右拉把后面列都填写上。");
+            
 
             startRow += 3;
             for (int i = 0; i < all.Count; i++)

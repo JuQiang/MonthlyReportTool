@@ -33,7 +33,7 @@ namespace MonthlyReportTool.API.Office.Excel
             BuildSummaryTable();
 
             int startRow = BuildFixedRateTable(14, new List<List<BugEntity>>() { this.bugList[0], this.bugList[2], this.bugList[1]});
-            startRow = BuildReasonTable(startRow, this.bugList[3]);
+            startRow = BuildReasonTable(startRow, this.bugList[3].Where(bug=>bug.ResolvedReason!="不是错误").Where(bug=>bug.ResolvedReason!="重复问题").ToList());
             startRow = BuildNoneTable(startRow, this.bugList[4]);
             //startRow = BuildCodeReviewTable(startRow, this.bugList[5]);
             startRow = BuildAddedTable(startRow, this.bugList[0]);
@@ -221,11 +221,12 @@ namespace MonthlyReportTool.API.Office.Excel
 
         private int BuildReasonTable(int startRow, List<BugEntity> list)
         {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "Bug产生原因分析", "说明：主要针对严重级别为1、2级的Bug进行原因分析", "B", "N",
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "Bug产生原因分析", "说明：主要针对严重级别为1、2级的Bug进行原因分析（不包括关闭原因为不是错误，重复问题的）。这个表格很长，请右拉把后面列都填写上。", "B", "N",
                 new List<string>() { "BugID","关键应用","模块", "问题类别", "严重级别", "Bug标题", "指派给", "发现人", "原因分析"},
                 new List<string>() { "B,B", "C,C", "D,D","E,E","F,F", "G,I", "J,J", "K,K", "L,N" },
                 list.Count);
 
+            Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "（不包括关闭原因为不是错误，重复问题的）。这个表格很长，请右拉把后面列都填写上。");
             startRow += 3;
 
             object[,] arr = new object[list.Count, 14];
@@ -258,6 +259,8 @@ namespace MonthlyReportTool.API.Office.Excel
                 new List<string>() { "B,B", "C,C", "D,D", "E,E","F,F","G,J", "K,K", "L,L" },
                 list.Count);
 
+            
+
             startRow += 3;
             
             object[,] arr = new object[list.Count, 12+1];
@@ -284,11 +287,12 @@ namespace MonthlyReportTool.API.Office.Excel
         }
         private int BuildNoneTable(int startRow, List<BugEntity> list)
         {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代处理的不是错误/不予处理Bug分析", "说明：", "B", "N",
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代处理的不是错误/不予处理Bug分析", "说明：这个表格很长，请右拉把后面列都填写上。", "B", "N",
                 new List<string>() { "BugID", "关键应用", "模块", "关闭原因", "问题类别", "严重级别", "Bug标题","指派给", "不是错误/不予处理分析" },
                 new List<string>() { "B,B", "C,C", "D,D", "E,E","F,F", "G,G", "H,J","K,K","L,N" },
                 list.Count);
 
+            Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "这个表格很长，请右拉把后面列都填写上。");
             startRow += 3;
             object[,] arr = new object[list.Count, 14];
             for (int i = 0; i < list.Count; i++)

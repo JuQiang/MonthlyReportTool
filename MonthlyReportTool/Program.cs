@@ -12,6 +12,13 @@ namespace MonthlyReportTool
     {
         static void Main(string[] args)
         {
+            //API.TFS.Utility.User = "juqiang";
+            //API.TFS.Utility.Pass = "Password02!";
+            //string wiql = API.TFS.Utility.GetQueryClause("共享查询%2F迭代总结数据查询%2F15%20提交单统计分析%2F05本迭代_提交单测试通过总数");
+            //var ie = API.TFS.Utility.GetBestIteration("TTP");
+            //var list = API.TFS.WorkItem.Commitment.GetAll("TTP", ie);
+
+
             string user, pass, type, proj, path, date;
 
             ShowVersion();

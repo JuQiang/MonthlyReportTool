@@ -28,7 +28,7 @@ namespace MonthlyReportTool.API.Office.Excel
             BuildTestTable();
             BuildPerformanceTestTable();
 
-            int startRow = BuildFailedTable(13, this.commitmentList[0]);
+            int startRow = BuildFailedTable(12, this.commitmentList[0]);
             startRow = BuildFailedReasonTable(startRow, this.commitmentList[5]);
             startRow = BuildRemovedReasonTable(startRow, this.commitmentList[2]);
             BuildExceptionTable(startRow, this.commitmentList[1]);
@@ -258,7 +258,7 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + cells.Count - 1, "B"]]);
 
             FillSummaryData(startRow, cells.Count);
-            return nextRow-1;
+            return nextRow;
         }
 
         private void FillSummaryData(int startRow, int rowCount)
@@ -283,10 +283,15 @@ namespace MonthlyReportTool.API.Office.Excel
 
             var commitments = list.OrderByDescending(comm => comm.BackNum).ToList();
 
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "提交单打回原因分析", "说明：", "B", "O",
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "提交单打回原因分析", "说明：这个表格很长，请右拉把后面列都填写上。", "B", "O",
                 new List<string>() { "提交单ID", "提交单类型", "提交单名称", "状态", "打回次数", "打回原因", "功能负责人", "测试负责人", "后续改进措施" },
                 new List<string>() { "B,B", "C,C", "D,F", "G,G", "H,H", "I,J", "K,K", "L,L", "M,O" },
                 commitments.Count);
+
+            Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "这个表格很长，请右拉把后面列都填写上。");
+            Utility.SetCellRedColor(sheet.Cells[startRow - 1, "I"]);
+            Utility.SetCellColor(sheet.Cells[startRow + 1, "M"], System.Drawing.Color.Red, "后续改进措施");
+            
 
             startRow += 3;
             for (int i = 0; i < commitments.Count; i++)
@@ -308,7 +313,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 sheet.Cells[i + startRow, "M"] = "";
             }
 
-            Utility.SetCellRedColor(sheet.Cells[startRow - 1, "I"]);
+            
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + commitments.Count - 1, "B"]]);
 
             return nextRow-1;

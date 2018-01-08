@@ -43,6 +43,8 @@ namespace MonthlyReportTool.API.Office.Excel
                 string textf = this.sheet.Cells[i, "F"].Text;
                 string texti = this.sheet.Cells[i, "I"].Text;
 
+                if (texti.StartsWith("#")) texti = "0%";
+
                 if (String.IsNullOrEmpty(textb)) continue;
 
                 workloads.Add(Tuple.Create<string, double, double>(this.sheet.Cells[i, "B"].Text, Convert.ToDouble(textf.Replace("%", "")) / 100.00d, Convert.ToDouble(texti.Replace("%", "")) / 100.00d));
@@ -51,7 +53,7 @@ namespace MonthlyReportTool.API.Office.Excel
             startRow = Build120Analysis(startRow, workloads);
             startRow = Build100Analysis(startRow, workloads);
             startRow = Build60Analysis(startRow, workloads);
-            startRow = BUild50Analysis(startRow, dataRow);
+            startRow = BUild10Analysis(startRow, dataRow);
 
             ExcelInterop.Range colb = sheet.Cells[1, "B"];
             Utility.AddNativieResource(colb);
@@ -61,17 +63,17 @@ namespace MonthlyReportTool.API.Office.Excel
 
         }
 
-        private int BUild50Analysis(int startRow, int dataRow)
+        private int BUild10Analysis(int startRow, int dataRow)
         {
 
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "计划偏差大于50%分析", "说明：", "B", "U",
-                new List<string>() { "计划偏差大于50%分析", "说明：", "研发占比低于60%原因分析" },
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "计划偏差大于10%分析", "说明：", "B", "U",
+                new List<string>() { "计划偏差大于10%分析", "说明：", "计划偏差大于10%分析" },
                 new List<string>() { "B,B", "C,E", "F,U" },
                 5,
                 nodata:true
                 );
 
-            sheet.Cells[startRow + 2, "B"] = "计划偏差大于50%分析";
+            sheet.Cells[startRow + 2, "B"] = "计划偏差大于10%分析";
             Utility.SetCellRedColor(sheet.Cells[startRow+2, "B"]);
 
             //ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow + 2, "B"], sheet.Cells[startRow + 2 + 5, "U"]];

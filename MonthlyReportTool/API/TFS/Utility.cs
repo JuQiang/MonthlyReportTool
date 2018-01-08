@@ -64,7 +64,7 @@ namespace MonthlyReportTool.API.TFS
                     response.EnsureSuccessStatusCode();
                     byte[] img = response.Content.ReadAsByteArrayAsync().Result;
 
-                    string fname = Environment.GetEnvironmentVariable("temp") + "\\" + Guid.NewGuid().ToString()+".png";
+                    string fname = Environment.GetEnvironmentVariable("temp") + "\\" + Guid.NewGuid().ToString() + ".png";
                     File.WriteAllBytes(fname, img);
                     return fname;
                 }
@@ -79,7 +79,7 @@ namespace MonthlyReportTool.API.TFS
     workitems,
     columns
     );
-           
+
             using (HttpClient client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Accept.Add(
@@ -121,7 +121,7 @@ namespace MonthlyReportTool.API.TFS
                             string.Format("{0}:{1}", User, Pass))));
 
 
-                var postvalue = new StringContent("{\"query\":\"" + sql.Replace("\\","\\\\") + "\"}", Encoding.UTF8, "application/json");
+                var postvalue = new StringContent("{\"query\":\"" + sql.Replace("\\", "\\\\") + "\"}", Encoding.UTF8, "application/json");
                 var method = new HttpMethod("POST");
                 var request = new HttpRequestMessage(method, url) { Content = postvalue };
                 var response = client.SendAsync(request).Result;
@@ -140,7 +140,7 @@ namespace MonthlyReportTool.API.TFS
                 return ret;
 
             }
-        }        
+        }
 
         public static string ReplacePrjAndDateFromWIQL(string wiql, Tuple<string, string, string> original)
         {
@@ -149,7 +149,7 @@ namespace MonthlyReportTool.API.TFS
             string date2 = original.Item3;
 
             int pos = wiql.IndexOf(prj);
-            pos = wiql.IndexOf("'",pos+ prj.Length);
+            pos = wiql.IndexOf("'", pos + prj.Length);
             int pos2 = wiql.IndexOf("'", pos + 1);
             wiql = wiql.Substring(0, pos) + "'{0}'" + wiql.Substring(pos2 + 1);
 
@@ -166,7 +166,7 @@ namespace MonthlyReportTool.API.TFS
             return wiql;
         }
 
-        public static string ReplacePrjAndDateAndPrjFromWIQL(string wiql, Tuple<string, string, string,string> original)
+        public static string ReplacePrjAndDateAndPrjFromWIQL(string wiql, Tuple<string, string, string, string> original)
         {
             string prj = original.Item1;
             string date1 = original.Item2;
@@ -201,6 +201,28 @@ namespace MonthlyReportTool.API.TFS
                 pos = wiql.IndexOf("'", pos + prj2.Length);
                 pos2 = wiql.IndexOf("'", pos + 1);
                 wiql = wiql.Substring(0, pos) + "'{0}'" + wiql.Substring(pos2 + 1);
+            }
+
+            return wiql;
+        }
+
+        public static string ReplaceInformationFromWIQLByProject(string wiql, List<string> columns)
+        {
+            //wiql = wiql.Replace("@project", "'{0}'");
+            //int pos = wiql.IndexOf(prj);
+            //pos = wiql.IndexOf("'", pos + prj.Length);
+            //int pos2 = wiql.IndexOf("'", pos + 1);
+            //wiql = wiql.Substring(0, pos) + "'{0}'" + wiql.Substring(pos2 + 1);
+
+            int pos = -1, pos2 = -1;
+
+            for (int i = 0; i < columns.Count; i++)
+            {
+                string date = columns[i];
+                pos = wiql.IndexOf(date);
+                pos = wiql.IndexOf("'", pos + date.Length);
+                pos2 = wiql.IndexOf("'", pos + 1);
+                wiql = wiql.Substring(0, pos) + "'{"+Convert.ToString(i)+"}'" + wiql.Substring(pos2 + 1);
             }
 
             return wiql;
@@ -252,7 +274,7 @@ namespace MonthlyReportTool.API.TFS
                 }
             }
         }
-        
+
         private static Dictionary<string, string> memberCache = new Dictionary<string, string>();
         private void FlushTeamMemberList()
         {
@@ -283,7 +305,7 @@ namespace MonthlyReportTool.API.TFS
 
         public static List<string> GetTestMembers(bool forceRefresh)
         {
-            if ((false==forceRefresh) && (testMembers.Count > 0)) return testMembers;
+            if ((false == forceRefresh) && (testMembers.Count > 0)) return testMembers;
 
             testMembers.Clear();
             var list = API.TFS.TeamProject.Member.RetrieveMemberListByTeam("orgportal", "TestManager");
@@ -294,7 +316,7 @@ namespace MonthlyReportTool.API.TFS
 
             return testMembers;
         }
-        
+
         public static List<JToken> ConvertWorkitemFlatQueryResult2Array(string responseBody)
         {
             List<JToken> list = new List<JToken>();
@@ -324,14 +346,14 @@ namespace MonthlyReportTool.API.TFS
             sbrefname.Remove(sbrefname.Length - 1, 1);
             sbid.Remove(sbid.Length - 1, 1);
 
-        //    string detailsUrl = String.Format("http://{0}:8080/{1}/_apis/wit/workitems?ids={2}&fields={3}&api-version=2.0",
-        //"tfs.teld.cn",
-        //"tfs/teld",
-        //sbid.ToString(),
-        //sbrefname.ToString()
-        //);
+            //    string detailsUrl = String.Format("http://{0}:8080/{1}/_apis/wit/workitems?ids={2}&fields={3}&api-version=2.0",
+            //"tfs.teld.cn",
+            //"tfs/teld",
+            //sbid.ToString(),
+            //sbrefname.ToString()
+            //);
 
-        //    responseBody = Utility.GetHttpResponseByUrl(detailsUrl);
+            //    responseBody = Utility.GetHttpResponseByUrl(detailsUrl);
 
             //var wiarray = (JsonConvert.DeserializeObject(responseBody) as JObject)["value"] as JArray;
 

@@ -11,16 +11,13 @@ namespace MonthlyReportTool.API.TFS.WorkItem
     {
         //共享查询%2F迭代总结数据查询%2F15%20提交单统计分析%2F00本迭代_提交单总数
 
-        private static List<CommitmentEntity> GetCommitmentListByIteration(string project, IterationEntity ite, string query)
+        private static List<CommitmentEntity> GetCommitmentListByIteration(string project, IterationEntity ite, string query, List<string> columns, List<string> values)
         {
             List<CommitmentEntity> list = new List<CommitmentEntity>();
             string wiql = API.TFS.Utility.GetQueryClause(query);
-            wiql = API.TFS.Utility.ReplaceProjectAndIterationFromWIQL(wiql);
+            wiql = API.TFS.Utility.ReplaceInformationFromWIQLByProject(wiql, columns);
 
-            string sql = String.Format(wiql,
-                project,
-                ite.Path
-            );
+            string sql = String.Format(wiql, values.ToArray());
 
             string responseBody = Utility.ExecuteQueryBySQL(sql);
             var commitments = Utility.ConvertWorkitemFlatQueryResult2Array(responseBody);
@@ -59,13 +56,67 @@ namespace MonthlyReportTool.API.TFS.WorkItem
         {
             List<List<CommitmentEntity>> list = new List<List<CommitmentEntity>>();
 
-            var all = GetCommitmentListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F15%20提交单统计分析%2F00本迭代_提交单总数");
-            var testpassed = GetCommitmentListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F15%20提交单统计分析%2F05本迭代_提交单测试通过总数");
-            var removed = GetCommitmentListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F15%20提交单统计分析%2F10本迭代_已移除提交单总数");
-            var needperf = GetCommitmentListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F15%20提交单统计分析%2F15本迭代_需性能测试提交单总数");
-            var perftestpassed = GetCommitmentListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F15%20提交单统计分析%2F20本迭代_性能测试通过提交单总数");
-            var failed = GetCommitmentListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F15%20提交单统计分析%2F30本迭代_打回过提交单总数");
-            var longtime = GetCommitmentListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F15%20提交单统计分析%2F30本迭代_提交单持续时间过长总数");
+            var all = GetCommitmentListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F15%20提交单统计分析%2F00本迭代_提交单总数",
+                new List<string>() { "[System.TeamProject] =","[Teld.Scrum.RemovedDate] >=", "[Teld.Scrum.RemovedDate] <", "[Teld.Scrum.TestFinishedTime] >=", "[Teld.Scrum.TestFinishedTime] <", "[System.CreatedDate] <" },
+                new List<string>(){
+                    project,
+                    DateTime.Parse(ite.StartDate).AddDays(0).ToString("yyyy-MM-dd HH:mm:ss.fff"),//第一天是大于等于
+                    DateTime.Parse(ite.EndDate).AddDays(1).ToString("yyyy-MM-dd HH:mm:ss.fff"),//最后一天要加一
+                    DateTime.Parse(ite.StartDate).AddDays(0).ToString("yyyy-MM-dd HH:mm:ss.fff"),//第一天是大于等于
+                    DateTime.Parse(ite.EndDate).AddDays(1).ToString("yyyy-MM-dd HH:mm:ss.fff"),//最后一天要加一
+                    DateTime.Parse(ite.EndDate).AddDays(1).ToString("yyyy-MM-dd HH:mm:ss.fff"),//最后一天要加一
+                }
+            );
+            var testpassed = GetCommitmentListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F15%20提交单统计分析%2F05本迭代_提交单测试通过总数",
+                    new List<string>() { "[System.TeamProject] =", "[Teld.Scrum.TestFinishedTime] >=", "[Teld.Scrum.TestFinishedTime] <" },
+                new List<string>(){
+                    project,
+                    DateTime.Parse(ite.StartDate).AddDays(0).ToString("yyyy-MM-dd HH:mm:ss.fff"),//第一天是大于等于
+                    DateTime.Parse(ite.EndDate).AddDays(1).ToString("yyyy-MM-dd HH:mm:ss.fff"),//最后一天要加一
+                }
+            );
+
+            var removed = GetCommitmentListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F15%20提交单统计分析%2F10本迭代_已移除提交单总数",
+                new List<string>() { "[System.TeamProject] =", "[Teld.Scrum.RemovedDate] >=", "[Teld.Scrum.RemovedDate] <"},
+                new List<string>(){
+                    project,
+                    DateTime.Parse(ite.StartDate).AddDays(0).ToString("yyyy-MM-dd HH:mm:ss.fff"),//第一天是大于等于
+                    DateTime.Parse(ite.EndDate).AddDays(1).ToString("yyyy-MM-dd HH:mm:ss.fff"),//最后一天要加一
+                }
+            );
+            var needperf = GetCommitmentListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F15%20提交单统计分析%2F15本迭代_需性能测试提交单总数",
+                    new List<string>() { "[System.TeamProject] =", "[System.CreatedDate] <", "[Teld.Scrum.TestFinishedTime] >=" },
+                new List<string>(){
+                    project,
+                    DateTime.Parse(ite.EndDate).AddDays(1).ToString("yyyy-MM-dd HH:mm:ss.fff"),//最后一天要加一
+                    DateTime.Parse(ite.StartDate).AddDays(0).ToString("yyyy-MM-dd HH:mm:ss.fff"),//第一天是大于等于
+                }
+            );
+            var perftestpassed = GetCommitmentListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F15%20提交单统计分析%2F20本迭代_性能测试通过提交单总数",
+                new List<string>() { "[System.TeamProject] =", "[Teld.Scrum.TestFinishedTime] >=", "[Teld.Scrum.TestFinishedTime] <" },
+                new List<string>(){
+                    project,
+                    DateTime.Parse(ite.StartDate).AddDays(0).ToString("yyyy-MM-dd HH:mm:ss.fff"),//第一天是大于等于
+                    DateTime.Parse(ite.EndDate).AddDays(1).ToString("yyyy-MM-dd HH:mm:ss.fff"),//最后一天要加一
+                }
+            );
+
+            var failed = GetCommitmentListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F15%20提交单统计分析%2F30本迭代_打回过提交单总数",
+                new List<string>() { "[System.TeamProject] =", "[Teld.Scrum.TestFinishedTime] >=", "[Teld.Scrum.TestFinishedTime] <" },
+                new List<string>(){
+                    project,
+                    DateTime.Parse(ite.StartDate).AddDays(0).ToString("yyyy-MM-dd HH:mm:ss.fff"),//第一天是大于等于
+                    DateTime.Parse(ite.EndDate).AddDays(1).ToString("yyyy-MM-dd HH:mm:ss.fff"),//最后一天要加一
+                }
+            );
+            var longtime = GetCommitmentListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F15%20提交单统计分析%2F30本迭代_提交单持续时间过长总数",
+                new List<string>() { "[System.TeamProject] =", "[Teld.Scrum.TestFinishedTime] >=", "[Teld.Scrum.TestFinishedTime] <" },
+                new List<string>(){
+                    project,
+                    DateTime.Parse(ite.StartDate).AddDays(0).ToString("yyyy-MM-dd HH:mm:ss.fff"),//第一天是大于等于
+                    DateTime.Parse(ite.EndDate).AddDays(1).ToString("yyyy-MM-dd HH:mm:ss.fff"),//最后一天要加一
+                }
+            );
 
             list.Add(all);
             list.Add(testpassed);

@@ -246,7 +246,7 @@ namespace MonthlyReportTool.API.Office.Excel
             }
 
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + all.Count - 1, "B"]]);
-            return nextRow-1;
+            return nextRow - 1;
         }
 
         private int BuildAbandonTable(int startRow)
@@ -259,7 +259,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
             Utility.SetCellRedColor(sheet.get_Range(String.Format("P{0}:P{0}", startRow + 2)));
             Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "这个表格很长，请右拉把后面列都填写上。");
-            
+
 
             startRow += 3;
             for (int i = 0; i < all.Count; i++)
@@ -276,13 +276,13 @@ namespace MonthlyReportTool.API.Office.Excel
             }
 
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + all.Count - 1, "B"]]);
-            return nextRow-1;
+            return nextRow - 1;
         }
 
         private int BuildTable(int startRow)
         {
             var all = this.backlogList[3];
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代backlog列表", "说明：按关键应用、模块排序；非研发类的为无", "B", "O",
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代backlog列表", "说明：按关键应用、模块排序；", "B", "O",
                 new List<string>() { "ID", "关键应用", "模块", "backlog名称", "类别", "负责人", "验收标准", "状态" },
                 new List<string>() { "B,B", "C,C", "D,E", "F,J", "K,K", "L,L", "M,N", "O,O" },
                 all.Count);
@@ -310,7 +310,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + all.Count - 1, "B"]]);
 
-            return nextRow-1;
+            return nextRow - 1;
         }
 
         private void BuildTestCase(int startRow)
@@ -327,7 +327,7 @@ namespace MonthlyReportTool.API.Office.Excel
             sheet.Cells[startRow, "M"] = "编写用例总条数"; sheet.Cells[startRow++, "P"] = this.backlogList[10].Count;
             sheet.Cells[startRow, "M"] = "用例未执行数目"; sheet.Cells[startRow++, "P"] = "不知道哪里找";
             sheet.Cells[startRow, "M"] = "测试用例覆盖率"; sheet.Cells[startRow++, "P"] = "=IF(P8<>0,P9/P8,\"\")";
-            Utility.SetCellPercentFormat(sheet.Cells[startRow-1, "P"]);
+            Utility.SetCellPercentFormat(sheet.Cells[startRow - 1, "P"]);
 
             Utility.SetCellColor(sheet.Cells[startRow, "M"], System.Drawing.Color.Black, "测试用例设计及执行统计", true);
 

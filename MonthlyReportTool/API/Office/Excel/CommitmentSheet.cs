@@ -91,7 +91,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 { "分类", "迭代提交单", "Hotfix补丁-紧急需求", "Hotfix补丁-BUG"},
                 { "提交单测试通过数", "", "", ""},
                 { "遗留提交单数", "", "", ""},
-                { "已移除提交单数", "", "", ""},
+                { "已移除/中止提交单数", "", "", ""},
                 { "提交单总数", "", "", "" },
                 { "通过率", "", "", ""},
                         };
@@ -289,9 +289,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 commitments.Count);
 
             Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "这个表格很长，请右拉把后面列都填写上。");
-            Utility.SetCellRedColor(sheet.Cells[startRow - 1, "I"]);
-            Utility.SetCellColor(sheet.Cells[startRow + 1, "M"], System.Drawing.Color.Red, "后续改进措施");
-            
+
 
             startRow += 3;
             for (int i = 0; i < commitments.Count; i++)
@@ -313,16 +311,19 @@ namespace MonthlyReportTool.API.Office.Excel
                 sheet.Cells[i + startRow, "M"] = "";
             }
 
-            
+            Utility.SetCellRedColor(sheet.Cells[startRow - 1, "I"]);
+            Utility.SetCellRedColor(sheet.Cells[startRow - 1, "M"]);
+            //Utility.SetCellColor(sheet.Cells[startRow + 1, "M"], System.Drawing.Color.Red, "后续改进措施");
+
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + commitments.Count - 1, "B"]]);
 
-            return nextRow-1;
+            return nextRow - 1;
 
         }
 
         private int BuildRemovedReasonTable(int startRow, List<CommitmentEntity> list)
         {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "已移除提交单原因分析", "说明：", "B", "L",
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "移除/中止提交单原因分析", "说明：", "B", "L",
                 new List<string>() { "提交单ID", "提交单类型", "提交单名称", "状态", "原因分析", "功能负责人", "测试负责人" },
                 new List<string>() { "B,B", "C,C", "D,F", "G,G", "H,J", "K,K", "L,L" },
                 list.Count);
@@ -349,7 +350,7 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.SetCellRedColor(sheet.Cells[startRow - 1, "H"]);
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "B"]]);
 
-            return nextRow-1;
+            return nextRow - 1;
 
         }
 
@@ -391,7 +392,7 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.SetCellRedColor(sheet.Cells[startRow - 1, "I"]);
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + commitments.Count - 1, "B"]]);
 
-            return nextRow-1;
+            return nextRow - 1;
         }
     }
 }

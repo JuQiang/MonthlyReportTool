@@ -118,7 +118,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
         private int BuildDelayTable(int startRow, List<FeatureEntity> features)
         {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代拖期产品特性分析", "说明：按关键应用、模块排序；非研发类的为无。这个表格很长，请右拉把后面列都填写上。", "B", "T",
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代拖期产品特性分析", "说明：按关键应用、模块排序；这个表格很长，请右拉把后面列都填写上。", "B", "T",
                 new List<string>() { "ID", "关键应用", "模块", "产品特性名称", "本迭代目标状态", "当前状态", "本迭代目标日期", "目标日期", "负责人", "拖期原因说明" },
                 new List<string>() { "B,B", "C,D", "E,F", "G,J", "K,L", "M,M", "N,N", "O,O", "P,P", "Q,T" },
                 features.Count);
@@ -155,7 +155,7 @@ namespace MonthlyReportTool.API.Office.Excel
         }
         private int BuildAnadonTable(int startRow, List<FeatureEntity> features)
         {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代移除/中止产品特性分析", "说明：按关键应用、模块排序；非研发类的为无。这个表格很长，请右拉把后面列都填写上。", "B", "T",
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代移除/中止产品特性分析", "说明：按关键应用、模块排序；这个表格很长，请右拉把后面列都填写上。", "B", "T",
                 new List<string>() { "ID", "关键应用", "模块", "产品特性名称", "本迭代目标状态", "当前状态", "本迭代目标日期", "目标日期", "负责人", "移除/中止原因说明" },
                 new List<string>() { "B,B", "C,D", "E,F", "G,J", "K,L", "M,M", "N,N", "O,O", "P,P", "Q,T" },
                 features.Count);
@@ -192,7 +192,7 @@ namespace MonthlyReportTool.API.Office.Excel
         }
         private int BuildTable(int startRow, List<FeatureEntity> features)
         {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代产品特性列表", "说明：如果一个单元格的内容太多，请考虑换行显示\r\n      如果本迭代实际的产品特性数多于模板预制的行数，请自行插入行，然后用格式刷刷新增的行的格式\r\n      按关键应用、模块排序；非研发类的为无", "B", "P",
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代产品特性列表", "说明：如果一个单元格的内容太多，请考虑换行显示\r\n      如果本迭代实际的产品特性数多于模板预制的行数，请自行插入行，然后用格式刷刷新增的行的格式\r\n      按关键应用、模块排序；", "B", "P",
                 new List<string>() { "ID", "关键应用", "模块", "产品特性名称", "本迭代目标状态", "当前状态", "迭代目标日期", "本月目标日期", "负责人" },
                 new List<string>() { "B,B", "C,D", "E,F", "G,J", "K,L", "M,M", "N,N", "O,O", "P,P" },
                 features.Count);

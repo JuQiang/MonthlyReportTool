@@ -46,6 +46,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
                         SubmitNumberOfTime = Convert.ToInt32(commitment["fields"]["Teld.Scrum.SubmitNumberOfTime"]),
                         FunctionMenu = Convert.ToString(commitment["fields"]["Teld.Bug.FunctionMenu"]),
                         TeamProject = Convert.ToString(commitment["fields"]["System.TeamProject"]),
+                        FindedBugCount = Convert.ToInt32(commitment["fields"]["Teld.Scrum.FindedBugCount"]),
                     }
                 );
             }

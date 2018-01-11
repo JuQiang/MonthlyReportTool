@@ -29,20 +29,21 @@ namespace MonthlyReportTool.API.Office.Excel
             BuildPerformanceTestTable();
 
             int startRow = BuildFailedTable(12, this.commitmentList[0]);
+            startRow = BuildSuccessTable(startRow, this.commitmentList[1]);//测试通过提交单Bug数统计
             startRow = BuildFailedReasonTable(startRow, this.commitmentList[5]);
             startRow = BuildRemovedReasonTable(startRow, this.commitmentList[2]);
             BuildExceptionTable(startRow, this.commitmentList[1]);
 
             var range = sheet.get_Range("K1:M1");
             Utility.AddNativieResource(range);
-            range.ColumnWidth = 10;
+            range.ColumnWidth = 16;
 
             sheet.Cells[1, "A"] = "";
         }
 
         private void BuildTitle()
         {
-            Utility.BuildFormalSheetTitle(sheet, 2, "B", 2, "G", "提交单统计分析");
+            Utility.BuildFormalSheetTitle(sheet, 2, "B", 2, "O", "提交单统计分析");
         }
         private void BuildSubTitle()
         {
@@ -278,6 +279,32 @@ namespace MonthlyReportTool.API.Office.Excel
 
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[curRow, "B"], sheet.Cells[curRow, "B"]], hAlign: ExcelInterop.XlHAlign.xlHAlignCenter);
         }
+        private int BuildSuccessTable(int startRow, List<CommitmentEntity> list)
+        {
+
+            var commitments = list.OrderByDescending(comm => comm.FindedBugCount).ToList();
+
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "测试通过提交单Bug数统计", "说明：按发现的Bug数排序。", "B", "J",
+                new List<string>() { "提交单ID", "提交单类型", "提交单名称", "状态", "发现的Bug数", "功能负责人", "测试负责人"},
+                new List<string>() { "B,B", "C,C", "D,F", "G,G", "H,H", "I,I", "J,J"},
+                commitments.Count);
+            
+            startRow += 3;
+            for (int i = 0; i < commitments.Count; i++)
+            {
+                sheet.Cells[i + startRow, "B"] = commitments[i].Id;
+                sheet.Cells[i + startRow, "C"] = commitments[i].SubmitType;
+                sheet.Cells[i + startRow, "D"] = commitments[i].Title;
+                sheet.Cells[i + startRow, "G"] = commitments[i].State;
+                sheet.Cells[i + startRow, "H"] = commitments[i].FindedBugCount;
+                sheet.Cells[i + startRow, "I"] = Utility.GetPersonName(commitments[i].SubmitUser);
+                sheet.Cells[i + startRow, "J"] = Utility.GetPersonName(commitments[i].AssignedTo);
+            }
+            
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + commitments.Count - 1, "B"]]);
+
+            return nextRow - 1;
+        }
         private int BuildFailedReasonTable(int startRow, List<CommitmentEntity> list)
         {
 
@@ -289,7 +316,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 commitments.Count);
 
             Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "这个表格很长，请右拉把后面列都填写上。");
-
+            
 
             startRow += 3;
             for (int i = 0; i < commitments.Count; i++)
@@ -313,11 +340,10 @@ namespace MonthlyReportTool.API.Office.Excel
 
             Utility.SetCellRedColor(sheet.Cells[startRow - 1, "I"]);
             Utility.SetCellRedColor(sheet.Cells[startRow - 1, "M"]);
-            //Utility.SetCellColor(sheet.Cells[startRow + 1, "M"], System.Drawing.Color.Red, "后续改进措施");
 
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + commitments.Count - 1, "B"]]);
 
-            return nextRow - 1;
+            return nextRow-1;
 
         }
 
@@ -350,7 +376,7 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.SetCellRedColor(sheet.Cells[startRow - 1, "H"]);
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "B"]]);
 
-            return nextRow - 1;
+            return nextRow-1;
 
         }
 
@@ -392,7 +418,7 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.SetCellRedColor(sheet.Cells[startRow - 1, "I"]);
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + commitments.Count - 1, "B"]]);
 
-            return nextRow - 1;
+            return nextRow-1;
         }
     }
 }

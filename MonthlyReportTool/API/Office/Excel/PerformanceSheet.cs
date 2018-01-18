@@ -31,7 +31,7 @@ namespace MonthlyReportTool.API.Office.Excel
         private void BuildTitle()
         {
             Utility.BuildFormalSheetTitle(sheet, 2, "B", 2, "F", "人员考评结果");
-            Utility.SetCellRedColor(sheet.Cells[2, "B"]);
+            Utility.SetCellFontRedColor(sheet.Cells[2, "B"]);
         }
 
         private int BuildTable(int startRow)

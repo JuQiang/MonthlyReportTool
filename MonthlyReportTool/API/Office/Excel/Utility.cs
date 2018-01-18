@@ -105,7 +105,6 @@ namespace MonthlyReportTool.API.Office.Excel
             condfont.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Red); //Red letters
         }
 
-
         public static void SetFormatSmaller(ExcelInterop.Range range, double limit)
         {
             Utility.AddNativieResource(range);
@@ -177,10 +176,22 @@ namespace MonthlyReportTool.API.Office.Excel
             tmpfont.Color = ColorTranslator.ToOle(color);//是OLE的颜色，不是GDI+的颜色。
         }
 
-
-        public static void SetCellRedColor(ExcelInterop.Range range)
+        public static void SetCellFontRedColor(ExcelInterop.Range range)
         {
             SetCellColor(range, System.Drawing.Color.Red);
+        }        
+        public static void SetCellDarkGrayColor(ExcelInterop.Range range)
+        {
+            var interior = range.Interior;
+            Utility.AddNativieResource(interior);
+            interior.Color = System.Drawing.Color.DarkGray.ToArgb();
+        }
+        public static void SetCellGreenColor(ExcelInterop.Range range)
+        {
+            var interior = range.Interior;
+            Utility.AddNativieResource(interior);
+            interior.Color = System.Drawing.Color.FromArgb(205,255,202);// System.Drawing.Color.Green.ToArgb();
+            //#CAFFCE
         }
 
         public static void SetCellAlignAndWrap(ExcelInterop.Range range, ExcelInterop.XlHAlign hAlign = ExcelInterop.XlHAlign.xlHAlignLeft)
@@ -241,7 +252,6 @@ namespace MonthlyReportTool.API.Office.Excel
                     ExcelInterop.Range colRange = sheet.get_Range(sb.ToString());
                     Utility.AddNativieResource(colRange);
                     colRange.Merge();
-
                 }
 
                 ExcelInterop.Range firstRow = sheet.get_Range(String.Format("{0}{1}:{2}{3}", startCol, row, endCol, row));

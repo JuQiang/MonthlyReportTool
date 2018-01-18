@@ -39,6 +39,10 @@ namespace MonthlyReportTool.API.Office.Excel
             startRow = BuildAddedTable(startRow, this.bugList[0]);
             startRow = BuildNotResolvedTable(startRow, this.bugList[2]);
 
+            var range = sheet.get_Range("K1:O1");
+            Utility.AddNativieResource(range);
+            range.ColumnWidth = 16;
+
             sheet.Cells[1, "A"] = "";
         }
 
@@ -113,7 +117,6 @@ namespace MonthlyReportTool.API.Office.Excel
                 Tuple.Create<string,string>("G","G"),
                 Tuple.Create<string,string>("H","H"),
                 Tuple.Create<string,string>("I","I"),
-
             };
             for (int row = 0; row < cols.GetLength(0); row++)
             {
@@ -124,22 +127,38 @@ namespace MonthlyReportTool.API.Office.Excel
                     colRange.RowHeight = 20;
                     colRange.Merge();
                     sheet.Cells[start + row, colsname[col].Item1] = cols[row, col];
-
                 }
             }
 
             Utility.SetCellBorder(sheet.Range[sheet.Cells[start, "B"], sheet.Cells[start + cols.GetLength(0) - 1, "I"]]);
+
             Utility.SetTableHeaderFormat(sheet.Range[sheet.Cells[start, "B"], sheet.Cells[start, "I"]],true);
 
-            sheet.Cells[7, "H"] = "=SUM(C7:G7)"; sheet.Cells[8, "H"] = "=SUM(C8:G8)"; sheet.Cells[9, "H"] = "=SUM(C9:G9)"; sheet.Cells[10, "H"] = "=SUM(C10:G10)"; sheet.Cells[11, "H"] = "=SUM(C11:G11)";
-            sheet.Cells[7, "I"] = "=(C7+D7)/H7"; sheet.Cells[8, "I"] = "=(C8+D8)/H8"; sheet.Cells[9, "I"] = "=(C9+D9)/H9"; 
+            sheet.Cells[7, "H"] = "=SUM(C7:G7)";
+            sheet.Cells[8, "H"] = "=SUM(C8:G8)";
+            sheet.Cells[9, "H"] = "=SUM(C9:G9)";
+            sheet.Cells[10, "H"] = "=SUM(C10:G10)";
+            sheet.Cells[11, "H"] = "=SUM(C11:G11)";
+            sheet.Cells[7, "I"] = "=(C7+D7)/H7";
+            sheet.Cells[8, "I"] = "=(C8+D8)/H8";
+            sheet.Cells[9, "I"] = "=(C9+D9)/H9";
+            sheet.Cells[10, "I"] = "'--";
+            sheet.Cells[11, "I"] = "'--";
 
             sheet.Cells[12, "B"] = "Bug修复率";
-            sheet.Cells[12, "C"] = "=(H9)/(H8+H9)";
-            sheet.Cells[12, "E"] = "Bug遗留率";
-            sheet.Cells[12, "F"] = "=1-C12";
+            sheet.Cells[12, "C"] = "=(C9)/(C8+C9)";
+            sheet.Cells[12, "D"] = "=(D9)/(D8+D9)";
+            sheet.Cells[12, "E"] = "=(E9)/(E8+E9)";
+            sheet.Cells[12, "F"] = "=(F9)/(F8+F9)";
+            sheet.Cells[12, "G"] = "=(G9)/(G8+G9)";
+            sheet.Cells[12, "H"] = "=(H9)/(H8+H9)";
+            sheet.Cells[12, "I"] = "=(C9+D9)/((C8+C9)+(D8+D9))";
 
-            Utility.SetCellPercentFormat(sheet.get_Range("C12:C12,F12:F12,I7:I9"));
+            ExcelInterop.Range range = sheet.get_Range("C12:C12,D12:D12,E12:E12,F12:F12,G12:G12,H12:H12,I7:I12");
+            Utility.SetCellPercentFormat(range);
+            Utility.SetCellGreenColor(range);
+            range = sheet.get_Range("H7:H11");
+            Utility.SetCellGreenColor(range);
 
             List<List<BugEntity>> list = new List<List<BugEntity>>();
             list.Add(this.bugList[0]);
@@ -205,6 +224,10 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow + members.Count, "B"], sheet.Cells[startRow + members.Count, "B"]],hAlign:ExcelInterop.XlHAlign.xlHAlignCenter);
             Utility.SetCellBorder(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + members.Count, "F"]]);
             Utility.SetCellPercentFormat(sheet.Range[sheet.Cells[startRow, "F"],sheet.Cells[startRow + members.Count, "F"]]);
+            Utility.SetCellFontRedColor(sheet.Range[sheet.Cells[startRow, "F"], sheet.Cells[startRow + members.Count, "F"]]);
+            Utility.SetCellGreenColor(sheet.Range[sheet.Cells[startRow, "F"], sheet.Cells[startRow + members.Count, "F"]]);
+            Utility.SetCellGreenColor(sheet.Range[sheet.Cells[startRow + members.Count, "C"], sheet.Cells[startRow + members.Count, "F"]]);
+            Utility.SetCellDarkGrayColor(sheet.Range[sheet.Cells[startRow + members.Count, "B"], sheet.Cells[startRow + members.Count, "B"]]);
 
             AddBugChart(sheet,
                 startRow-2, "G", startRow + members.Count-1, "L",
@@ -221,9 +244,9 @@ namespace MonthlyReportTool.API.Office.Excel
 
         private int BuildReasonTable(int startRow, List<BugEntity> list)
         {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "Bug产生原因分析", "说明：主要针对严重级别为1、2级的Bug进行原因分析（不包括关闭原因为不是错误，重复问题的）。这个表格很长，请右拉把后面列都填写上。", "B", "N",
-                new List<string>() { "BugID","关键应用","模块", "问题类别", "严重级别", "Bug标题", "指派给", "发现人", "原因分析"},
-                new List<string>() { "B,B", "C,C", "D,D","E,E","F,F", "G,I", "J,J", "K,K", "L,N" },
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "Bug产生原因分析", "说明：主要针对严重级别为1、2级的Bug进行原因分析（不包括关闭原因为不是错误，重复问题的）。这个表格很长，请右拉把后面列都填写上。", "B", "O",
+                new List<string>() { "BugID","关键应用","模块", "问题类别", "严重级别", "Bug标题", "指派给", "发现人","状态", "原因分析"},
+                new List<string>() { "B,B", "C,C", "D,D","E,E","F,F", "G,I", "J,J", "K,K", "L,L","M,O" },
                 list.Count);
 
             Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "（不包括关闭原因为不是错误，重复问题的）。这个表格很长，请右拉把后面列都填写上。");
@@ -240,26 +263,59 @@ namespace MonthlyReportTool.API.Office.Excel
                 arr[i, 5] = list[i].Title;
                 arr[i, 8] = Utility.GetPersonName(list[i].AssignedTo);
                 arr[i, 9] = Utility.GetPersonName(list[i].DiscoveryUser);
+                arr[i, 10] = list[i].State;
             }
 
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "L"]];
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "O"]];
             Utility.AddNativieResource(range);
             range.Value2 = arr;
 
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "B"]]);
-
-            Utility.SetCellRedColor(sheet.Cells[startRow - 1, "L"]);
+            Utility.SetCellFontRedColor(sheet.Cells[startRow - 1, "M"]);
 
             return nextRow-1;
         }
-        private int BuildAddedTable(int startRow, List<BugEntity> list)
+        private int BuildNoneTable(int startRow, List<BugEntity> list)
         {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代新增Bug数", "说明：", "B", "L",
-                new List<string>() { "BugID", "关键应用", "模块", "问题类别", "严重级别", "Bug标题", "指派给", "发现人" },
-                new List<string>() { "B,B", "C,C", "D,D", "E,E","F,F","G,J", "K,K", "L,L" },
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代处理的不是错误/不予处理Bug分析", "说明：这个表格很长，请右拉把后面列都填写上。", "B", "O",
+                new List<string>() { "BugID", "关键应用", "模块", "关闭原因", "问题类别", "严重级别", "Bug标题", "指派给", "状态", "不是错误/不予处理分析" },
+                new List<string>() { "B,B", "C,C", "D,D", "E,E", "F,F", "G,G", "H,J", "K,K", "L,L", "M,O" },
                 list.Count);
 
-            
+            Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "这个表格很长，请右拉把后面列都填写上。");
+            startRow += 3;
+
+            object[,] arr = new object[list.Count, 14];
+            for (int i = 0; i < list.Count; i++)
+            {
+                arr[i, 0] = list[i].Id;
+                arr[i, 1] = list[i].KeyApplication;
+                arr[i, 2] = list[i].ModulesName;
+                arr[i, 3] = list[i].ResolvedReason;
+                arr[i, 4] = list[i].Type;
+                arr[i, 5] = list[i].Severity;
+                arr[i, 6] = list[i].Title;
+                arr[i, 9] = Utility.GetPersonName(list[i].AssignedTo);
+                arr[i, 10] = list[i].State;
+                arr[i, 11] = "";
+            }
+
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "O"]];
+            Utility.AddNativieResource(range);
+            range.Value2 = arr;
+
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "B"]]);
+            Utility.SetCellFontRedColor(sheet.Cells[startRow - 1, "M"]);
+
+            return nextRow - 1;
+        }
+
+        private int BuildAddedTable(int startRow, List<BugEntity> list)
+        {
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代新增Bug数", "说明：", "B", "M",
+                new List<string>() { "BugID", "关键应用", "模块", "问题类别", "严重级别", "Bug标题", "指派给","发现人", "状态" },
+                new List<string>() { "B,B", "C,C", "D,D", "E,E","F,F","G,J", "K,K", "L,L","M,M" },
+                list.Count);            
 
             startRow += 3;
             
@@ -274,10 +330,10 @@ namespace MonthlyReportTool.API.Office.Excel
                 arr[i, 5] = list[i].Title;
                 arr[i, 9] = Utility.GetPersonName(list[i].AssignedTo);
                 arr[i, 10] = Utility.GetPersonName(list[i].DiscoveryUser);
-            }
-            
+                arr[i, 11] = list[i].State;
+            }            
 
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "L"]];
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "M"]];
             Utility.AddNativieResource(range);
             range.Value2 = arr;
 
@@ -285,45 +341,11 @@ namespace MonthlyReportTool.API.Office.Excel
 
             return nextRow-1;
         }
-        private int BuildNoneTable(int startRow, List<BugEntity> list)
-        {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代处理的不是错误/不予处理Bug分析", "说明：这个表格很长，请右拉把后面列都填写上。", "B", "N",
-                new List<string>() { "BugID", "关键应用", "模块", "关闭原因", "问题类别", "严重级别", "Bug标题","指派给", "不是错误/不予处理分析" },
-                new List<string>() { "B,B", "C,C", "D,D", "E,E","F,F", "G,G", "H,J","K,K","L,N" },
-                list.Count);
-
-            Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "这个表格很长，请右拉把后面列都填写上。");
-            startRow += 3;
-            object[,] arr = new object[list.Count, 14];
-            for (int i = 0; i < list.Count; i++)
-            {
-                arr[i, 0] = list[i].Id;
-                arr[i, 1] = list[i].KeyApplication;
-                arr[i, 2] = list[i].ModulesName;
-                arr[i, 3] = list[i].ResolvedReason;
-                arr[i, 4] = list[i].Type;
-                arr[i, 5] = list[i].Severity;
-                arr[i, 6] = list[i].Title;
-                arr[i, 9] = Utility.GetPersonName(list[i].AssignedTo);
-                arr[i, 10] = "";
-            }
-
-
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "N"]];
-            Utility.AddNativieResource(range);
-            range.Value2 = arr;
-
-            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "B"]]);
-            Utility.SetCellRedColor(sheet.Cells[startRow - 1, "L"]);
-
-            return nextRow-1;
-        }
-
         private int BuildNotResolvedTable(int startRow, List<BugEntity> list)
         {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代遗留Bug数", "说明：", "B", "L",
-                new List<string>() { "BugID", "关键应用", "模块", "问题类别", "严重级别", "Bug标题", "指派给", "发现人" },
-                new List<string>() { "B,B", "C,C", "D,D", "E,E", "F,F", "G,J", "K,K", "L,L" },
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代遗留Bug数", "说明：", "B", "M",
+                new List<string>() { "BugID", "关键应用", "模块", "问题类别", "严重级别", "Bug标题", "指派给", "发现人", "状态" },
+                new List<string>() { "B,B", "C,C", "D,D", "E,E", "F,F", "G,J", "K,K", "L,L","M,M" },
                 list.Count);
 
             startRow += 3;
@@ -338,10 +360,11 @@ namespace MonthlyReportTool.API.Office.Excel
                 arr[i, 5] = list[i].Title;
                 arr[i, 9] = Utility.GetPersonName(list[i].AssignedTo);
                 arr[i, 10] = Utility.GetPersonName(list[i].DiscoveryUser);
+                arr[i, 11] = list[i].State;
             }
 
 
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "L"]];
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "M"]];
             Utility.AddNativieResource(range);
             range.Value2 = arr;
 

@@ -82,7 +82,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 );
 
             sheet.Cells[16, "B"] = "此处对燃尽异常进行分析说明";
-            Utility.SetCellRedColor(sheet.Cells[16, "B"]);
+            Utility.SetCellFontRedColor(sheet.Cells[16, "B"]);
 
             string burdownPicturePath = TFS.Utility.GetBurndownPictureFile(project.Name);
             var shapes = sheet.Shapes;

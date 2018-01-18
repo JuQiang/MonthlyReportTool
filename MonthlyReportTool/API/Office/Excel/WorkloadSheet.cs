@@ -74,7 +74,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 );
 
             sheet.Cells[startRow + 2, "B"] = "计划偏差大于10%分析";
-            Utility.SetCellRedColor(sheet.Cells[startRow+2, "B"]);
+            Utility.SetCellFontRedColor(sheet.Cells[startRow+2, "B"]);
 
             //ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow + 2, "B"], sheet.Cells[startRow + 2 + 5, "U"]];
             //Utility.AddNativieResource(range);
@@ -92,7 +92,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 ds.Count()
                 );
 
-            Utility.SetCellRedColor(sheet.Cells[startRow + 2, "F"]);
+            Utility.SetCellFontRedColor(sheet.Cells[startRow + 2, "F"]);
             startRow += 3;
             for (int i = 0; i < ds.Count(); i++)
             {
@@ -118,7 +118,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 ds.Count()
                 );
 
-            Utility.SetCellRedColor(sheet.Cells[startRow + 2, "F"]);
+            Utility.SetCellFontRedColor(sheet.Cells[startRow + 2, "F"]);
             startRow += 3;
             for (int i = 0; i < ds.Count(); i++)
             {
@@ -144,7 +144,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 ds.Count()
                 );
 
-            Utility.SetCellRedColor(sheet.Cells[startRow + 2, "F"]);
+            Utility.SetCellFontRedColor(sheet.Cells[startRow + 2, "F"]);
             startRow += 3;
             for (int i = 0; i < ds.Count(); i++)
             {

@@ -58,8 +58,8 @@ namespace MonthlyReportTool.API.Office.Excel
                 sheet.Cells[startRow + i, "F"] = String.Format("=E{0}/(C{0}*D{0})", startRow + i);
             }
 
-            Utility.SetCellRedColor(sheet.Cells[startRow-1, "C"]);
-            Utility.SetCellRedColor(sheet.Cells[startRow-1, "D"]);
+            Utility.SetCellFontRedColor(sheet.Cells[startRow-1, "C"]);
+            Utility.SetCellFontRedColor(sheet.Cells[startRow-1, "D"]);
 
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + allbugs.Count - 1, "B"]]);
 

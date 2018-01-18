@@ -338,8 +338,8 @@ namespace MonthlyReportTool.API.Office.Excel
                 sheet.Cells[i + startRow, "M"] = "";
             }
 
-            Utility.SetCellRedColor(sheet.Cells[startRow - 1, "I"]);
-            Utility.SetCellRedColor(sheet.Cells[startRow - 1, "M"]);
+            Utility.SetCellFontRedColor(sheet.Cells[startRow - 1, "I"]);
+            Utility.SetCellFontRedColor(sheet.Cells[startRow - 1, "M"]);
 
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + commitments.Count - 1, "B"]]);
 
@@ -373,7 +373,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 }
             }
 
-            Utility.SetCellRedColor(sheet.Cells[startRow - 1, "H"]);
+            Utility.SetCellFontRedColor(sheet.Cells[startRow - 1, "H"]);
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "B"]]);
 
             return nextRow-1;
@@ -415,7 +415,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 }
             }
 
-            Utility.SetCellRedColor(sheet.Cells[startRow - 1, "I"]);
+            Utility.SetCellFontRedColor(sheet.Cells[startRow - 1, "I"]);
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + commitments.Count - 1, "B"]]);
 
             return nextRow-1;

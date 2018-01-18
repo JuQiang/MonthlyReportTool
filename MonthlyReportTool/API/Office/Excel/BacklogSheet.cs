@@ -225,7 +225,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 all.Count);
 
             Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "这个表格很长，请右拉把后面4个列都填写上。");
-            Utility.SetCellRedColor(sheet.get_Range(String.Format("P{0}:Y{0}", startRow + 2)));
+            Utility.SetCellFontRedColor(sheet.get_Range(String.Format("P{0}:Y{0}", startRow + 2)));
 
             startRow += 3;
             for (int i = 0; i < all.Count; i++)
@@ -256,7 +256,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 new List<string>() { "B,B", "C,C", "D,E", "F,J", "K,K", "L,L", "M,N", "O,O", "P,T" },
                 all.Count);
 
-            Utility.SetCellRedColor(sheet.get_Range(String.Format("P{0}:P{0}", startRow + 2)));
+            Utility.SetCellFontRedColor(sheet.get_Range(String.Format("P{0}:P{0}", startRow + 2)));
             Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "这个表格很长，请右拉把后面列都填写上。");
             
 

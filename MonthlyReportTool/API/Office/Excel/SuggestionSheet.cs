@@ -32,7 +32,7 @@ namespace MonthlyReportTool.API.Office.Excel
         private void BuildTitle()
         {
             Utility.BuildFormalSheetTitle(sheet, 2, "B", 2, "M", "迭代过程总结", columnWidth : 8);
-            Utility.SetCellRedColor(sheet.Cells[2, "B"]);
+            Utility.SetCellFontRedColor(sheet.Cells[2, "B"]);
         }
 
         private void Format2Columns(int startRow)

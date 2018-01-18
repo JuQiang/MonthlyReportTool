@@ -64,8 +64,10 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.SetCellFontRedColor(sheet.Cells[startRow-1, "D"]);
 
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + allbugs.Count - 1, "B"]]);
-            Utility.SetCellGreenColor(sheet.Range[sheet.Cells[startRow, "F"], sheet.Cells[startRow + allbugs.Count - 1, "F"]]);
-            Utility.SetCellFontRedColor(sheet.Range[sheet.Cells[startRow, "F"], sheet.Cells[startRow + allbugs.Count - 1, "F"]]);
+            if (allbugs.Count > 0) { 
+                Utility.SetCellGreenColor(sheet.Range[sheet.Cells[startRow, "F"], sheet.Cells[startRow + allbugs.Count - 1, "F"]]);
+                Utility.SetCellFontRedColor(sheet.Range[sheet.Cells[startRow, "F"], sheet.Cells[startRow + allbugs.Count - 1, "F"]]);
+            }
 
             return nextRow -1;
         }

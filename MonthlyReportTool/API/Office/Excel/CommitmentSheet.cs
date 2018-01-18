@@ -147,7 +147,8 @@ namespace MonthlyReportTool.API.Office.Excel
             sheet.Cells[9, "E"] = all.Where(commitment => commitment.SubmitType == "Hotfix补丁-BUG").Count();
 
             Utility.SetCellPercentFormat(sheet.get_Range("C10:E10"));
-
+            Utility.SetCellGreenColor(sheet.Range[sheet.Cells[7, "C"], sheet.Cells[7, "E"]]);
+            Utility.SetCellGreenColor(sheet.Range[sheet.Cells[10, "C"], sheet.Cells[10, "E"]]);
         }
         private void BuildTestTableTitle()
         {
@@ -198,6 +199,7 @@ namespace MonthlyReportTool.API.Office.Excel
             sheet.Cells[7, "I"] = this.commitmentList[3].Count;
             sheet.Cells[9, "I"] = "=IF(I7<>0,I6/I7,\"\")";
             Utility.SetCellPercentFormat(sheet.Cells[9, "I"]);
+            Utility.SetCellGreenColor(sheet.Range[sheet.Cells[9, "I"], sheet.Cells[9, "I"]]);
         }
         private void BuildPerformanceTestTableTitle()
         {
@@ -251,15 +253,17 @@ namespace MonthlyReportTool.API.Office.Excel
                 sheet.Cells[i, "E"] = orderedCells[i - startRow].Item4;
                 sheet.Cells[i, "F"] = orderedCells[i - startRow].Item5;
                 sheet.Cells[i, "G"] = orderedCells[i - startRow].Item6;
-
             }
 
             Utility.SetCellPercentFormat(sheet.Range[sheet.Cells[startRow, "G"], sheet.Cells[startRow + cells.Count - 1, "G"]]);
             Utility.SetFormatSmaller(sheet.Range[sheet.Cells[startRow, "G"], sheet.Cells[startRow + cells.Count - 1, "G"]], 1.00d);
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + cells.Count - 1, "B"]]);
+            Utility.SetCellGreenColor(sheet.Range[sheet.Cells[startRow, "G"], sheet.Cells[startRow + cells.Count - 1, "G"]]);
+            Utility.SetCellFontRedColor(sheet.Range[sheet.Cells[startRow, "G"], sheet.Cells[startRow + cells.Count - 1, "G"]]);
+            Utility.SetCellDarkGrayColor(sheet.Range[sheet.Cells[startRow + cells.Count, "B"], sheet.Cells[startRow + cells.Count, "B"]]);
 
             FillSummaryData(startRow, cells.Count);
-            return nextRow;
+             return nextRow;
         }
 
         private void FillSummaryData(int startRow, int rowCount)
@@ -274,10 +278,11 @@ namespace MonthlyReportTool.API.Office.Excel
             sheet.Cells[curRow, "F"] = String.Format("=sum(F{0}:F{1}", startRow, curRow - 1);
             sheet.Cells[curRow, "G"] = String.Format("=C{0}/(C{0}+D{0}+E{0}+F{0})", curRow - 0);
 
-
             Utility.SetCellPercentFormat(sheet.Cells[curRow, "G"]);
 
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[curRow, "B"], sheet.Cells[curRow, "B"]], hAlign: ExcelInterop.XlHAlign.xlHAlignCenter);
+            Utility.SetCellGreenColor(sheet.Range[sheet.Cells[curRow, "C"], sheet.Cells[curRow, "G"]]);
+            Utility.SetCellFontRedColor(sheet.Range[sheet.Cells[curRow, "G"], sheet.Cells[curRow, "G"]]);
         }
         private int BuildSuccessTable(int startRow, List<CommitmentEntity> list)
         {

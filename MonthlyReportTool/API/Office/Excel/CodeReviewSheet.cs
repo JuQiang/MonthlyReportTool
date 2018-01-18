@@ -24,14 +24,16 @@ namespace MonthlyReportTool.API.Office.Excel
             BuildTitle();
 
             List<CodeReviewEntity> list = TFS.WorkItem.CodeReview.GetAll(project.Name, TFS.Utility.GetBestIteration(project.Name));
-            int startRow = BuildTable(4, list);
-
-            
+            int startRow = BuildTable(4, list);            
 
             var bugList = Bug.GetAllByIteration(project.Name, TFS.Utility.GetBestIteration(project.Name));
             startRow = BuildCodeReviewTable(startRow, bugList[5]);
 
             BuildAnalyzeTable(startRow);
+
+            var range = sheet.get_Range("G1:L1");
+            Utility.AddNativieResource(range);
+            range.ColumnWidth = 16;
 
             sheet.Cells[1, "A"] = "";
         }
@@ -62,8 +64,10 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.SetCellFontRedColor(sheet.Cells[startRow-1, "D"]);
 
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + allbugs.Count - 1, "B"]]);
+            Utility.SetCellGreenColor(sheet.Range[sheet.Cells[startRow, "F"], sheet.Cells[startRow + allbugs.Count - 1, "F"]]);
+            Utility.SetCellFontRedColor(sheet.Range[sheet.Cells[startRow, "F"], sheet.Cells[startRow + allbugs.Count - 1, "F"]]);
 
-            return nextRow-1;
+            return nextRow -1;
         }
 
         private void BuildAnalyzeTable(int startRow)

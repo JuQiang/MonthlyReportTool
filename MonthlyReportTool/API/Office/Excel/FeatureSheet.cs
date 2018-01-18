@@ -43,11 +43,11 @@ namespace MonthlyReportTool.API.Office.Excel
 
         private void BuildTitle()
         {
-            Utility.BuildFormalSheetTitle(sheet, 2, "B", 2, "O", "产品特性统计分析");
+            Utility.BuildFormalSheetTitle(sheet, 2, "B", 2, "P", "产品特性统计分析");
         }
         private void BuildSubTitle()
         {
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[4, "B"], sheet.Cells[4, "O"]];
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[4, "B"], sheet.Cells[4, "P"]];
             Utility.AddNativieResource(range);
             range.Merge();
             sheet.Cells[4, "B"] = "本迭代产品特性完成情况统计";
@@ -56,11 +56,10 @@ namespace MonthlyReportTool.API.Office.Excel
             titleFont.Bold = true;
             titleFont.Name = "微软雅黑";
             titleFont.Size = 12;
-
         }
         private void BuildDescription()
         {
-            ExcelInterop.Range titleRange = sheet.Range[sheet.Cells[5, "B"], sheet.Cells[5, "O"]];
+            ExcelInterop.Range titleRange = sheet.Range[sheet.Cells[5, "B"], sheet.Cells[5, "P"]];
             Utility.AddNativieResource(titleRange);
             titleRange.Merge();
             sheet.Cells[5, "B"] = "说明：统计依据为：完成本月目标状态的本月目标日期落在本迭代期间内的产品特性";
@@ -79,7 +78,7 @@ namespace MonthlyReportTool.API.Office.Excel
         }
         private void BuildSummaryTable(int startRow)
         {
-            int nextRow = Utility.BuildFormalTable(sheet, startRow, "本迭代产品特性完成情况统计", "说明：统计依据为：完成本月目标状态的本月目标日期落在本迭代期间内的产品特性", "B", "O",
+            int nextRow = Utility.BuildFormalTable(sheet, startRow, "本迭代产品特性完成情况统计", "说明：统计依据为：完成本月目标状态的本月目标日期落在本迭代期间内的产品特性", "B", "P",
                 new List<string>() { "分类", "个数", "占比", "说明" },
                 new List<string>() { "B,D", "E,E", "F,F", "G,P" },
                 5);
@@ -107,6 +106,7 @@ namespace MonthlyReportTool.API.Office.Excel
             //sheet.Cells[12, "E"] = "=SUM(E7: E11)";
 
             Utility.SetCellPercentFormat(sheet.get_Range("F7:F11"));
+            Utility.SetCellGreenColor(sheet.get_Range("F7:F11"));
 
             ExcelInterop.Range range = sheet.Range[sheet.Cells[7, "B"], sheet.Cells[12, "B"]];
             Utility.AddNativieResource(range);

@@ -50,11 +50,11 @@ namespace MonthlyReportTool.API.Office.Excel
 
         private void BuildTitle()
         {
-            Utility.BuildFormalSheetTitle(sheet, 2, "B", 2, "I", "Bug统计分析");
+            Utility.BuildFormalSheetTitle(sheet, 2, "B", 2, "J", "Bug统计分析");
         }
         private void BuildSubTitle()
         {
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[4, "B"], sheet.Cells[4, "I"]];
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[4, "B"], sheet.Cells[4, "J"]];
             Utility.AddNativieResource(range);
             range.Merge();
             sheet.Cells[4, "B"] = "Bug新增及处理情况统计";
@@ -62,7 +62,6 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.AddNativieResource(titleFont);
             titleFont.Bold = true;
             titleFont.Size = 12;
-
         }
 
         private void BuildDescription()
@@ -85,7 +84,7 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.AddNativieResource(tmpfont);
             tmpfont.Bold = true;
 
-            ExcelInterop.Range titleRange2 = sheet.Range[sheet.Cells[row, "F"], sheet.Cells[row, "I"]];
+            ExcelInterop.Range titleRange2 = sheet.Range[sheet.Cells[row, "F"], sheet.Cells[row, "J"]];
             titleRange2.Merge();
             Utility.AddNativieResource(titleRange2);
             titleRange.Merge();
@@ -100,13 +99,13 @@ namespace MonthlyReportTool.API.Office.Excel
             int start = 6;
             string[,] cols = new string[,]
                         {
-                { "", "1 - 严重", "2 - 高", "3 - 中","4 - 低","5 - 无（建议）","合计","1、2级占比"},
-                { "本迭代新增数", "", "", "","", "", "",""},
-                { "本迭代遗留数", "", "", "","", "", "",""},
-                { "本迭代修复数", "", "", "","", "", "",""},
-                { "不予处理/不是错误数", "", "", "","", "", "",""},
-                { "代码评审问题数", "", "", "","", "", "",""},
-                { "", "", "", "","", "", "",""},
+                { "", "1 - 严重", "2 - 高", "3 - 中","4 - 低","5 - 无（建议）","合计","1级Bug占比","2级Bug占比"},
+                { "本迭代新增数", "", "", "","", "", "","",""},
+                { "本迭代遗留数", "", "", "","", "", "","",""},
+                { "本迭代修复数", "", "", "","", "", "","",""},
+                { "不予处理/不是错误数", "", "", "","", "", "","",""},
+                { "代码评审问题数", "", "", "","", "", "","",""},
+                { "", "", "", "","", "", "","",""},
                         };
             List<Tuple<string, string>> colsname = new List<Tuple<string, string>>(){
                 Tuple.Create<string,string>("B","B"),
@@ -117,6 +116,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 Tuple.Create<string,string>("G","G"),
                 Tuple.Create<string,string>("H","H"),
                 Tuple.Create<string,string>("I","I"),
+                Tuple.Create<string,string>("J","J"),
             };
             for (int row = 0; row < cols.GetLength(0); row++)
             {
@@ -130,35 +130,42 @@ namespace MonthlyReportTool.API.Office.Excel
                 }
             }
 
-            Utility.SetCellBorder(sheet.Range[sheet.Cells[start, "B"], sheet.Cells[start + cols.GetLength(0) - 1, "I"]]);
+            Utility.SetCellBorder(sheet.Range[sheet.Cells[start, "B"], sheet.Cells[start + cols.GetLength(0) - 1, "J"]]);
 
-            Utility.SetTableHeaderFormat(sheet.Range[sheet.Cells[start, "B"], sheet.Cells[start, "I"]],true);
+            Utility.SetTableHeaderFormat(sheet.Range[sheet.Cells[start, "B"], sheet.Cells[start, "J"]],true);
 
             sheet.Cells[7, "H"] = "=SUM(C7:G7)";
             sheet.Cells[8, "H"] = "=SUM(C8:G8)";
             sheet.Cells[9, "H"] = "=SUM(C9:G9)";
             sheet.Cells[10, "H"] = "=SUM(C10:G10)";
             sheet.Cells[11, "H"] = "=SUM(C11:G11)";
-            sheet.Cells[7, "I"] = "=(C7+D7)/H7";
-            sheet.Cells[8, "I"] = "=(C8+D8)/H8";
-            sheet.Cells[9, "I"] = "=(C9+D9)/H9";
+            sheet.Cells[7, "I"] = "=C7/H7";
+            sheet.Cells[8, "I"] = "=C8/H8";
+            sheet.Cells[9, "I"] = "=C9/H9";
             sheet.Cells[10, "I"] = "'--";
             sheet.Cells[11, "I"] = "'--";
+            sheet.Cells[7, "J"] = "=D7/H7";
+            sheet.Cells[8, "J"] = "=D8/H8";
+            sheet.Cells[9, "J"] = "=D9/H9";
+            sheet.Cells[10, "J"] = "'--";
+            sheet.Cells[11, "J"] = "'--";
 
             sheet.Cells[12, "B"] = "Bug修复率";
-            sheet.Cells[12, "C"] = "=(C9)/(C8+C9)";
-            sheet.Cells[12, "D"] = "=(D9)/(D8+D9)";
-            sheet.Cells[12, "E"] = "=(E9)/(E8+E9)";
-            sheet.Cells[12, "F"] = "=(F9)/(F8+F9)";
-            sheet.Cells[12, "G"] = "=(G9)/(G8+G9)";
-            sheet.Cells[12, "H"] = "=(H9)/(H8+H9)";
-            sheet.Cells[12, "I"] = "=(C9+D9)/((C8+C9)+(D8+D9))";
+            sheet.Cells[12, "C"] = "=C9/(C8+C9)";
+            sheet.Cells[12, "D"] = "=D9/(D8+D9)";
+            sheet.Cells[12, "E"] = "=E9/(E8+E9)";
+            sheet.Cells[12, "F"] = "=F9/(F8+F9)";
+            sheet.Cells[12, "G"] = "=G9/(G8+G9)";
+            sheet.Cells[12, "H"] = "=H9/(H8+H9)";
+            sheet.Cells[12, "I"] = "--";// "=C9/(H8+H9)";
+            sheet.Cells[12, "J"] = "--";//"=D9/(H8+H9)";
 
-            ExcelInterop.Range range = sheet.get_Range("C12:C12,D12:D12,E12:E12,F12:F12,G12:G12,H12:H12,I7:I12");
+            ExcelInterop.Range range = sheet.get_Range("C12:C12,D12:D12,E12:E12,F12:F12,G12:G12,H12:H12,I7:I12,J7:J12");
             Utility.SetCellPercentFormat(range);
             Utility.SetCellGreenColor(range);
             range = sheet.get_Range("H7:H11");
             Utility.SetCellGreenColor(range);
+            Utility.SetCellFontRedColor(sheet.get_Range("I7:I11,J7:J11,C12:J12"));
 
             List<List<BugEntity>> list = new List<List<BugEntity>>();
             list.Add(this.bugList[0]);

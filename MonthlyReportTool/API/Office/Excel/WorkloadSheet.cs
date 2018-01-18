@@ -208,7 +208,6 @@ namespace MonthlyReportTool.API.Office.Excel
                 Tuple.Create<string,string>("U","W"),
                 Tuple.Create<string,string>("X","Z"),
                 Tuple.Create<string,string>("AA","AC"),
-
             };
 
             for (int i = 0; i < cols.Length; i++)
@@ -216,12 +215,8 @@ namespace MonthlyReportTool.API.Office.Excel
                 ExcelInterop.Range colRange = sheet.Range[sheet.Cells[6, colsname[i].Item1], sheet.Cells[6, colsname[i].Item2]];
                 Utility.AddNativieResource(colRange);
                 colRange.Merge();
-                sheet.Cells[6, colsname[i].Item1] = cols[i];
-
-                
-            }
-
-            
+                sheet.Cells[6, colsname[i].Item1] = cols[i];                
+            }            
 
             ExcelInterop.Range firstRow = sheet.Range[sheet.Cells[6, "B"], sheet.Cells[6, "AC"]];
             Utility.AddNativieResource(firstRow);
@@ -234,6 +229,8 @@ namespace MonthlyReportTool.API.Office.Excel
             ExcelInterop.Range nextRow = sheet.Range[sheet.Cells[7, "B"], sheet.Cells[7, "AC"]];
             Utility.AddNativieResource(nextRow);
             nextRow.PasteSpecial(ExcelInterop.XlPasteType.xlPasteFormats);
+            Utility.SetCellGreenColor(sheet.Range[sheet.Cells[7, "B"], sheet.Cells[7, "N"]]);
+            Utility.SetCellGreenColor(sheet.Range[sheet.Cells[7, "X"], sheet.Cells[7, "Z"]]);
 
             firstRow.RowHeight = 50;
             firstRow.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignCenter;
@@ -393,6 +390,22 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[firstrow, "B"], sheet.Cells[firstrow + orderedLoads.Count() - 1, "B"]]);
 
             Utility.SetCellPercentFormat(sheet.Range[sheet.Cells[firstrow, "F"],sheet.Cells[startrow - 1, "F"]]);
+            Utility.SetCellGreenColor(sheet.Range[sheet.Cells[firstrow, "D"], sheet.Cells[startrow - 1, "D"]]);
+            Utility.SetCellGreenColor(sheet.Range[sheet.Cells[firstrow, "F"], sheet.Cells[startrow - 1, "F"]]);
+            Utility.SetCellGreenColor(sheet.Range[sheet.Cells[firstrow, "H"], sheet.Cells[startrow - 1, "H"]]);
+            Utility.SetCellGreenColor(sheet.Range[sheet.Cells[firstrow, "I"], sheet.Cells[startrow - 1, "I"]]);
+            Utility.SetCellGreenColor(sheet.Range[sheet.Cells[firstrow, "K"], sheet.Cells[startrow - 1, "K"]]);
+            Utility.SetCellGreenColor(sheet.Range[sheet.Cells[firstrow, "M"], sheet.Cells[startrow - 1, "M"]]);
+            Utility.SetCellGreenColor(sheet.Range[sheet.Cells[firstrow, "O"], sheet.Cells[startrow - 1, "O"]]);
+            Utility.SetCellGreenColor(sheet.Range[sheet.Cells[firstrow, "Q"], sheet.Cells[startrow - 1, "Q"]]);
+            Utility.SetCellGreenColor(sheet.Range[sheet.Cells[firstrow, "S"], sheet.Cells[startrow - 1, "S"]]);
+            Utility.SetCellGreenColor(sheet.Range[sheet.Cells[firstrow, "U"], sheet.Cells[startrow - 1, "U"]]);
+            Utility.SetCellGreenColor(sheet.Range[sheet.Cells[firstrow, "W"], sheet.Cells[startrow - 1, "W"]]);
+            Utility.SetCellGreenColor(sheet.Range[sheet.Cells[firstrow, "Y"], sheet.Cells[startrow - 1, "Y"]]);
+            Utility.SetCellGreenColor(sheet.Range[sheet.Cells[firstrow, "AA"], sheet.Cells[startrow - 1, "AA"]]);
+            Utility.SetCellGreenColor(sheet.Range[sheet.Cells[firstrow, "AC"], sheet.Cells[startrow - 1, "AC"]]);
+            Utility.SetCellGreenColor(sheet.Range[sheet.Cells[firstrow, "AE"], sheet.Cells[startrow - 1, "AE"]]);
+            Utility.SetCellGreenColor(sheet.Range[sheet.Cells[firstrow, "AG"], sheet.Cells[startrow - 1, "AG"]]);
 
             ExcelInterop.Range bugrange = sheet.Range[sheet.Cells[firstrow, "H"], sheet.Cells[startrow - 1, "H"]];
             Utility.AddNativieResource(bugrange);
@@ -420,8 +433,6 @@ namespace MonthlyReportTool.API.Office.Excel
                     )
                 );
         }
-
-        
 
         private int BuildDevelopmentTable()
         {
@@ -489,6 +500,9 @@ namespace MonthlyReportTool.API.Office.Excel
             startrow = FillWorkloadData(devload, startrow, false);
             startrow = FillWorkloadData(testload, startrow + 1, true);
             FillSummaryData(startrow);
+
+            Utility.SetCellGreenColor(sheet.Range[sheet.Cells[startrow, "C"], sheet.Cells[startrow, "AG"]]);
+            Utility.SetCellDarkGrayColor(sheet.Range[sheet.Cells[startrow, "B"], sheet.Cells[startrow, "B"]]);
 
             var ite = TFS.Utility.GetBestIteration(this.project.Name);
             int totalDays = (DateTime.Parse(ite.EndDate).AddDays(1) - DateTime.Parse(ite.StartDate)).Days;

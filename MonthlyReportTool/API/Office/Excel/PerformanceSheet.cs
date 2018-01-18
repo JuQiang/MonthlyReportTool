@@ -47,9 +47,11 @@ namespace MonthlyReportTool.API.Office.Excel
             for (int i = 0; i < persons.Count; i++)
             {
                 sheet.Cells[startRow + i, "B"] =Utility.GetPersonName(persons[i].DisplayName);
+                sheet.Cells[startRow + i, "F"] = "=C"+(startRow + i) +"+D"+(startRow + i)+"-E"+(startRow + i);
             }
+            Utility.SetCellGreenColor(sheet.Range[sheet.Cells[startRow, "F"], sheet.Cells[startRow + persons.Count - 1, "F"]]);
 
-            return nextRow-1;
+            return nextRow -1;
         }
     }
 }

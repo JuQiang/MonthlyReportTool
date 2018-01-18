@@ -53,7 +53,6 @@ namespace MonthlyReportTool.API.Office.Excel
             titleFont.Bold = true;
             titleFont.Name = "微软雅黑";
             titleFont.Size = 12;
-
         }
         private void BuildDescription()
         {
@@ -150,6 +149,10 @@ namespace MonthlyReportTool.API.Office.Excel
             sheet.Cells[16, "E"] = "'--";
 
             Utility.SetCellPercentFormat(sheet.get_Range("E7:E16"));
+            Utility.SetCellGreenColor(sheet.get_Range("E7:E16"));
+            Utility.SetCellGreenColor(sheet.get_Range("D8:D8"));
+            Utility.SetCellGreenColor(sheet.get_Range("D10:D10"));
+            Utility.SetCellGreenColor(sheet.get_Range("D15:D15"));
 
             sheet.Cells[7, "D"] = this.backlogList[0].Count;
             sheet.Cells[9, "D"] = this.backlogList[1].Count;
@@ -329,6 +332,8 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.SetCellPercentFormat(sheet.Cells[startRow-1, "P"]);
 
             Utility.SetCellColor(sheet.Cells[startRow, "M"], System.Drawing.Color.Black, "测试用例设计及执行统计", true);
+            Utility.SetCellGreenColor(sheet.Cells[7, "P"]);
+            Utility.SetCellGreenColor(sheet.Cells[12, "P"]);
 
         }
     }

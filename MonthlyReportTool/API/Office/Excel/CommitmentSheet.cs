@@ -171,7 +171,7 @@ namespace MonthlyReportTool.API.Office.Excel
             string[,] cols = new string[,]
                         {
                 { "分类", "个数"},
-                { "提交单测试通过数", ""},
+                { "性能测试通过提交单数", ""},
                 { "需要性能测试提交单总数",""},
                 { "性能测试发现BUG数", ""},
                 { "通过率", ""},

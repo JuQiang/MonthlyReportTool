@@ -88,7 +88,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
                         InitTargetDate = Convert.ToString(feature["fields"]["Teld.Scrum.Scheduling.InitTargetDate"]),
                         IterationTargetDate = Convert.ToString(feature["fields"]["Teld.Scrum.IterationTargetDate"]),
                         TargetDate = Convert.ToString(feature["fields"]["Microsoft.VSTS.Scheduling.TargetDate"]),
-                        IsDevelopment = Convert.ToString(feature["fields"]["Teld.Scrum.IsDevelopment"]) == "是",
+                        IsDevelopment = Convert.ToString(feature["fields"]["Teld.Scrum.IsDevelopment"]),
                     }
                 );
             }

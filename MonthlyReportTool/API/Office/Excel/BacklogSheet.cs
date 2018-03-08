@@ -21,13 +21,13 @@ namespace MonthlyReportTool.API.Office.Excel
         public void Build(ProjectEntity project)
         {
             this.backlogList = Backlog.GetAll(project.Name, TFS.Utility.GetBestIteration(project.Name));
-            BuildTestCase(4);
 
             BuildTitle();
             BuildSubTitle();
             BuildDescription();
 
             int startRow = BuildSummaryTable();
+            BuildTestCase(4);
             startRow = BuildDelayedTable(startRow);
             startRow = BuildAbandonTable(startRow);
             BuildTable(startRow);
@@ -90,8 +90,6 @@ namespace MonthlyReportTool.API.Office.Excel
                 { "未启动数", "", "", "未启动数：【已承诺】、【新建】、【已批准】、【提交评审】状态的Backlog总数\r\n占比：未启动数 / 本迭代计划总数" },
                 { "拖期数", "", "", "拖期数：本迭代计划总数-已完成数-中止数/移除数\r\n占比：拖期数 / 本迭代计划总数" },
                 { "中止/移除数", "", "", "中止/移除数：本迭代已中止或已移除的Backlog总数\r\n占比：移除数 / 本迭代计划总数"},
-
-
                 { "本迭代计划总数", "", "", "本迭代规划的所有backlog总数（包括当前已经被移除、中止的）"},
                 { "提交测试数", "", "", "提交测试数：【已完成】、【已发布】、【提交测试】、【测试接收】、【测试通过】状态的Backlog总数\r\n占比：提交测试数 / 应提交数"   },
                 { "测试通过数", "", "", "测试通过数：【已发布】、【测试通过】、【已完成】状态的Backlog总数\r\n占比：测试通过数 / 应提交数"},

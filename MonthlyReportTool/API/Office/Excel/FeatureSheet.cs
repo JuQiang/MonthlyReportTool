@@ -78,9 +78,9 @@ namespace MonthlyReportTool.API.Office.Excel
         }
         private void BuildSummaryTable(int startRow)
         {
-            int nextRow = Utility.BuildFormalTable(sheet, startRow, "本迭代产品特性完成情况统计", "说明：统计依据为：完成本月目标状态的本月目标日期落在本迭代期间内的产品特性", "B", "J",
+            int nextRow = Utility.BuildFormalTable(sheet, startRow, "本迭代产品特性完成情况统计", "说明：统计依据为：完成本月目标状态的本月目标日期落在本迭代期间内的产品特性", "B", "K",
                 new List<string>() { "分类", "个数", "占比", "说明" },
-                new List<string>() { "B,D", "E,E", "F,F", "G,J" },
+                new List<string>() { "B,D", "E,E", "F,F", "G,K" },
                 5);
 
             string[] cols1 = new string[] { "已完成数", "拖期数", "中止/移除数", "按计划完成数", "本迭代计划总数" };

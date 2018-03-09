@@ -293,7 +293,7 @@ namespace MonthlyReportTool.API.Office.Excel
             var orderedLoads = GetOrderedWorkloads(workloads);
 
             var allbugs = Bug.GetAddedBugsByIteration(this.project.Name, API.TFS.Utility.GetBestIteration(this.project.Name));
-            object[,] arr = new object[orderedLoads.Count(), 33];
+            object[,] arr = new object[orderedLoads.Count(), 35];
             int line = 0;
 
             var capacities = TFS.Agile.Capacity.GetIterationCapacitiesForTeamMember(this.project.Name, TFS.Utility.GetBestIteration(this.project.Name).Id);
@@ -319,7 +319,8 @@ namespace MonthlyReportTool.API.Office.Excel
                 double devtime3 = dev.Where(wl => wl.Type == "设计").Sum(wl => wl.SumHours);
                 double devtime4 = dev.Where(wl => wl.Type == "测试设计").Sum(wl => wl.SumHours);
                 double devtime5 = dev.Where(wl => wl.Type == "测试执行").Sum(wl => wl.SumHours);
-                double devtime6 = devtime - (devtime1 + devtime2 + devtime3 + devtime4 + devtime5);
+                double devtime6 = dev.Where(wl => wl.Type == "技术支持").Sum(wl => wl.SumHours);
+                double devtime7 = devtime - (devtime1 + devtime2 + devtime3 + devtime4 + devtime5 + devtime6);
 
                 double mgrtime = load.Where(wl => wl.SupperType == "管理").Sum(wl => wl.SumHours);
                 double oprtime = load.Where(wl => wl.SupperType == "运维").Sum(wl => wl.SumHours);
@@ -357,25 +358,27 @@ namespace MonthlyReportTool.API.Office.Excel
                 arr[line, 17] = String.Format("=IF(R{0}<>0,R{0}/D{0}, \"\"", startrow);
                 arr[line, 18] = devtime6;
                 arr[line, 19] = String.Format("=IF(T{0}<>0,T{0}/D{0}, \"\"", startrow);
-
-                arr[line, 20] = mgrtime;
+                arr[line, 20] = devtime7;
                 arr[line, 21] = String.Format("=IF(V{0}<>0,V{0}/D{0}, \"\"", startrow);
-                arr[line, 22] = oprtime;
+
+                arr[line, 22] = mgrtime;
                 arr[line, 23] = String.Format("=IF(X{0}<>0,X{0}/D{0}, \"\"", startrow);
-                arr[line, 24] = doctime;
+                arr[line, 24] = oprtime;
                 arr[line, 25] = String.Format("=IF(Z{0}<>0,Z{0}/D{0}, \"\"", startrow);
-                arr[line, 26] = studytime;
+                arr[line, 26] = doctime;
                 arr[line, 27] = String.Format("=IF(AB{0}<>0,AB{0}/D{0}, \"\"", startrow);
-                arr[line, 28] = presalestime;
+                arr[line, 28] = studytime;
                 arr[line, 29] = String.Format("=IF(AD{0}<>0,AD{0}/D{0}, \"\"", startrow);
-                arr[line, 30] = othertime;
+                arr[line, 30] = presalestime;
                 arr[line, 31] = String.Format("=IF(AF{0}<>0,AF{0}/D{0}, \"\"", startrow);
+                arr[line, 32] = othertime;
+                arr[line, 33] = String.Format("=IF(AH{0}<>0,AH{0}/D{0}, \"\"", startrow);
 
                 startrow++;
                 line++;
             }
 
-            ExcelInterop.Range devRange = sheet.Range[sheet.Cells[firstrow, "B"], sheet.Cells[startrow - 1, "AG"]];
+            ExcelInterop.Range devRange = sheet.Range[sheet.Cells[firstrow, "B"], sheet.Cells[startrow - 1, "AI"]];
             Utility.AddNativieResource(devRange);
             devRange.Value2 = arr;
             devRange.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignRight;
@@ -404,12 +407,13 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.SetCellGreenColor(sheet.Range[sheet.Cells[firstrow, "AC"], sheet.Cells[startrow - 1, "AC"]]);
             Utility.SetCellGreenColor(sheet.Range[sheet.Cells[firstrow, "AE"], sheet.Cells[startrow - 1, "AE"]]);
             Utility.SetCellGreenColor(sheet.Range[sheet.Cells[firstrow, "AG"], sheet.Cells[startrow - 1, "AG"]]);
+            Utility.SetCellGreenColor(sheet.Range[sheet.Cells[firstrow, "AI"], sheet.Cells[startrow - 1, "AI"]]);
 
             ExcelInterop.Range bugrange = sheet.Range[sheet.Cells[firstrow, "H"], sheet.Cells[startrow - 1, "H"]];
             Utility.AddNativieResource(bugrange);
             bugrange.NumberFormat = "#0.00";
 
-            for (int col = 9; col <= 33; col += 2)
+            for (int col = 9; col <= 35; col += 2)
             {
                 Utility.SetCellPercentFormat(sheet, firstrow, col, startrow - 1, col);
             }
@@ -436,9 +440,9 @@ namespace MonthlyReportTool.API.Office.Excel
         {
             string[,] cols = new string[,]
                         {
-                { "团队成员", "标准\r\n工作量", "实际投入\r\n工作量", "请假","实际\r\n饱和度","bug数","bug产出率（个/天）","研发工作量占比","研发","","","","","","","","","","","","管理","","运维","","文档","","学习交流","","售前/推广","","其他\r\n排除请假",""},
-                { "", "", "", "", "", "", "", "", "开发","","需求","","设计","","测试设计","","测试执行","","其他","","","","","","","","","","","","",""},
-                { "", "", "", "", "", "", "", "", "工作量","占比","工作量","占比","工作量","占比","工作量","占比","工作量","占比","工作量","占比","工作量","占比","工作量","占比","工作量","占比","工作量","占比","工作量","占比","工作量","占比"},
+                { "团队成员", "标准\r\n工作量", "实际投入\r\n工作量", "请假","实际\r\n饱和度","bug数","bug产出率（个/天）","研发工作量占比","研发","","","","","","","","","","","","","","管理","","运维","","文档","","学习交流","","售前/推广","","其他\r\n排除请假",""},
+                {        "",              "",                  "",     "",             "",     "",                 "",            "", "开发","","需求","","设计","","测试设计","","测试执行","","技术支持","","其他","","","","","","","","","","","","",""},
+                { "", "", "", "", "", "", "", "", "工作量","占比","工作量","占比","工作量","占比","工作量","占比","工作量","占比","工作量","占比","工作量","占比","工作量","占比","工作量","占比","工作量","占比","工作量","占比","工作量","占比","工作量","占比"},
                         };
 
             for (int row = 0; row < 3; row++)
@@ -457,15 +461,16 @@ namespace MonthlyReportTool.API.Office.Excel
                 Tuple.Create<int, string, int, string>(11,"F",13,"F"),Tuple.Create<int, string, int, string>(11,"G",13,"G"),
                 Tuple.Create<int, string, int, string>(11,"H",13,"H"),Tuple.Create<int, string, int, string>(11,"I",13,"I"),
 
-                Tuple.Create<int, string, int, string>(11,"J",11,"U"),
+                Tuple.Create<int, string, int, string>(11,"J",11,"W"),
 
-                Tuple.Create<int, string, int, string>(11,"V",12,"W"),Tuple.Create<int, string, int, string>(11,"X",12,"Y"),
-                Tuple.Create<int, string, int, string>(11,"Z",12,"AA"),Tuple.Create<int, string, int, string>(11,"AB",12,"AC"),
-                Tuple.Create<int, string, int, string>(11,"AD",12,"AE"),Tuple.Create<int, string, int, string>(11,"AF",12,"AG"),
+                Tuple.Create<int, string, int, string>(11,"X",12,"Y"),Tuple.Create<int, string, int, string>(11,"Z",12,"AA"),
+                Tuple.Create<int, string, int, string>(11,"AB",12,"AC"),Tuple.Create<int, string, int, string>(11,"AD",12,"AE"),
+                Tuple.Create<int, string, int, string>(11,"AF",12,"AG"),Tuple.Create<int, string, int, string>(11,"AH",12,"AI"),
 
                 Tuple.Create<int, string, int, string>(12,"J",12,"K"),Tuple.Create<int, string, int, string>(12,"L",12,"M"),
                 Tuple.Create<int, string, int, string>(12,"N",12,"O"),Tuple.Create<int, string, int, string>(12,"P",12,"Q"),
-                Tuple.Create<int, string, int, string>(12,"R",12,"S"),Tuple.Create<int, string, int, string>(12,"T",12,"U")
+                Tuple.Create<int, string, int, string>(12,"R",12,"S"),Tuple.Create<int, string, int, string>(12,"T",12,"U"),
+                Tuple.Create<int, string, int, string>(12,"V",12,"W")
             };
 
             foreach (var tuple in allMergedCells)
@@ -475,7 +480,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 range.Merge();
             }
 
-            Utility.SetTableHeaderFormat(sheet.get_Range("B11:AG13"), false);
+            Utility.SetTableHeaderFormat(sheet.get_Range("B11:AI13"), false);
 
             var testlist = TFS.Utility.GetTestMembers(false);
             List<WorkloadEntity> devload = new List<WorkloadEntity>();
@@ -499,7 +504,7 @@ namespace MonthlyReportTool.API.Office.Excel
             startrow = FillWorkloadData(testload, startrow + 1, true);
             FillSummaryData(startrow);
 
-            Utility.SetCellGreenColor(sheet.Range[sheet.Cells[startrow, "C"], sheet.Cells[startrow, "AG"]]);
+            Utility.SetCellGreenColor(sheet.Range[sheet.Cells[startrow, "C"], sheet.Cells[startrow, "AI"]]);
             Utility.SetCellDarkGrayColor(sheet.Range[sheet.Cells[startrow, "B"], sheet.Cells[startrow, "B"]]);
 
             var ite = TFS.Utility.GetBestIteration(this.project.Name);
@@ -521,7 +526,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
         private void FillSummaryData(int startRow)
         {
-            Utility.SetCellBorder(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow, "AG"]]);
+            Utility.SetCellBorder(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow, "AI"]]);
 
             sheet.Cells[startRow, "B"] = "合计";
             sheet.Cells[startRow, "C"] = String.Format("=sum(C14:C{0}", startRow - 1);
@@ -555,6 +560,8 @@ namespace MonthlyReportTool.API.Office.Excel
             sheet.Cells[startRow, "AE"] = String.Format("=AD{0}/D{0}", startRow);
             sheet.Cells[startRow, "AF"] = String.Format("=sum(AF14:AF{0}", startRow - 1);
             sheet.Cells[startRow, "AG"] = String.Format("=AF{0}/D{0}", startRow);
+            sheet.Cells[startRow, "AH"] = String.Format("=sum(AH14:AH{0}", startRow - 1);
+            sheet.Cells[startRow, "AI"] = String.Format("=AH{0}/D{0}", startRow);
 
             sheet.Cells[7, "B"] = String.Format("=C{0}", startRow);
             sheet.Cells[7, "F"] = String.Format("=D{0}", startRow);
@@ -564,7 +571,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
             Utility.SetCellPercentFormat(sheet.Cells[startRow, "F"]);
 
-            for (int i = 9; i <= 33; i += 2)
+            for (int i = 9; i <= 35; i += 2)
             {
                 Utility.SetCellPercentFormat(sheet, startRow, i, startRow, i);
             }

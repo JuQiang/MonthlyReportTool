@@ -62,103 +62,6 @@ namespace MonthlyReportTool.API.Office.Excel
             sheet.Cells[1, "A"] = "";
 
         }
-
-        private int BUild10Analysis(int startRow, int dataRow)
-        {
-
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "计划偏差大于10%分析", "说明：", "B", "U",
-                new List<string>() { "计划偏差大于10%分析", "说明：", "计划偏差大于10%分析" },
-                new List<string>() { "B,B", "C,E", "F,U" },
-                5,
-                nodata:true
-                );
-
-            sheet.Cells[startRow + 2, "B"] = "计划偏差大于10%分析";
-            Utility.SetCellFontRedColor(sheet.Cells[startRow+2, "B"]);
-
-            //ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow + 2, "B"], sheet.Cells[startRow + 2 + 5, "U"]];
-            //Utility.AddNativieResource(range);
-            //range.Merge();
-
-            return nextRow-1;
-        }
-
-        private int Build60Analysis(int startRow, List<Tuple<string, double, double>> workloads)
-        {
-            var ds = workloads.Where(wl => wl.Item3 <= 0.60d).OrderByDescending(wl => wl.Item3).ToList();
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "研发占比低于60%分析", "说明：对研发占比低于60%（不包括60%）的同事，分别做原因分析", "B", "U",
-                new List<string>() { "团队成员", "研发占比", "研发占比低于60%原因分析" },
-                new List<string>() { "B,B", "C,E", "F,U" },
-                ds.Count()
-                );
-
-            Utility.SetCellFontRedColor(sheet.Cells[startRow + 2, "F"]);
-            startRow += 3;
-            for (int i = 0; i < ds.Count(); i++)
-            {
-                this.sheet.Cells[startRow+ i, "B"] = ds[i].Item1;
-                this.sheet.Cells[startRow+ i, "C"] = ds[i].Item3;
-                this.sheet.Cells[startRow+ i, "F"] = "";
-            }
-
-            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + ds.Count - 1, "B"]]);
-
-            Utility.SetCellPercentFormat(sheet.Range[sheet.Cells[ startRow , "C"],sheet.Cells[startRow + ds.Count() - 1, "C"]]);
-
-            return nextRow-1;
-        }
-
-        private int Build120Analysis(int startRow, List<Tuple<string, double, double>> workloads)
-        {
-
-            var ds = workloads.Where(wl => wl.Item2 >= 1.20d).OrderByDescending(wl=>wl.Item2).ToList();
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "工作量饱和度超120%分析", "说明：对工作量饱和度超过120%（包括120%）的同事，分别做原因分析", "B", "U",
-                new List<string>() { "团队成员", "工作量饱和度", "工作量饱和度超120%原因分析" },
-                new List<string>() { "B,B", "C,E", "F,U" },
-                ds.Count()
-                );
-
-            Utility.SetCellFontRedColor(sheet.Cells[startRow + 2, "F"]);
-            startRow += 3;
-            for (int i = 0; i < ds.Count(); i++)
-            {
-                this.sheet.Cells[startRow + i, "B"] = ds[i].Item1;
-                this.sheet.Cells[startRow + i, "C"] = ds[i].Item2;
-                this.sheet.Cells[startRow + i, "F"] = "";
-            }
-
-            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + ds.Count - 1, "B"]]);
-
-            Utility.SetCellPercentFormat(sheet.Range[sheet.Cells[startRow , "C"],sheet.Cells[startRow + ds.Count() - 1, "C"]]);
-
-            return nextRow-1;
-        }
-
-        private int Build100Analysis(int startRow, List<Tuple<string, double, double>> workloads)
-        {
-
-            var ds = workloads.Where(wl => wl.Item2 < 1.00d).OrderByDescending(wl => wl.Item2).ToList();
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "工作量饱和度不足100%分析", "说明：对工作量饱和度不足100%%（不包括100%）的同事，分别做原因分析", "B", "U",
-                new List<string>() { "团队成员", "工作量饱和度", "工作量饱和度不足100%原因分析" },
-                new List<string>() { "B,B", "C,E", "F,U" },
-                ds.Count()
-                );
-
-            Utility.SetCellFontRedColor(sheet.Cells[startRow + 2, "F"]);
-            startRow += 3;
-            for (int i = 0; i < ds.Count(); i++)
-            {
-                this.sheet.Cells[startRow + i, "B"] = ds[i].Item1;
-                this.sheet.Cells[startRow + i, "C"] = ds[i].Item2;
-                this.sheet.Cells[startRow + i, "F"] = "";
-            }
-
-            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + ds.Count - 1, "B"]]);
-
-            Utility.SetCellPercentFormat(sheet.Range[sheet.Cells[startRow, "C"], sheet.Cells[startRow + ds.Count() - 1, "C"]]);
-
-            return nextRow-1;
-        }
         private void BuildTitle()
         {
             Utility.BuildFormalSheetTitle(sheet, 2, "B", 2, "AG", "工作量统计分析");
@@ -215,8 +118,8 @@ namespace MonthlyReportTool.API.Office.Excel
                 ExcelInterop.Range colRange = sheet.Range[sheet.Cells[6, colsname[i].Item1], sheet.Cells[6, colsname[i].Item2]];
                 Utility.AddNativieResource(colRange);
                 colRange.Merge();
-                sheet.Cells[6, colsname[i].Item1] = cols[i];                
-            }            
+                sheet.Cells[6, colsname[i].Item1] = cols[i];
+            }
 
             ExcelInterop.Range firstRow = sheet.Range[sheet.Cells[6, "B"], sheet.Cells[6, "AC"]];
             Utility.AddNativieResource(firstRow);
@@ -285,6 +188,101 @@ namespace MonthlyReportTool.API.Office.Excel
                                    "      实际饱和度：实际投入工作量 / 标准工作量\r\n" +
                                    "      Bug产出率：bug数 / 实际投入工作量";
             Utility.SetCellColor(sheet.Cells[10, "L"], System.Drawing.Color.Red, "跨多个团队项目的人员，请手工调整每个团队投入的标准工作量=迭代天数×计划投入到此团队的占的8里的数据", true);
+        }
+
+        private int BUild10Analysis(int startRow, int dataRow)
+        {
+
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "计划偏差大于10%分析", "说明：", "B", "U",
+                new List<string>() { "计划偏差大于10%分析", "说明：", "计划偏差大于10%分析" },
+                new List<string>() { "B,B", "C,E", "F,U" },
+                5,
+                nodata: true
+                );
+
+            sheet.Cells[startRow + 2, "B"] = "计划偏差大于10%分析";
+            Utility.SetCellFontRedColor(sheet.Cells[startRow + 2, "B"]);
+
+            //ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow + 2, "B"], sheet.Cells[startRow + 2 + 5, "U"]];
+            //Utility.AddNativieResource(range);
+            //range.Merge();
+
+            return nextRow - 1;
+        }
+
+        private int Build60Analysis(int startRow, List<Tuple<string, double, double>> workloads)
+        {
+            var ds = workloads.Where(wl => wl.Item3 <= 0.60d).OrderByDescending(wl => wl.Item3).ToList();
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "研发占比低于60%分析", "说明：对研发占比低于60%（不包括60%）的同事，分别做原因分析", "B", "U",
+                new List<string>() { "团队成员", "研发占比", "研发占比低于60%原因分析" },
+                new List<string>() { "B,B", "C,E", "F,U" },
+                ds.Count()
+                );
+
+            Utility.SetCellFontRedColor(sheet.Cells[startRow + 2, "F"]);
+            startRow += 3;
+            for (int i = 0; i < ds.Count(); i++)
+            {
+                this.sheet.Cells[startRow + i, "B"] = ds[i].Item1;
+                this.sheet.Cells[startRow + i, "C"] = ds[i].Item3;
+                this.sheet.Cells[startRow + i, "F"] = "";
+            }
+
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + ds.Count - 1, "B"]]);
+
+            Utility.SetCellPercentFormat(sheet.Range[sheet.Cells[startRow, "C"], sheet.Cells[startRow + ds.Count() - 1, "C"]]);
+
+            return nextRow - 1;
+        }
+
+        private int Build120Analysis(int startRow, List<Tuple<string, double, double>> workloads)
+        {
+            var ds = workloads.Where(wl => wl.Item2 >= 1.20d).OrderByDescending(wl => wl.Item2).ToList();
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "工作量饱和度超120%分析", "说明：对工作量饱和度超过120%（包括120%）的同事，分别做原因分析", "B", "U",
+                new List<string>() { "团队成员", "工作量饱和度", "工作量饱和度超120%原因分析" },
+                new List<string>() { "B,B", "C,E", "F,U" },
+                ds.Count()
+                );
+
+            Utility.SetCellFontRedColor(sheet.Cells[startRow + 2, "F"]);
+            startRow += 3;
+            for (int i = 0; i < ds.Count(); i++)
+            {
+                this.sheet.Cells[startRow + i, "B"] = ds[i].Item1;
+                this.sheet.Cells[startRow + i, "C"] = ds[i].Item2;
+                this.sheet.Cells[startRow + i, "F"] = "";
+            }
+
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + ds.Count - 1, "B"]]);
+
+            Utility.SetCellPercentFormat(sheet.Range[sheet.Cells[startRow, "C"], sheet.Cells[startRow + ds.Count() - 1, "C"]]);
+
+            return nextRow - 1;
+        }
+
+        private int Build100Analysis(int startRow, List<Tuple<string, double, double>> workloads)
+        {
+            var ds = workloads.Where(wl => wl.Item2 < 1.00d).OrderByDescending(wl => wl.Item2).ToList();
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "工作量饱和度不足100%分析", "说明：对工作量饱和度不足100%%（不包括100%）的同事，分别做原因分析", "B", "U",
+                new List<string>() { "团队成员", "工作量饱和度", "工作量饱和度不足100%原因分析" },
+                new List<string>() { "B,B", "C,E", "F,U" },
+                ds.Count()
+                );
+
+            Utility.SetCellFontRedColor(sheet.Cells[startRow + 2, "F"]);
+            startRow += 3;
+            for (int i = 0; i < ds.Count(); i++)
+            {
+                this.sheet.Cells[startRow + i, "B"] = ds[i].Item1;
+                this.sheet.Cells[startRow + i, "C"] = ds[i].Item2;
+                this.sheet.Cells[startRow + i, "F"] = "";
+            }
+
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + ds.Count - 1, "B"]]);
+
+            Utility.SetCellPercentFormat(sheet.Range[sheet.Cells[startRow, "C"], sheet.Cells[startRow + ds.Count() - 1, "C"]]);
+
+            return nextRow - 1;
         }
 
         private int FillWorkloadData(List<WorkloadEntity> workloads, int startrow, bool isTester)
@@ -389,7 +387,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[firstrow, "B"], sheet.Cells[firstrow + orderedLoads.Count() - 1, "B"]]);
 
-            Utility.SetCellPercentFormat(sheet.Range[sheet.Cells[firstrow, "F"],sheet.Cells[startrow - 1, "F"]]);
+            Utility.SetCellPercentFormat(sheet.Range[sheet.Cells[firstrow, "F"], sheet.Cells[startrow - 1, "F"]]);
             Utility.SetCellGreenColor(sheet.Range[sheet.Cells[firstrow, "D"], sheet.Cells[startrow - 1, "D"]]);
             Utility.SetCellGreenColor(sheet.Range[sheet.Cells[firstrow, "F"], sheet.Cells[startrow - 1, "F"]]);
             Utility.SetCellGreenColor(sheet.Range[sheet.Cells[firstrow, "H"], sheet.Cells[startrow - 1, "H"]]);
@@ -505,8 +503,10 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.SetCellDarkGrayColor(sheet.Range[sheet.Cells[startrow, "B"], sheet.Cells[startrow, "B"]]);
 
             var ite = TFS.Utility.GetBestIteration(this.project.Name);
-            int totalDays = (DateTime.Parse(ite.EndDate).AddDays(1) - DateTime.Parse(ite.StartDate)).Days;
-            sheet.Cells[7, "O"] = TFS.Agile.Capacity.GetIterationCapacities(this.project.Name, ite.Id) * totalDays;
+            //int totalDays = (DateTime.Parse(ite.EndDate).AddDays(1) - DateTime.Parse(ite.StartDate)).Days;
+            //sheet.Cells[7, "O"] = TFS.Agile.Capacity.GetIterationCapacities(this.project.Name, ite.Id) * totalDays;
+            int standardWorkingDays = TFS.Utility.GetStandardWorkingDays(this.project.Name, TFS.Utility.GetBestIteration(this.project.Name));
+            sheet.Cells[7, "O"] = TFS.Agile.Capacity.GetIterationCapacities(this.project.Name, ite.Id) * standardWorkingDays;
 
             var estimated = TFS.WorkItem.Workload.GetEstimated(this.project.Name, ite);
             sheet.Cells[7, "R"] = estimated.Item1;
@@ -521,7 +521,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
         private void FillSummaryData(int startRow)
         {
-            Utility.SetCellBorder(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow, "AG"]]);            
+            Utility.SetCellBorder(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow, "AG"]]);
 
             sheet.Cells[startRow, "B"] = "合计";
             sheet.Cells[startRow, "C"] = String.Format("=sum(C14:C{0}", startRow - 1);

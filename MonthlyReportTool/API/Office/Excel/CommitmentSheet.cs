@@ -287,9 +287,9 @@ namespace MonthlyReportTool.API.Office.Excel
         private int BuildSuccessTable(int startRow, List<CommitmentEntity> list)
         {
 
-            var commitments = list.OrderByDescending(comm => comm.SubmitType).ToList();
+            var commitments = list.OrderByDescending(comm => comm.SubmitType).ThenByDescending(comm=>comm.FindedBugCount).ToList();
 
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "测试通过提交单Bug数统计", "说明：按发现的Bug数排序。", "B", "J",
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "测试通过提交单Bug数统计", "说明：按提交单类型，发现的Bug数排序。", "B", "J",
                 new List<string>() { "提交单ID", "提交单类型", "提交单名称", "状态", "发现的Bug数", "功能负责人", "测试负责人"},
                 new List<string>() { "B,B", "C,C", "D,F", "G,G", "H,H", "I,I", "J,J"},
                 commitments.Count);

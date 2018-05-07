@@ -27,8 +27,9 @@ namespace MonthlyReportTool.API.TFS.WorkItem
                     new CommitmentEntity()
                     {
                         Id = Convert.ToInt32(commitment["fields"]["System.Id"]),
-                        KeyApplication = Convert.ToString(commitment["fields"]["Teld.Scrum.KeyApplication"]),
+                        KeyApplicationName = Convert.ToString(commitment["fields"]["Teld.Scrum.KeyApplicationName"]),
                         ModulesName = Convert.ToString(commitment["fields"]["Teld.Scrum.ModulesName"]),
+                        FuncName = Convert.ToString(commitment["fields"]["Teld.Scrum.FuncName"]),
                         SubmitType = Convert.ToString(commitment["fields"]["Teld.Scrum.Worklog.SubmitLog.SubmitType"]),
                         Title = Convert.ToString(commitment["fields"]["System.Title"]),
                         State = Convert.ToString(commitment["fields"]["System.State"]),
@@ -44,7 +45,6 @@ namespace MonthlyReportTool.API.TFS.WorkItem
                         BackType = Convert.ToString(commitment["fields"]["Teld.Scrum.Worklog.SubmitLog.BackType"]),
                         IterationPath = Convert.ToString(commitment["fields"]["System.IterationPath"]),
                         SubmitNumberOfTime = Convert.ToInt32(commitment["fields"]["Teld.Scrum.SubmitNumberOfTime"]),
-                        FunctionMenu = Convert.ToString(commitment["fields"]["Teld.Bug.FunctionMenu"]),
                         TeamProject = Convert.ToString(commitment["fields"]["System.TeamProject"]),
                         FindedBugCount = Convert.ToInt32(commitment["fields"]["Teld.Scrum.FindedBugCount"]),
                     }

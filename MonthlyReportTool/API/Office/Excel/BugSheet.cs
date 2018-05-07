@@ -263,7 +263,7 @@ namespace MonthlyReportTool.API.Office.Excel
             for (int i = 0; i < list.Count; i++)
             {
                 arr[i, 0] = list[i].Id;
-                arr[i, 1] = list[i].KeyApplication;
+                arr[i, 1] = list[i].KeyApplicationName;
                 arr[i, 2] = list[i].ModulesName;
                 arr[i, 3] = list[i].Type;
                 arr[i, 4] = list[i].Severity;
@@ -296,7 +296,7 @@ namespace MonthlyReportTool.API.Office.Excel
             for (int i = 0; i < list.Count; i++)
             {
                 arr[i, 0] = list[i].Id;
-                arr[i, 1] = list[i].KeyApplication;
+                arr[i, 1] = list[i].KeyApplicationName;
                 arr[i, 2] = list[i].ModulesName;
                 arr[i, 3] = list[i].ResolvedReason;
                 arr[i, 4] = list[i].Type;
@@ -330,7 +330,7 @@ namespace MonthlyReportTool.API.Office.Excel
             for (int i = 0; i < list.Count; i++)
             {
                 arr[i, 0] = list[i].Id;
-                arr[i, 1] = list[i].KeyApplication;
+                arr[i, 1] = list[i].KeyApplicationName;
                 arr[i, 2] = list[i].ModulesName;
                 arr[i, 3] = list[i].Type;
                 arr[i, 4] = list[i].Severity;
@@ -360,7 +360,7 @@ namespace MonthlyReportTool.API.Office.Excel
             for (int i = 0; i < list.Count; i++)
             {
                 arr[i, 0] = list[i].Id;//这里是col对应的数字，不能按照0开始算
-                arr[i, 1] = list[i].KeyApplication;
+                arr[i, 1] = list[i].KeyApplicationName;
                 arr[i, 2] = list[i].ModulesName;
                 arr[i, 3] = list[i].Type;
                 arr[i, 4] = list[i].Severity;

@@ -9,8 +9,9 @@ namespace MonthlyReportTool.API.TFS.WorkItem
     public class CodeReviewEntity
     {
         public int Id;
-        public string KeyApplication;
+        public string KeyApplicationName;
         public string ModulesName;
+        public string FuncName;
         public string Title;
         public string DetectionMode;
         public string AssignedTo;
@@ -20,7 +21,6 @@ namespace MonthlyReportTool.API.TFS.WorkItem
         public string TeamProject;
         public string Tags;
         public string IterationPath;
-        public string FunctionMenu;
         public string State;
         public string DetectionPhase;
         public string Source;

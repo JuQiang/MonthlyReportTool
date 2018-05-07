@@ -30,8 +30,9 @@ namespace MonthlyReportTool.API.TFS.WorkItem
                     new BugEntity()
                     {
                         Id = Convert.ToInt32(bug["fields"]["System.Id"]),
-                        KeyApplication = Convert.ToString(bug["fields"]["Teld.Scrum.KeyApplication"]),
+                        KeyApplicationName = Convert.ToString(bug["fields"]["Teld.Scrum.KeyApplicationName"]),
                         ModulesName = Convert.ToString(bug["fields"]["Teld.Scrum.ModulesName"]),
+                        FuncName = Convert.ToString(bug["fields"]["Teld.Scrum.FuncName"]),
                         Title = Convert.ToString(bug["fields"]["System.Title"]),
                         AssignedTo = Convert.ToString(bug["fields"]["System.AssignedTo"]),
                         State = Convert.ToString(bug["fields"]["System.State"]),
@@ -49,7 +50,6 @@ namespace MonthlyReportTool.API.TFS.WorkItem
                         IterationPath = Convert.ToString(bug["fields"]["System.IterationPath"]),
                         TestResponsibleMan = Convert.ToString(bug["fields"]["Teld.Scrum.TestResponsibleMan"]),
                         DiscoveryUser = Convert.ToString(bug["fields"]["Teld.Bug.DiscoveryUser"]),
-                        FunctionMenu = Convert.ToString(bug["fields"]["Teld.Bug.FunctionMenu"]),
                         DevResponsibleMan = Convert.ToString(bug["fields"]["Teld.Scrum.DevResponsibleMan"]),
                         Source = Convert.ToString(bug["fields"]["Teld.Scrum.Source"]),
                     }
@@ -184,8 +184,9 @@ namespace MonthlyReportTool.API.TFS.WorkItem
                     new BugEntity()
                     {
                         Id = Convert.ToInt32(bug["fields"]["System.Id"]),
-                        KeyApplication = Convert.ToString(bug["fields"]["Teld.Scrum.KeyApplication"]),
+                        KeyApplicationName = Convert.ToString(bug["fields"]["Teld.Scrum.KeyApplicationName"]),
                         ModulesName = Convert.ToString(bug["fields"]["Teld.Scrum.ModulesName"]),
+                        FuncName = Convert.ToString(bug["fields"]["Teld.Scrum.FuncName"]),
                         Title = Convert.ToString(bug["fields"]["System.Title"]),
                         AssignedTo = Convert.ToString(bug["fields"]["System.AssignedTo"]),
                         State = Convert.ToString(bug["fields"]["System.State"]),

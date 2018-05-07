@@ -9,8 +9,9 @@ namespace MonthlyReportTool.API.TFS.WorkItem
     public class FeatureEntity
     {
         public int Id;
-        public string KeyApplication;
+        public string KeyApplicationName;
         public string ModulesName;
+        public string FuncName;
         public string Title;
         public string AssignedTo;
         public string MonthState;        
@@ -25,10 +26,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
         public string InitTargetDate;
         public string TargetDate;
         public string IterationTargetDate;
-        public string IsDevelopment;
-        public string FunctionMenu;
-
-        
+        //public string IsDevelopment;
     }
 
     //select [System.Id], [System.Title], [System.AssignedTo], [Teld.Scrum.MonthState], [System.State],

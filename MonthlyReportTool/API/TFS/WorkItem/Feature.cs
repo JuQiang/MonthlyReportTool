@@ -71,8 +71,9 @@ namespace MonthlyReportTool.API.TFS.WorkItem
                     new FeatureEntity()
                     {
                         Id = Convert.ToInt32(feature["fields"]["System.Id"]),
-                        KeyApplication = Convert.ToString(feature["fields"]["Teld.Scrum.KeyApplication"]),
+                        KeyApplicationName = Convert.ToString(feature["fields"]["Teld.Scrum.KeyApplicationName"]),
                         ModulesName = Convert.ToString(feature["fields"]["Teld.Scrum.ModulesName"]),
+                        FuncName = Convert.ToString(feature["fields"]["Teld.Scrum.FuncName"]),
                         Title = Convert.ToString(feature["fields"]["System.Title"]),
                         AssignedTo = Convert.ToString(feature["fields"]["System.AssignedTo"]),
                         MonthState = Convert.ToString(feature["fields"]["Teld.Scrum.MonthState"]),
@@ -81,14 +82,13 @@ namespace MonthlyReportTool.API.TFS.WorkItem
                         DesignFinishedDate = Convert.ToString(feature["fields"]["Teld.Scrum.DesignFinishedDate"]),
                         TestFinishedDate = Convert.ToString(feature["fields"]["Teld.Scrum.TestFinishedDate"]),
                         AcceptFinishedDate = Convert.ToString(feature["fields"]["Teld.Scrum.AcceptFinishedDate"]),
-                        FunctionMenu = Convert.ToString(feature["fields"]["Teld.Bug.FunctionMenu"]),
                         DevelopmentFinishedDate = Convert.ToString(feature["fields"]["Teld.Scrum.DevelopmentFinishedDate"]),
                         ReleaseFinishedDate = Convert.ToString(feature["fields"]["Teld.Scrum.ReleaseFinishedDate"]),
                         TeamProject = Convert.ToString(feature["fields"]["System.TeamProject"]),
                         InitTargetDate = Convert.ToString(feature["fields"]["Teld.Scrum.Scheduling.InitTargetDate"]),
                         IterationTargetDate = Convert.ToString(feature["fields"]["Teld.Scrum.IterationTargetDate"]),
                         TargetDate = Convert.ToString(feature["fields"]["Microsoft.VSTS.Scheduling.TargetDate"]),
-                        IsDevelopment = Convert.ToString(feature["fields"]["Teld.Scrum.IsDevelopment"]),
+                        //IsDevelopment = Convert.ToString(feature["fields"]["Teld.Scrum.IsDevelopment"]),
                     }
                 );
             }

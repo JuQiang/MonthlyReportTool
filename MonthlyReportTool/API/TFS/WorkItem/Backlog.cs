@@ -52,8 +52,9 @@ namespace MonthlyReportTool.API.TFS.WorkItem
                     new BacklogEntity()
                     {
                         Id = Convert.ToInt32(backlog["fields"]["System.Id"]),
-                        KeyApplication = Convert.ToString(backlog["fields"]["Teld.Scrum.KeyApplication"]),
+                        KeyApplicationName = Convert.ToString(backlog["fields"]["Teld.Scrum.KeyApplicationName"]),
                         ModulesName = Convert.ToString(backlog["fields"]["Teld.Scrum.ModulesName"]),
+                        FuncName = Convert.ToString(backlog["fields"]["Teld.Scrum.FuncName"]),
                         Title = Convert.ToString(backlog["fields"]["System.Title"]),
                         Category = Convert.ToString(backlog["fields"]["Teld.Scrum.Backlog.Category"]),
                         AssignedTo = Convert.ToString(backlog["fields"]["System.AssignedTo"]),
@@ -64,7 +65,6 @@ namespace MonthlyReportTool.API.TFS.WorkItem
                         CreatedDate = Convert.ToString(backlog["fields"]["System.CreatedDate"]),
                         Tags = Convert.ToString(backlog["fields"]["System.Tags"]),
                         AcceptTime = Convert.ToString(backlog["fields"]["Teld.Scrum.Backlog.AcceptTime"]),
-                        FunctionMenu = Convert.ToString(backlog["fields"]["Teld.Bug.FunctionMenu"]),
                         IsNeedInterfaceTest = Convert.ToString(backlog["fields"]["Teld.Scrum.Backlog.IsNeedInterfaceTest"]),
                         IsNeedPerformanceTest = Convert.ToString(backlog["fields"]["Teld.Scrum.Backlog.IsNeedPerformanceTest"]),
                         SubmitTime = Convert.ToString(backlog["fields"]["Teld.Scrum.Backlog.SubmitTime"]),

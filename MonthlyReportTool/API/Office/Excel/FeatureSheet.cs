@@ -125,12 +125,12 @@ namespace MonthlyReportTool.API.Office.Excel
 
             Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "按关键应用、模块排序");
             Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "这个表格很长，请右拉把后面列都填写上。");
-            var orderedFeatures = features.OrderBy(feature => feature.KeyApplication).ThenBy(feature => feature.ModulesName).ToList();
+            var orderedFeatures = features.OrderBy(feature => feature.KeyApplicationName).ThenBy(feature => feature.ModulesName).ToList();
             startRow += 3;
             for (int i = 0; i < orderedFeatures.Count; i++)
             {
                 sheet.Cells[startRow + i, "B"] = orderedFeatures[i].Id;
-                sheet.Cells[startRow + i, "C"] = orderedFeatures[i].KeyApplication;
+                sheet.Cells[startRow + i, "C"] = orderedFeatures[i].KeyApplicationName;
                 sheet.Cells[startRow + i, "E"] = orderedFeatures[i].ModulesName;
                 sheet.Cells[startRow + i, "G"] = orderedFeatures[i].Title;
                 sheet.Cells[startRow + i, "K"] = orderedFeatures[i].MonthState;
@@ -163,12 +163,12 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "按关键应用、模块排序");
             Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "这个表格很长，请右拉把后面列都填写上。");
 
-            var orderedFeatures = features.OrderBy(feature => feature.KeyApplication).ThenBy(feature => feature.ModulesName).ToList();
+            var orderedFeatures = features.OrderBy(feature => feature.KeyApplicationName).ThenBy(feature => feature.ModulesName).ToList();
             startRow += 3;
             for (int i = 0; i < orderedFeatures.Count; i++)
             {
                 sheet.Cells[startRow + i, "B"] = orderedFeatures[i].Id;
-                sheet.Cells[startRow + i, "C"] = orderedFeatures[i].KeyApplication;
+                sheet.Cells[startRow + i, "C"] = orderedFeatures[i].KeyApplicationName;
                 sheet.Cells[startRow + i, "E"] = orderedFeatures[i].ModulesName;
                 sheet.Cells[startRow + i, "G"] = orderedFeatures[i].Title;
                 sheet.Cells[startRow + i, "K"] = orderedFeatures[i].MonthState;
@@ -192,20 +192,20 @@ namespace MonthlyReportTool.API.Office.Excel
         }
         private int BuildTable(int startRow, List<FeatureEntity> features)
         {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代产品特性列表", "说明：如果一个单元格的内容太多，请考虑换行显示\r\n      如果本迭代实际的产品特性数多于模板预制的行数，请自行插入行，然后用格式刷刷新增的行的格式\r\n      按关键应用、模块排序；", "B", "Q",
-                new List<string>() { "ID", "关键应用", "模块", "产品特性名称", "本迭代目标状态", "当前状态", "本迭代目标日期", "本月目标日期", "负责人" ,"研发相关"},
-                new List<string>() { "B,B", "C,D", "E,F", "G,J", "K,L", "M,M", "N,N", "O,O", "P,P","Q,Q" },
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代产品特性列表", "说明：如果一个单元格的内容太多，请考虑换行显示\r\n      如果本迭代实际的产品特性数多于模板预制的行数，请自行插入行，然后用格式刷刷新增的行的格式\r\n      按关键应用、模块排序；", "B", "P",
+                new List<string>() { "ID", "关键应用", "模块", "产品特性名称", "本迭代目标状态", "当前状态", "本迭代目标日期", "本月目标日期", "负责人" },
+                new List<string>() { "B,B", "C,D", "E,F", "G,J", "K,L", "M,M", "N,N", "O,O", "P,P" },
                 features.Count);
 
             Utility.SetCellColor(sheet.Cells[14, "B"], System.Drawing.Color.Red, "按关键应用、模块排序");
 
-            var orderedFeatures = features.OrderBy(feature => feature.KeyApplication).ThenBy(feature => feature.ModulesName).ToList();
+            var orderedFeatures = features.OrderBy(feature => feature.KeyApplicationName).ThenBy(feature => feature.ModulesName).ToList();
             startRow += 3;
             object[,] arr = new object[orderedFeatures.Count, 15];
             for (int i = 0; i < orderedFeatures.Count; i++)
             {
                 sheet.Cells[startRow + i, "B"] = orderedFeatures[i].Id;
-                sheet.Cells[startRow + i, "C"] = orderedFeatures[i].KeyApplication;
+                sheet.Cells[startRow + i, "C"] = orderedFeatures[i].KeyApplicationName;
                 sheet.Cells[startRow + i, "E"] = orderedFeatures[i].ModulesName;
                 sheet.Cells[startRow + i, "G"] = orderedFeatures[i].Title;
                 sheet.Cells[startRow + i, "K"] = orderedFeatures[i].MonthState;
@@ -220,7 +220,7 @@ namespace MonthlyReportTool.API.Office.Excel
                     sheet.Cells[startRow + i, "O"] = DateTime.Parse(orderedFeatures[i].TargetDate).AddHours(8).ToString("yyyy-MM-dd");
                 }
                 sheet.Cells[startRow + i, "P"] = Utility.GetPersonName(orderedFeatures[i].AssignedTo);
-                sheet.Cells[startRow + i, "Q"] = orderedFeatures[i].IsDevelopment;                
+                //sheet.Cells[startRow + i, "Q"] = orderedFeatures[i].IsDevelopment;                
             }
 
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedFeatures.Count - 1, "B"]]);

@@ -9,8 +9,9 @@ namespace MonthlyReportTool.API.TFS.WorkItem
     public class BacklogEntity
     {
         public int Id;
-        public string KeyApplication;
+        public string KeyApplicationName;
         public string ModulesName;
+        public string FuncName;
         public string Title;
         public string Category;
         public string AssignedTo;
@@ -21,7 +22,6 @@ namespace MonthlyReportTool.API.TFS.WorkItem
         public string CreatedDate;
         public string Tags;
         public string AcceptTime;
-        public string FunctionMenu;
         public string IsNeedInterfaceTest;
         public string IsNeedPerformanceTest;
         public string SubmitTime;

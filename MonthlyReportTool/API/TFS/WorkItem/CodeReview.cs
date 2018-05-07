@@ -36,8 +36,9 @@ namespace MonthlyReportTool.API.TFS.WorkItem
                     new CodeReviewEntity()
                     {
                         Id = Convert.ToInt32(bug["fields"]["System.Id"]),
-                        KeyApplication = Convert.ToString(bug["fields"]["Teld.Scrum.KeyApplication"]),
+                        KeyApplicationName = Convert.ToString(bug["fields"]["Teld.Scrum.KeyApplicationName"]),
                         ModulesName = Convert.ToString(bug["fields"]["Teld.Scrum.ModulesName"]),
+                        FuncName = Convert.ToString(bug["fields"]["Teld.Scrum.FuncName"]),
                         Title = Convert.ToString(bug["fields"]["System.Title"]),
                         DetectionMode = Convert.ToString(bug["fields"]["Teld.Bug.DetectionMode"]),
                         AssignedTo = Convert.ToString(bug["fields"]["System.AssignedTo"]),
@@ -47,7 +48,6 @@ namespace MonthlyReportTool.API.TFS.WorkItem
                         TeamProject = Convert.ToString(bug["fields"]["System.TeamProject"]),
                         Tags = Convert.ToString(bug["fields"]["System.Tags"]),
                         IterationPath = Convert.ToString(bug["fields"]["System.IterationPath"]),
-                        FunctionMenu = Convert.ToString(bug["fields"]["Teld.Bug.FunctionMenu"]),
                         State = Convert.ToString(bug["fields"]["System.State"]),
                         DetectionPhase = Convert.ToString(bug["fields"]["Teld.Bug.DetectionPhase"]),                        
                         Source = Convert.ToString(bug["fields"]["Teld.Scrum.Source"]),

@@ -9,8 +9,9 @@ namespace MonthlyReportTool.API.TFS.WorkItem
     public class CommitmentEntity
     {
         public int Id;
-        public string KeyApplication;
+        public string KeyApplicationName;
         public string ModulesName;
+        public string FuncName;
         public string SubmitType;
         public string Title;
         public string State;
@@ -26,7 +27,6 @@ namespace MonthlyReportTool.API.TFS.WorkItem
         public string BackType;
         public string IterationPath;
         public int SubmitNumberOfTime;
-        public string FunctionMenu;
         public string TeamProject;
         public int FindedBugCount;
     }

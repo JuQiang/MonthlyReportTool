@@ -9,8 +9,9 @@ namespace MonthlyReportTool.API.TFS.WorkItem
     public class BugEntity
     {
         public int Id;
-        public string KeyApplication;
+        public string KeyApplicationName;
         public string ModulesName;
+        public string FuncName;
         public string Title;
         public string AssignedTo;
         public string State;
@@ -28,7 +29,6 @@ namespace MonthlyReportTool.API.TFS.WorkItem
         public string IterationPath;
         public string TestResponsibleMan;
         public string DiscoveryUser;
-        public string FunctionMenu;
         public string DevResponsibleMan;
         public string Source;
         public string AreaPath;

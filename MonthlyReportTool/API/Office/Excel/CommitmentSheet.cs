@@ -218,7 +218,7 @@ namespace MonthlyReportTool.API.Office.Excel
         }
         private int BuildFailedTable(int startRow, List<CommitmentEntity> list)
         {
-            var commitments = list.GroupBy(commitment => commitment.SubmitUser);
+            var commitments = list.GroupBy(commitment => commitment.AssignedTo);
             int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "提交单打回次数及一次通过率，按人员统计", "说明：一次通过率=一次通过数/提交单总数\r\n         按一次通过率排序", "B", "G",
                 new List<string>() { "姓名", "一次通过数", "被打回一次数", "被打回两次数", "被打回两次以上数", "一次通过率" },
                 new List<string>() { "B,B", "C,C", "D,D", "E,E", "F,F", "G,G" },
@@ -302,8 +302,8 @@ namespace MonthlyReportTool.API.Office.Excel
                 sheet.Cells[i + startRow, "D"] = commitments[i].Title;
                 sheet.Cells[i + startRow, "G"] = commitments[i].State;
                 sheet.Cells[i + startRow, "H"] = commitments[i].FindedBugCount;
-                sheet.Cells[i + startRow, "I"] = Utility.GetPersonName(commitments[i].SubmitUser);
-                sheet.Cells[i + startRow, "J"] = Utility.GetPersonName(commitments[i].AssignedTo);
+                sheet.Cells[i + startRow, "I"] = Utility.GetPersonName(commitments[i].AssignedTo);
+                sheet.Cells[i + startRow, "J"] = Utility.GetPersonName(commitments[i].TestResponsibleMan);
             }
             
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + commitments.Count - 1, "B"]]);
@@ -332,13 +332,13 @@ namespace MonthlyReportTool.API.Office.Excel
                 sheet.Cells[i + startRow, "G"] = commitments[i].State;
                 sheet.Cells[i + startRow, "H"] = commitments[i].BackNum;
                 sheet.Cells[i + startRow, "I"] = "";
-                if (commitments[i].SubmitUser.Trim().Length > 0)
-                {
-                    sheet.Cells[i + startRow, "K"] = Utility.GetPersonName(commitments[i].SubmitUser);
-                }
                 if (commitments[i].AssignedTo.Trim().Length > 0)
                 {
-                    sheet.Cells[i + startRow, "L"] = Utility.GetPersonName(commitments[i].AssignedTo);
+                    sheet.Cells[i + startRow, "K"] = Utility.GetPersonName(commitments[i].AssignedTo);
+                }
+                if (commitments[i].TestResponsibleMan.Trim().Length > 0)
+                {
+                    sheet.Cells[i + startRow, "L"] = Utility.GetPersonName(commitments[i].TestResponsibleMan);
                 }
                 sheet.Cells[i + startRow, "M"] = "";
             }
@@ -368,13 +368,13 @@ namespace MonthlyReportTool.API.Office.Excel
                 sheet.Cells[i + startRow, "G"] = list[i].State;
                 sheet.Cells[i + startRow, "H"] = "";
 
-                if (list[i].SubmitUser.Trim().Length > 0)
-                {
-                    sheet.Cells[i + startRow, "K"] = Utility.GetPersonName(list[i].SubmitUser);
-                }
                 if (list[i].AssignedTo.Trim().Length > 0)
                 {
-                    sheet.Cells[i + startRow, "L"] = Utility.GetPersonName(list[i].AssignedTo);
+                    sheet.Cells[i + startRow, "K"] = Utility.GetPersonName(list[i].AssignedTo);
+                }
+                if (list[i].TestResponsibleMan.Trim().Length > 0)
+                {
+                    sheet.Cells[i + startRow, "L"] = Utility.GetPersonName(list[i].TestResponsibleMan);
                 }
             }
 
@@ -410,13 +410,13 @@ namespace MonthlyReportTool.API.Office.Excel
                 sheet.Cells[i + startRow, "H"] = (int)((DateTime.Parse(commitments[i].TestFinishedTime) - DateTime.Parse(commitments[i].SubmitDate)).TotalDays) + "天";
                 sheet.Cells[i + startRow, "I"] = "";
 
-                if (commitments[i].SubmitUser.Trim().Length > 0)
-                {
-                    sheet.Cells[i + startRow, "L"] = Utility.GetPersonName(commitments[i].SubmitUser);
-                }
                 if (commitments[i].AssignedTo.Trim().Length > 0)
                 {
-                    sheet.Cells[i + startRow, "M"] = Utility.GetPersonName(commitments[i].AssignedTo);
+                    sheet.Cells[i + startRow, "L"] = Utility.GetPersonName(commitments[i].AssignedTo);
+                }
+                if (commitments[i].TestResponsibleMan.Trim().Length > 0)
+                {
+                    sheet.Cells[i + startRow, "M"] = Utility.GetPersonName(commitments[i].TestResponsibleMan);
                 }
             }
 

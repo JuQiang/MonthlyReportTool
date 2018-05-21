@@ -15,8 +15,9 @@ namespace MonthlyReportTool.API.TFS.WorkItem
         public string SubmitType;
         public string Title;
         public string State;
-        public string SubmitUser;
         public string AssignedTo;
+        public string TestResponsibleMan;
+        public string SubmitUser;
         public int BackNum;
         public bool IsNeedPerformanceTest;
         public string TestFinishedTime;

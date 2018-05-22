@@ -14,28 +14,28 @@ namespace MonthlyReportTool.API.TFS.WorkItem
         {
             List<List<FeatureEntity>> list = new List<List<FeatureEntity>>();
 
-            var all = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F00本迭代_产品特性总数",
+            var all = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F00本迭代_产品特性总数（New）",
 
-                Tuple.Create<string, string, string>("[System.TeamProject] =",
-                "[Teld.Scrum.IterationTargetDate] >=",
-                "[Teld.Scrum.IterationTargetDate] <"));
+                Tuple.Create<string, string, string>("[Teld.Scrum.BelongTeamProject] =",
+                "[Microsoft.VSTS.Scheduling.TargetDate] >=",
+                "[Microsoft.VSTS.Scheduling.TargetDate] <"));
 
-            var completed = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F05本迭代_已完成产品特性总数",
-                Tuple.Create<string, string, string>("[System.TeamProject] =",
-                "[Teld.Scrum.IterationTargetDate] >=",
-                "[Teld.Scrum.IterationTargetDate] <"));
-            var removed = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F20本迭代_已中止或已移除产品特性总数",
-                Tuple.Create<string, string, string>("[System.TeamProject] =",
-                "[Teld.Scrum.IterationTargetDate] >=",
-                "[Teld.Scrum.IterationTargetDate] <"));
-            var delayed = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F10本迭代_拖期产品特性总数",
-                Tuple.Create<string, string, string>("[System.TeamProject] =",
-               "[Teld.Scrum.IterationTargetDate] >=",
-                "[Teld.Scrum.IterationTargetDate] <"));
-            var perfect = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F25本迭代_按计划完成产品特性总数",
-                Tuple.Create<string, string, string>("[System.TeamProject] =",
-                "[Teld.Scrum.IterationTargetDate] >=",
-                "[Teld.Scrum.IterationTargetDate] <"));
+            var completed = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F05本迭代_已完成产品特性总数（New）",
+                Tuple.Create<string, string, string>("[Teld.Scrum.BelongTeamProject] =",
+                "[Microsoft.VSTS.Scheduling.TargetDate] >=",
+                "[Microsoft.VSTS.Scheduling.TargetDate] <"));
+            var removed = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F20本迭代_已中止或已移除产品特性总数（New）",
+                Tuple.Create<string, string, string>("[Teld.Scrum.BelongTeamProject] =",
+                "[Microsoft.VSTS.Scheduling.TargetDate] >=",
+                "[Microsoft.VSTS.Scheduling.TargetDate] <"));
+            var delayed = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F10本迭代_未完成产品特性总数（New）",
+                Tuple.Create<string, string, string>("[Teld.Scrum.BelongTeamProject] =",
+               "[Microsoft.VSTS.Scheduling.TargetDate] >=",
+                "[Microsoft.VSTS.Scheduling.TargetDate] <"));
+            var perfect = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F25本迭代_按计划完成产品特性总数（New）",
+                Tuple.Create<string, string, string>("[Teld.Scrum.BelongTeamProject] =",
+                "[Microsoft.VSTS.Scheduling.TargetDate] >=",
+                "[Microsoft.VSTS.Scheduling.TargetDate] <"));
 
             list.Add(all);
             list.Add(completed);
@@ -88,6 +88,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
                         InitTargetDate = Convert.ToString(feature["fields"]["Teld.Scrum.Scheduling.InitTargetDate"]),
                         IterationTargetDate = Convert.ToString(feature["fields"]["Teld.Scrum.IterationTargetDate"]),
                         TargetDate = Convert.ToString(feature["fields"]["Microsoft.VSTS.Scheduling.TargetDate"]),
+                        NeedRequireDevelop = Convert.ToString(feature["fields"]["Teld.Scrum.NeedRequireDevelop"]),
                         //IsDevelopment = Convert.ToString(feature["fields"]["Teld.Scrum.IsDevelopment"]),
                     }
                 );

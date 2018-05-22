@@ -26,6 +26,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
         public string InitTargetDate;
         public string TargetDate;
         public string IterationTargetDate;
+        public string NeedRequireDevelop;
         //public string IsDevelopment;
     }
 

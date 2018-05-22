@@ -35,16 +35,15 @@ namespace MonthlyReportTool.API.Office.Excel
             List<Tuple<string, Type>> allSheets = new List<Tuple<string, Type>>()
             {
                 Tuple.Create<string, Type>("首页及说明",typeof(HomeSheet)),
-                //Tuple.Create<string, Type>("目录",typeof(ContentSheet)),
                 Tuple.Create<string, Type>("项目整体说明",typeof(OverviewSheet)),
                 Tuple.Create<string, Type>("需求统计",typeof(FeatureSheet)),
-                //Tuple.Create<string, Type>("Backlog统计",typeof(BacklogSheet)),
-                //Tuple.Create<string, Type>("工作量统计",typeof(WorkloadSheet)),
-                //Tuple.Create<string, Type>("提交单分析",typeof(CommitmentSheet)),
-                //Tuple.Create<string, Type>("代码审查分析",typeof(CodeReviewSheet)),
-                //Tuple.Create<string, Type>("Bug统计分析",typeof(BugSheet)),
-                //Tuple.Create<string, Type>("改进建议",typeof(SuggestionSheet)),
-                //Tuple.Create<string, Type>("人员考评结果",typeof(PerformanceSheet)),
+                Tuple.Create<string, Type>("Backlog统计",typeof(BacklogSheet)),
+                Tuple.Create<string, Type>("工作量统计",typeof(WorkloadSheet)),
+                Tuple.Create<string, Type>("提交单分析",typeof(CommitmentSheet)),
+                Tuple.Create<string, Type>("代码审查分析",typeof(CodeReviewSheet)),
+                Tuple.Create<string, Type>("Bug统计分析",typeof(BugSheet)),
+                Tuple.Create<string, Type>("改进建议",typeof(SuggestionSheet)),
+                Tuple.Create<string, Type>("人员考评结果",typeof(PerformanceSheet)),
             };
 
             ExcelInterop.Worksheet lastSheet = null;

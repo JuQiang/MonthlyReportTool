@@ -85,7 +85,7 @@ namespace MonthlyReportTool.API.Office.Excel
             tableTitleFont.Color = ColorTranslator.ToOle(System.Drawing.Color.Red);
             tableTitleFont.Size = 12;
 
-            ExcelInterop.Range tableDescriptionRange = sheet.Range[sheet.Cells[startRow + 1, "B"], sheet.Cells[startRow + 1, "N"]];
+            ExcelInterop.Range tableDescriptionRange = sheet.Range[sheet.Cells[startRow + 1, "B"], sheet.Cells[startRow + 1, "P"]];
             Utility.AddNativieResource(tableDescriptionRange);
             tableDescriptionRange.Merge();
             tableDescriptionRange.RowHeight = 20;
@@ -104,27 +104,28 @@ namespace MonthlyReportTool.API.Office.Excel
 
         private int BuildCodeReviewTable(int startRow, List<BugEntity> list)
         {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代代码评审发现问题统计", "说明：", "B", "N",
-                new List<string>() { "BugID", "关键应用", "模块", "缺陷发现方式", "问题类别", "严重级别", "Bug标题", "指派给", "发现人" },
-                new List<string>() { "B,B", "C,D", "E,F", "G,G", "H,H", "I,I", "J,L", "M,M", "N,N" },
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代代码评审发现问题统计", "说明：", "B", "P",
+                new List<string>() { "BugID", "关键应用", "模块", "功能","缺陷发现方式", "问题类别", "严重级别", "Bug标题", "指派给", "发现人" },
+                new List<string>() { "B,B", "C,D", "E,F", "G,H", "I,I", "J,J","K,K", "L,N", "O,O", "P,P" },
                 list.Count);
 
             startRow += 3;
-            object[,] arr = new object[list.Count, 14];
+            object[,] arr = new object[list.Count, 15];
             for (int i = 0; i < list.Count; i++)
             {
                 arr[i, 0] = list[i].Id.ToString();
                 arr[i, 1] = list[i].KeyApplicationName;
                 arr[i, 3] = list[i].ModulesName;
-                arr[i, 5] = list[i].DetectionMode;
-                arr[i, 6] = list[i].Type;
-                arr[i, 7] = list[i].Severity;
-                arr[i, 8] = list[i].Title;
-                arr[i, 11] = Utility.GetPersonName(list[i].AssignedTo);
-                arr[i, 12] = Utility.GetPersonName(list[i].DiscoveryUser);
+                arr[i, 5] = list[i].FuncName;
+                arr[i, 7] = list[i].DetectionMode;
+                arr[i, 8] = list[i].Type;
+                arr[i, 9] = list[i].Severity;
+                arr[i, 10] = list[i].Title;
+                arr[i, 12] = Utility.GetPersonName(list[i].AssignedTo);
+                arr[i, 13] = Utility.GetPersonName(list[i].DiscoveryUser);
             }
 
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "N"]];
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "P"]];
             Utility.AddNativieResource(range);
             range.Value2 = arr;
 

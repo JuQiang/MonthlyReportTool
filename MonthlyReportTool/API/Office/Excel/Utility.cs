@@ -36,7 +36,7 @@ namespace MonthlyReportTool.API.Office.Excel
             {
                 Tuple.Create<string, Type>("首页及说明",typeof(HomeSheet)),
                 Tuple.Create<string, Type>("项目整体说明",typeof(OverviewSheet)),
-                Tuple.Create<string, Type>("需求统计",typeof(FeatureSheet)),
+                Tuple.Create<string, Type>("系统需求统计分析",typeof(FeatureSheet)),
                 Tuple.Create<string, Type>("Backlog统计",typeof(BacklogSheet)),
                 Tuple.Create<string, Type>("工作量统计",typeof(WorkloadSheet)),
                 Tuple.Create<string, Type>("提交单分析",typeof(CommitmentSheet)),

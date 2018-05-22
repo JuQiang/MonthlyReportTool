@@ -147,11 +147,11 @@ namespace MonthlyReportTool.API.TFS
             string prj = original.Item1;
             string date1 = original.Item2;
             string date2 = original.Item3;
-
+            //第一次Project替换
             int pos = wiql.IndexOf(prj);
             pos = wiql.IndexOf("'", pos + prj.Length);
             int pos2 = wiql.IndexOf("'", pos + 1);
-            wiql = wiql.Substring(0, pos) + "'{0}'" + wiql.Substring(pos2 + 1);
+            wiql = wiql.Substring(0, pos) + "'{0}'" + wiql.Substring(pos2 + 1);       
 
             pos = wiql.IndexOf(date1);
             pos = wiql.IndexOf("'", pos + date1.Length);

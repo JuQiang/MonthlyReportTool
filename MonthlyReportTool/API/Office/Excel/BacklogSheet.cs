@@ -32,7 +32,7 @@ namespace MonthlyReportTool.API.Office.Excel
             startRow = BuildAbandonTable(startRow);
             BuildTable(startRow);
 
-            var firstRow = sheet.get_Range("B1:Z1");
+            var firstRow = sheet.get_Range("B1:AB1");
             Utility.AddNativieResource(firstRow);
             firstRow.ColumnWidth = 12;
 
@@ -40,11 +40,11 @@ namespace MonthlyReportTool.API.Office.Excel
         }
         private void BuildTitle()
         {
-            Utility.BuildFormalSheetTitle(sheet, 2, "B", 2, "Q", "Backlog统计分析");
+            Utility.BuildFormalSheetTitle(sheet, 2, "B", 2, "S", "Backlog统计分析");
         }
         private void BuildSubTitle()
         {
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[4, "B"], sheet.Cells[4, "K"]];
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[4, "B"], sheet.Cells[4, "M"]];
             Utility.AddNativieResource(range);
             range.Merge();
             sheet.Cells[4, "B"] = "本迭代所有计划backlog完成情况统计";
@@ -56,7 +56,7 @@ namespace MonthlyReportTool.API.Office.Excel
         }
         private void BuildDescription()
         {
-            ExcelInterop.Range titleRange = sheet.Range[sheet.Cells[5, "B"], sheet.Cells[5, "K"]];
+            ExcelInterop.Range titleRange = sheet.Range[sheet.Cells[5, "B"], sheet.Cells[5, "M"]];
             Utility.AddNativieResource(titleRange);
             titleRange.Merge();
             sheet.Cells[5, "B"] = "说明";
@@ -100,7 +100,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 Tuple.Create<string,string>("B","C"),
                 Tuple.Create<string,string>("D","D"),
                 Tuple.Create<string,string>("E","E"),
-                Tuple.Create<string,string>("F","K"),
+                Tuple.Create<string,string>("F","M"),
             };
             for (int row = 0; row < cols.GetLength(0); row++)
             {
@@ -168,7 +168,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
         private void BuildSummaryTableTitle()
         {
-            ExcelInterop.Range colRange = sheet.Range[sheet.Cells[6, "B"], sheet.Cells[6, "K"]];
+            ExcelInterop.Range colRange = sheet.Range[sheet.Cells[6, "B"], sheet.Cells[6, "M"]];
             Utility.AddNativieResource(colRange);
             colRange.RowHeight = 20;
             colRange.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignCenter;
@@ -220,14 +220,14 @@ namespace MonthlyReportTool.API.Office.Excel
             #endregion 有了查询了，不用自己算了
 
             var all = this.backlogList[7];
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "拖期backlog分析", "说明：分析每个拖期Backlog的原因、主要责任人、以及拖期改进措施、改进措施责任人。这个表格很长，请右拉把后面4个列都填写上。", "B", "Z",
-                new List<string>() { "ID", "关键应用", "模块", "backlog名称", "类别", "负责人", "验收标准", "状态", "拖期责任人", "拖期原因", "拖期改进措施", "措施负责人" },
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "拖期backlog分析", "说明：分析每个拖期Backlog的原因、主要责任人、以及拖期改进措施、改进措施责任人。这个表格很长，请右拉把后面4个列都填写上。", "B", "AB",
+                new List<string>() { "ID", "关键应用", "模块", "功能","backlog名称", "类别", "负责人", "验收标准", "状态", "拖期责任人", "拖期原因", "拖期改进措施", "措施负责人" },
                 //new List<string>() { "B,B", "C,C", "D,E", "F,J", "K,K", "L,L", "M,N", "O,O", "P,P", "Q,T", "U,X", "Y,Y" },
-                  new List<string>() { "B,B", "C,D", "E,F", "G,K", "L,L", "M,M", "N,O", "P,P", "Q,Q", "R,U", "V,Y", "Z,Z" },
+                  new List<string>() { "B,B", "C,D", "E,F", "G,H", "I,M", "N,N", "O,O", "P,Q", "R,R", "S,S", "T,W", "X,AA","AB,AB" },
                 all.Count);
 
             Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "这个表格很长，请右拉把后面4个列都填写上。");
-            Utility.SetCellFontRedColor(sheet.get_Range(String.Format("Q{0}:Z{0}", startRow + 2)));
+            Utility.SetCellFontRedColor(sheet.get_Range(String.Format("S{0}:AB{0}", startRow + 2)));
 
             startRow += 3;
             for (int i = 0; i < all.Count; i++)
@@ -235,15 +235,16 @@ namespace MonthlyReportTool.API.Office.Excel
                 sheet.Cells[startRow + i, "B"] = all[i].Id;
                 sheet.Cells[startRow + i, "C"] = all[i].KeyApplicationName;
                 sheet.Cells[startRow + i, "E"] = all[i].ModulesName;
-                sheet.Cells[startRow + i, "G"] = all[i].Title;
-                sheet.Cells[startRow + i, "L"] = all[i].Category;
-                sheet.Cells[startRow + i, "M"] = Utility.GetPersonName(all[i].AssignedTo);
-                sheet.Cells[startRow + i, "N"] = all[i].AcceptanceMeasure;
-                sheet.Cells[startRow + i, "P"] = all[i].State;
-                sheet.Cells[startRow + i, "Q"] = "";
-                sheet.Cells[startRow + i, "R"] = "";
-                sheet.Cells[startRow + i, "V"] = "";
-                sheet.Cells[startRow + i, "Z"] = "";
+                sheet.Cells[startRow + i, "G"] = all[i].FuncName;
+                sheet.Cells[startRow + i, "I"] = all[i].Title;
+                sheet.Cells[startRow + i, "N"] = all[i].Category;
+                sheet.Cells[startRow + i, "O"] = Utility.GetPersonName(all[i].AssignedTo);
+                sheet.Cells[startRow + i, "P"] = all[i].AcceptanceMeasure;
+                sheet.Cells[startRow + i, "R"] = all[i].State;
+                sheet.Cells[startRow + i, "S"] = "";
+                sheet.Cells[startRow + i, "T"] = "";
+                sheet.Cells[startRow + i, "X"] = "";
+                sheet.Cells[startRow + i, "AB"] = "";
             }
 
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + all.Count - 1, "B"]]);
@@ -253,13 +254,13 @@ namespace MonthlyReportTool.API.Office.Excel
         private int BuildAbandonTable(int startRow)
         {
             var all = this.backlogList[2];
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "移除/中止backlog分析", "说明：分析每个移除/中止Backlog的处理原因。这个表格很长，请右拉把后面列都填写上。", "B", "U",
-                new List<string>() { "ID", "关键应用", "模块", "backlog名称", "类别", "负责人", "验收标准", "状态", "移除/中止原因分析" },
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "移除/中止backlog分析", "说明：分析每个移除/中止Backlog的处理原因。这个表格很长，请右拉把后面列都填写上。", "B", "W",
+                new List<string>() { "ID", "关键应用", "模块","功能", "backlog名称", "类别", "负责人", "验收标准", "状态", "移除/中止原因分析" },
                 //new List<string>() { "B,B", "C,C", "D,E", "F,J", "K,K", "L,L", "M,N", "O,O", "P,T" },
-                  new List<string>() { "B,B", "C,D", "E,F", "G,K", "L,L", "M,M", "N,O", "P,P", "Q,U" },
+                  new List<string>() { "B,B", "C,D", "E,F","G,H", "I,M", "N,N", "O,O", "P,Q", "R,R","S,W"},
                 all.Count);
 
-            Utility.SetCellFontRedColor(sheet.get_Range(String.Format("Q{0}:U{0}", startRow + 2)));
+            Utility.SetCellFontRedColor(sheet.get_Range(String.Format("S{0}:W{0}", startRow + 2)));
             Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "这个表格很长，请右拉把后面列都填写上。");
             
 
@@ -269,12 +270,13 @@ namespace MonthlyReportTool.API.Office.Excel
                 sheet.Cells[startRow + i, "B"] = all[i].Id;
                 sheet.Cells[startRow + i, "C"] = all[i].KeyApplicationName;
                 sheet.Cells[startRow + i, "E"] = all[i].ModulesName;
-                sheet.Cells[startRow + i, "G"] = all[i].Title;
-                sheet.Cells[startRow + i, "L"] = all[i].Category;
-                sheet.Cells[startRow + i, "M"] = Utility.GetPersonName(all[i].AssignedTo);
-                sheet.Cells[startRow + i, "N"] = all[i].AcceptanceMeasure;
-                sheet.Cells[startRow + i, "P"] = all[i].State;
-                sheet.Cells[startRow + i, "Q"] = "";
+                sheet.Cells[startRow + i, "G"] = all[i].FuncName;
+                sheet.Cells[startRow + i, "I"] = all[i].Title;
+                sheet.Cells[startRow + i, "N"] = all[i].Category;
+                sheet.Cells[startRow + i, "O"] = Utility.GetPersonName(all[i].AssignedTo);
+                sheet.Cells[startRow + i, "P"] = all[i].AcceptanceMeasure;
+                sheet.Cells[startRow + i, "R"] = all[i].State;
+                sheet.Cells[startRow + i, "S"] = "";
             }
 
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + all.Count - 1, "B"]]);
@@ -284,30 +286,31 @@ namespace MonthlyReportTool.API.Office.Excel
         private int BuildTable(int startRow)
         {
             var all = this.backlogList[3];
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代backlog列表", "说明：按关键应用、模块排序；", "B", "P",
-                new List<string>() { "ID", "关键应用", "模块", "backlog名称", "类别", "负责人", "验收标准", "状态" },
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代backlog列表", "说明：按关键应用、模块、功能排序；", "B", "R",
+                new List<string>() { "ID", "关键应用", "模块","功能", "backlog名称", "类别", "负责人", "验收标准", "状态" },
                 //new List<string>() { "B,B", "C,C", "D,E", "F,J", "K,K", "L,L", "M,N", "O,O" },
-                  new List<string>() { "B,B", "C,D", "E,F", "G,K", "L,L", "M,M", "N,O", "P,P" },
+                  new List<string>() { "B,B", "C,D", "E,F","G,H", "I,M", "N,N", "O,O","P,Q","R,R"},
                 all.Count);
 
-            var orderedBacklogs = all.OrderBy(backlog => backlog.KeyApplicationName).ThenBy(backlog => backlog.ModulesName).ToList();
-            Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "按关键应用、模块排序");
+            var orderedBacklogs = all.OrderBy(backlog => backlog.KeyApplicationName).ThenBy(backlog => backlog.ModulesName).ThenBy(backlog => backlog.FuncName).ToList();
+            Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "按关键应用、模块、功能排序");
             startRow += 3;
 
-            object[,] arr = new object[orderedBacklogs.Count, 15];
+            object[,] arr = new object[orderedBacklogs.Count, 17];
             for (int i = 0; i < orderedBacklogs.Count; i++)
             {
                 arr[i, 0] = orderedBacklogs[i].Id;
                 arr[i, 1] = orderedBacklogs[i].KeyApplicationName;
                 arr[i, 3] = orderedBacklogs[i].ModulesName;
-                arr[i, 5] = orderedBacklogs[i].Title;
-                arr[i, 10] = orderedBacklogs[i].Category;
-                arr[i, 11] = Utility.GetPersonName(orderedBacklogs[i].AssignedTo);
-                arr[i, 12] = orderedBacklogs[i].AcceptanceMeasure;
-                arr[i, 14] = orderedBacklogs[i].State;
+                arr[i, 5] = orderedBacklogs[i].FuncName;
+                arr[i, 7] = orderedBacklogs[i].Title;
+                arr[i, 12] = orderedBacklogs[i].Category;
+                arr[i, 13] = Utility.GetPersonName(orderedBacklogs[i].AssignedTo);
+                arr[i, 14] = orderedBacklogs[i].AcceptanceMeasure;
+                arr[i, 15] = orderedBacklogs[i].State;
             }
 
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedBacklogs.Count - 1, "P"]];
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedBacklogs.Count - 1, "R"]];
             Utility.AddNativieResource(range);
             range.Value2 = arr;
 
@@ -318,23 +321,23 @@ namespace MonthlyReportTool.API.Office.Excel
 
         private void BuildTestCase(int startRow)
         {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "", "测试用例设计及执行统计", "M", "Q",
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "", "测试用例设计及执行统计", "O", "S",
                 new List<string>() { "分类", "个数" },
-                new List<string>() { "M,O", "P,Q" },
+                new List<string>() { "O,Q", "R,S" },
                 6);
 
             startRow += 3;
-            sheet.Cells[startRow, "M"] = "迭代Backlog总数"; sheet.Cells[startRow++, "P"] = "=D12";
-            sheet.Cells[startRow, "M"] = "需编写用例Backlog总数"; sheet.Cells[startRow++, "P"] = this.backlogList[8].Count;
-            sheet.Cells[startRow, "M"] = "实际编写用例Backlog总数"; sheet.Cells[startRow++, "P"] = this.backlogList[9].Count;
-            sheet.Cells[startRow, "M"] = "编写用例总条数"; sheet.Cells[startRow++, "P"] = this.backlogList[10].Count;
-            sheet.Cells[startRow, "M"] = "用例未执行数目"; sheet.Cells[startRow++, "P"] = "不知道哪里找";
-            sheet.Cells[startRow, "M"] = "测试用例覆盖率"; sheet.Cells[startRow++, "P"] = "=IF(P8<>0,P9/P8,\"\")";
-            Utility.SetCellPercentFormat(sheet.Cells[startRow-1, "P"]);
+            sheet.Cells[startRow, "O"] = "迭代Backlog总数"; sheet.Cells[startRow++, "R"] = "=D12";
+            sheet.Cells[startRow, "O"] = "需编写用例Backlog总数"; sheet.Cells[startRow++, "R"] = this.backlogList[8].Count;
+            sheet.Cells[startRow, "O"] = "实际编写用例Backlog总数"; sheet.Cells[startRow++, "R"] = this.backlogList[9].Count;
+            sheet.Cells[startRow, "O"] = "编写用例总条数"; sheet.Cells[startRow++, "R"] = this.backlogList[10].Count;
+            sheet.Cells[startRow, "O"] = "用例未执行数目"; sheet.Cells[startRow++, "R"] = "不知道哪里找";
+            sheet.Cells[startRow, "O"] = "测试用例覆盖率"; sheet.Cells[startRow++, "R"] = "=IF(R8<>0,R9/R8,\"\")";
+            Utility.SetCellPercentFormat(sheet.Cells[startRow-1, "R"]);
 
-            Utility.SetCellColor(sheet.Cells[startRow, "M"], System.Drawing.Color.Black, "测试用例设计及执行统计", true);
-            Utility.SetCellGreenColor(sheet.Cells[7, "P"]);
-            Utility.SetCellGreenColor(sheet.Cells[12, "P"]);
+            Utility.SetCellColor(sheet.Cells[startRow, "O"], System.Drawing.Color.Black, "测试用例设计及执行统计", true);
+            Utility.SetCellGreenColor(sheet.Cells[7, "R"]);
+            Utility.SetCellGreenColor(sheet.Cells[12, "R"]);
 
         }
     }

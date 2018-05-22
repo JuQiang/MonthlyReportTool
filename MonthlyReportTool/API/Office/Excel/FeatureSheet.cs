@@ -43,14 +43,14 @@ namespace MonthlyReportTool.API.Office.Excel
 
         private void BuildTitle()
         {
-            Utility.BuildFormalSheetTitle(sheet, 2, "B", 2, "R", "需求统计分析");
+            Utility.BuildFormalSheetTitle(sheet, 2, "B", 2, "R", "系统需求统计分析");
         }
         private void BuildSubTitle()
         {
             ExcelInterop.Range range = sheet.Range[sheet.Cells[4, "B"], sheet.Cells[4, "K"]];
             Utility.AddNativieResource(range);
             range.Merge();
-            sheet.Cells[4, "B"] = "本迭代需求完成情况统计";
+            sheet.Cells[4, "B"] = "本迭代系统需求完成情况统计";
             var titleFont = range.Font;
             Utility.AddNativieResource(titleFont);
             titleFont.Bold = true;
@@ -62,7 +62,7 @@ namespace MonthlyReportTool.API.Office.Excel
             ExcelInterop.Range titleRange = sheet.Range[sheet.Cells[5, "B"], sheet.Cells[5, "K"]];
             Utility.AddNativieResource(titleRange);
             titleRange.Merge();
-            sheet.Cells[5, "B"] = "说明：统计范围：目标日期在本迭代期间内的所有需求；";
+            sheet.Cells[5, "B"] = "说明：统计范围：目标日期在本迭代期间内的所有系统需求；";
 
             var titleFont = titleRange.Font;
             Utility.AddNativieResource(titleFont);
@@ -78,7 +78,7 @@ namespace MonthlyReportTool.API.Office.Excel
         }
         private void BuildSummaryTable(int startRow)
         {
-            int nextRow = Utility.BuildFormalTable(sheet, startRow, "本迭代需求完成情况统计", "说明：统计范围：目标日期在本迭代期间内的所有需求；", "B", "K",
+            int nextRow = Utility.BuildFormalTable(sheet, startRow, "本迭代系统需求完成情况统计", "说明：统计范围：目标日期在本迭代期间内的所有系统需求；", "B", "K",
                 new List<string>() { "分类", "个数", "占比", "说明" },
                 new List<string>() { "B,D", "E,E", "F,F", "G,K" },
                 5);
@@ -117,7 +117,7 @@ namespace MonthlyReportTool.API.Office.Excel
         }
         private int BuildTable(int startRow, List<FeatureEntity> features)
         {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代需求列表", "说明：如果一个单元格的内容太多，请考虑换行显示\r\n      按关键应用、模块、功能排序；", "B", "Q",
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代系统需求列表", "说明：如果一个单元格的内容太多，请考虑换行显示\r\n      按关键应用、模块、功能排序；", "B", "Q",
                 new List<string>() { "ID", "关键应用", "模块", "功能", "需求描述", "是否需要需求分析", "当前状态", "目标日期", "已发布日期", "负责人" },
                 new List<string>() { "B,B", "C,D", "E,F", "G,H", "I,L", "M,M", "N,N", "O,O", "P,P", "Q,Q" },
                 features.Count);
@@ -164,7 +164,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
         private int BuildDelayTable(int startRow, List<FeatureEntity> features)
         {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代未完成需求分析", "说明：按关键应用、模块、功能排序；这个表格很长，请右拉把后面列都填写上。", "B", "R",
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代未完成系统需求分析", "说明：按关键应用、模块、功能排序；这个表格很长，请右拉把后面列都填写上。", "B", "R",
                 new List<string>() { "ID", "关键应用", "模块", "功能", "需求描述", "是否需要需求分析", "当前状态", "目标日期", "负责人", "拖期原因说明" },
                 new List<string>() { "B,B", "C,D", "E,F", "G,H", "I,L", "M,M", "N,N", "O,O", "P,P", "Q,R" },
                 features.Count);
@@ -203,7 +203,7 @@ namespace MonthlyReportTool.API.Office.Excel
         }
         private int BuildAnadonTable(int startRow, List<FeatureEntity> features)
         {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代移除/中止需求分析", "说明：按关键应用、模块、功能排序；这个表格很长，请右拉把后面列都填写上。", "B", "R",
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代移除/中止系统需求分析", "说明：按关键应用、模块、功能排序；这个表格很长，请右拉把后面列都填写上。", "B", "R",
                 new List<string>() { "ID", "关键应用", "模块", "功能", "需求描述", "是否需要需求分析", "当前状态", "目标日期", "负责人", "移除/中止原因说明" },
                 new List<string>() { "B,B", "C,D", "E,F", "G,H", "I,L", "M,M", "N,N", "O,O", "P,P", "Q,R" },
                 features.Count);

@@ -109,27 +109,28 @@ namespace MonthlyReportTool.API.Office.Excel
                 new List<string>() { "B,B", "C,D", "E,F", "G,H", "I,I", "J,J","K,K", "L,N", "O,O", "P,P" },
                 list.Count);
 
+            var orderedBugs = list.OrderBy(bug => bug.KeyApplicationName).ThenBy(bug => bug.ModulesName).ThenBy(bug => bug.FuncName).ToList();
             startRow += 3;
             object[,] arr = new object[list.Count, 15];
             for (int i = 0; i < list.Count; i++)
             {
-                arr[i, 0] = list[i].Id.ToString();
-                arr[i, 1] = list[i].KeyApplicationName;
-                arr[i, 3] = list[i].ModulesName;
-                arr[i, 5] = list[i].FuncName;
-                arr[i, 7] = list[i].DetectionMode;
-                arr[i, 8] = list[i].Type;
-                arr[i, 9] = list[i].Severity;
-                arr[i, 10] = list[i].Title;
-                arr[i, 12] = Utility.GetPersonName(list[i].AssignedTo);
-                arr[i, 13] = Utility.GetPersonName(list[i].DiscoveryUser);
+                arr[i, 0] = orderedBugs[i].Id.ToString();
+                arr[i, 1] = orderedBugs[i].KeyApplicationName;
+                arr[i, 3] = orderedBugs[i].ModulesName;
+                arr[i, 5] = orderedBugs[i].FuncName;
+                arr[i, 7] = orderedBugs[i].DetectionMode;
+                arr[i, 8] = orderedBugs[i].Type;
+                arr[i, 9] = orderedBugs[i].Severity;
+                arr[i, 10] = orderedBugs[i].Title;
+                arr[i, 12] = Utility.GetPersonName(orderedBugs[i].AssignedTo);
+                arr[i, 13] = Utility.GetPersonName(orderedBugs[i].DiscoveryUser);
             }
 
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "P"]];
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedBugs.Count - 1, "P"]];
             Utility.AddNativieResource(range);
             range.Value2 = arr;
 
-            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "B"]]);
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedBugs.Count - 1, "B"]]);
 
             return nextRow-1;
         }

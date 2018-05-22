@@ -257,28 +257,29 @@ namespace MonthlyReportTool.API.Office.Excel
                 list.Count);
 
             Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "（不包括关闭原因为不是错误，重复问题的）。这个表格很长，请右拉把后面列都填写上。");
+            var orderedBugs = list.OrderBy(bug => bug.KeyApplicationName).ThenBy(bug => bug.ModulesName).ThenBy(bug => bug.FuncName).ToList();
             startRow += 3;
 
-            object[,] arr = new object[list.Count, 15];
-            for (int i = 0; i < list.Count; i++)
+            object[,] arr = new object[orderedBugs.Count, 15];
+            for (int i = 0; i < orderedBugs.Count; i++)
             {
-                arr[i, 0] = list[i].Id;
-                arr[i, 1] = list[i].KeyApplicationName;
-                arr[i, 2] = list[i].ModulesName;
-                arr[i, 3] = list[i].FuncName;
-                arr[i, 4] = list[i].Type;
-                arr[i, 5] = list[i].Severity;
-                arr[i, 6] = list[i].Title;
-                arr[i, 7] = Utility.GetPersonName(list[i].AssignedTo);
-                arr[i, 10] = Utility.GetPersonName(list[i].DiscoveryUser);
-                arr[i, 11] = list[i].State;
+                arr[i, 0] = orderedBugs[i].Id;
+                arr[i, 1] = orderedBugs[i].KeyApplicationName;
+                arr[i, 2] = orderedBugs[i].ModulesName;
+                arr[i, 3] = orderedBugs[i].FuncName;
+                arr[i, 4] = orderedBugs[i].Type;
+                arr[i, 5] = orderedBugs[i].Severity;
+                arr[i, 6] = orderedBugs[i].Title;
+                arr[i, 7] = Utility.GetPersonName(orderedBugs[i].AssignedTo);
+                arr[i, 10] = Utility.GetPersonName(orderedBugs[i].DiscoveryUser);
+                arr[i, 11] = orderedBugs[i].State;
             }
 
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "P"]];
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedBugs.Count - 1, "P"]];
             Utility.AddNativieResource(range);
             range.Value2 = arr;
 
-            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "B"]]);
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedBugs.Count - 1, "B"]]);
             Utility.SetCellFontRedColor(sheet.Cells[startRow - 1, "N"]);
 
             return nextRow-1;
@@ -291,29 +292,30 @@ namespace MonthlyReportTool.API.Office.Excel
                 list.Count);
 
             Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "这个表格很长，请右拉把后面列都填写上。");
+            var orderedBugs = list.OrderBy(bug => bug.KeyApplicationName).ThenBy(bug => bug.ModulesName).ThenBy(bug => bug.FuncName).ToList();
             startRow += 3;
 
-            object[,] arr = new object[list.Count, 15];
-            for (int i = 0; i < list.Count; i++)
+            object[,] arr = new object[orderedBugs.Count, 15];
+            for (int i = 0; i < orderedBugs.Count; i++)
             {
-                arr[i, 0] = list[i].Id;
-                arr[i, 1] = list[i].KeyApplicationName;
-                arr[i, 2] = list[i].ModulesName;
-                arr[i, 3] = list[i].FuncName;
-                arr[i, 4] = list[i].ResolvedReason;
-                arr[i, 5] = list[i].Type;
-                arr[i, 6] = list[i].Severity;
-                arr[i, 7] = list[i].Title;
-                arr[i, 10] = Utility.GetPersonName(list[i].AssignedTo);
-                arr[i, 11] = list[i].State;
+                arr[i, 0] = orderedBugs[i].Id;
+                arr[i, 1] = orderedBugs[i].KeyApplicationName;
+                arr[i, 2] = orderedBugs[i].ModulesName;
+                arr[i, 3] = orderedBugs[i].FuncName;
+                arr[i, 4] = orderedBugs[i].ResolvedReason;
+                arr[i, 5] = orderedBugs[i].Type;
+                arr[i, 6] = orderedBugs[i].Severity;
+                arr[i, 7] = orderedBugs[i].Title;
+                arr[i, 10] = Utility.GetPersonName(orderedBugs[i].AssignedTo);
+                arr[i, 11] = orderedBugs[i].State;
                 arr[i, 12] = "";
             }
 
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "P"]];
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedBugs.Count - 1, "P"]];
             Utility.AddNativieResource(range);
             range.Value2 = arr;
 
-            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "B"]]);
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedBugs.Count - 1, "B"]]);
             Utility.SetCellFontRedColor(sheet.Cells[startRow - 1, "N"]);
 
             return nextRow - 1;
@@ -324,30 +326,31 @@ namespace MonthlyReportTool.API.Office.Excel
             int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代新增Bug数", "说明：", "B", "N",
                 new List<string>() { "BugID", "关键应用", "模块", "问题类别", "严重级别", "Bug标题", "指派给","发现人", "状态" },
                 new List<string>() { "B,B", "C,C", "D,D", "E,E","F,F","G,G", "H,K", "L,L","M,M","N,N" },
-                list.Count);            
+                list.Count);
 
+            var orderedBugs = list.OrderBy(bug => bug.KeyApplicationName).ThenBy(bug => bug.ModulesName).ThenBy(bug => bug.FuncName).ToList();
             startRow += 3;
             
-            object[,] arr = new object[list.Count, 13+1];
-            for (int i = 0; i < list.Count; i++)
+            object[,] arr = new object[orderedBugs.Count, 13+1];
+            for (int i = 0; i < orderedBugs.Count; i++)
             {
-                arr[i, 0] = list[i].Id;
-                arr[i, 1] = list[i].KeyApplicationName;
-                arr[i, 2] = list[i].ModulesName;
-                arr[i, 3] = list[i].FuncName;
-                arr[i, 4] = list[i].Type;
-                arr[i, 5] = list[i].Severity;
-                arr[i, 6] = list[i].Title;
-                arr[i, 10] = Utility.GetPersonName(list[i].AssignedTo);
-                arr[i, 11] = Utility.GetPersonName(list[i].DiscoveryUser);
-                arr[i, 12] = list[i].State;
+                arr[i, 0] = orderedBugs[i].Id;
+                arr[i, 1] = orderedBugs[i].KeyApplicationName;
+                arr[i, 2] = orderedBugs[i].ModulesName;
+                arr[i, 3] = orderedBugs[i].FuncName;
+                arr[i, 4] = orderedBugs[i].Type;
+                arr[i, 5] = orderedBugs[i].Severity;
+                arr[i, 6] = orderedBugs[i].Title;
+                arr[i, 10] = Utility.GetPersonName(orderedBugs[i].AssignedTo);
+                arr[i, 11] = Utility.GetPersonName(orderedBugs[i].DiscoveryUser);
+                arr[i, 12] = orderedBugs[i].State;
             }            
 
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "N"]];
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedBugs.Count - 1, "N"]];
             Utility.AddNativieResource(range);
             range.Value2 = arr;
 
-            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "B"]]);
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedBugs.Count - 1, "B"]]);
 
             return nextRow-1;
         }
@@ -358,28 +361,29 @@ namespace MonthlyReportTool.API.Office.Excel
                 new List<string>() { "B,B", "C,C", "D,D", "E,E", "F,F", "G,G", "H,K", "L,L", "M,M", "N,N" },
                 list.Count);
 
+            var orderedBugs = list.OrderBy(bug => bug.KeyApplicationName).ThenBy(bug => bug.ModulesName).ThenBy(bug => bug.FuncName).ToList();
             startRow += 3;
-            object[,] arr = new object[list.Count, 13 + 1];
-            for (int i = 0; i < list.Count; i++)
+            object[,] arr = new object[orderedBugs.Count, 13 + 1];
+            for (int i = 0; i < orderedBugs.Count; i++)
             {
-                arr[i, 0] = list[i].Id;//这里是col对应的数字，不能按照0开始算
-                arr[i, 1] = list[i].KeyApplicationName;
-                arr[i, 2] = list[i].ModulesName;
-                arr[i, 3] = list[i].FuncName;
-                arr[i, 4] = list[i].Type;
-                arr[i, 5] = list[i].Severity;
-                arr[i, 6] = list[i].Title;
-                arr[i, 10] = Utility.GetPersonName(list[i].AssignedTo);
-                arr[i, 11] = Utility.GetPersonName(list[i].DiscoveryUser);
-                arr[i, 12] = list[i].State;
+                arr[i, 0] = orderedBugs[i].Id;//这里是col对应的数字，不能按照0开始算
+                arr[i, 1] = orderedBugs[i].KeyApplicationName;
+                arr[i, 2] = orderedBugs[i].ModulesName;
+                arr[i, 3] = orderedBugs[i].FuncName;
+                arr[i, 4] = orderedBugs[i].Type;
+                arr[i, 5] = orderedBugs[i].Severity;
+                arr[i, 6] = orderedBugs[i].Title;
+                arr[i, 10] = Utility.GetPersonName(orderedBugs[i].AssignedTo);
+                arr[i, 11] = Utility.GetPersonName(orderedBugs[i].DiscoveryUser);
+                arr[i, 12] = orderedBugs[i].State;
             }
 
 
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "N"]];
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedBugs.Count - 1, "N"]];
             Utility.AddNativieResource(range);
             range.Value2 = arr;
 
-            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "B"]]);
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedBugs.Count - 1, "B"]]);
 
             return nextRow-1;
         }

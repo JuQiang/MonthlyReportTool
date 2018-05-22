@@ -228,26 +228,26 @@ namespace MonthlyReportTool.API.Office.Excel
 
             Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "这个表格很长，请右拉把后面4个列都填写上。");
             Utility.SetCellFontRedColor(sheet.get_Range(String.Format("S{0}:AB{0}", startRow + 2)));
-
+            var orderedBacklogs = all.OrderBy(backlog => backlog.KeyApplicationName).ThenBy(backlog => backlog.ModulesName).ThenBy(backlog => backlog.FuncName).ToList();
             startRow += 3;
-            for (int i = 0; i < all.Count; i++)
+            for (int i = 0; i < orderedBacklogs.Count; i++)
             {
-                sheet.Cells[startRow + i, "B"] = all[i].Id;
-                sheet.Cells[startRow + i, "C"] = all[i].KeyApplicationName;
-                sheet.Cells[startRow + i, "E"] = all[i].ModulesName;
-                sheet.Cells[startRow + i, "G"] = all[i].FuncName;
-                sheet.Cells[startRow + i, "I"] = all[i].Title;
-                sheet.Cells[startRow + i, "N"] = all[i].Category;
-                sheet.Cells[startRow + i, "O"] = Utility.GetPersonName(all[i].AssignedTo);
-                sheet.Cells[startRow + i, "P"] = all[i].AcceptanceMeasure;
-                sheet.Cells[startRow + i, "R"] = all[i].State;
+                sheet.Cells[startRow + i, "B"] = orderedBacklogs[i].Id;
+                sheet.Cells[startRow + i, "C"] = orderedBacklogs[i].KeyApplicationName;
+                sheet.Cells[startRow + i, "E"] = orderedBacklogs[i].ModulesName;
+                sheet.Cells[startRow + i, "G"] = orderedBacklogs[i].FuncName;
+                sheet.Cells[startRow + i, "I"] = orderedBacklogs[i].Title;
+                sheet.Cells[startRow + i, "N"] = orderedBacklogs[i].Category;
+                sheet.Cells[startRow + i, "O"] = Utility.GetPersonName(orderedBacklogs[i].AssignedTo);
+                sheet.Cells[startRow + i, "P"] = orderedBacklogs[i].AcceptanceMeasure;
+                sheet.Cells[startRow + i, "R"] = orderedBacklogs[i].State;
                 sheet.Cells[startRow + i, "S"] = "";
                 sheet.Cells[startRow + i, "T"] = "";
                 sheet.Cells[startRow + i, "X"] = "";
                 sheet.Cells[startRow + i, "AB"] = "";
             }
 
-            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + all.Count - 1, "B"]]);
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedBacklogs.Count - 1, "B"]]);
             return nextRow-1;
         }
 
@@ -262,24 +262,25 @@ namespace MonthlyReportTool.API.Office.Excel
 
             Utility.SetCellFontRedColor(sheet.get_Range(String.Format("S{0}:W{0}", startRow + 2)));
             Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "这个表格很长，请右拉把后面列都填写上。");
-            
+
+            var orderedBacklogs = all.OrderBy(backlog => backlog.KeyApplicationName).ThenBy(backlog => backlog.ModulesName).ThenBy(backlog => backlog.FuncName).ToList();
 
             startRow += 3;
             for (int i = 0; i < all.Count; i++)
             {
-                sheet.Cells[startRow + i, "B"] = all[i].Id;
-                sheet.Cells[startRow + i, "C"] = all[i].KeyApplicationName;
-                sheet.Cells[startRow + i, "E"] = all[i].ModulesName;
-                sheet.Cells[startRow + i, "G"] = all[i].FuncName;
-                sheet.Cells[startRow + i, "I"] = all[i].Title;
-                sheet.Cells[startRow + i, "N"] = all[i].Category;
-                sheet.Cells[startRow + i, "O"] = Utility.GetPersonName(all[i].AssignedTo);
-                sheet.Cells[startRow + i, "P"] = all[i].AcceptanceMeasure;
-                sheet.Cells[startRow + i, "R"] = all[i].State;
+                sheet.Cells[startRow + i, "B"] = orderedBacklogs[i].Id;
+                sheet.Cells[startRow + i, "C"] = orderedBacklogs[i].KeyApplicationName;
+                sheet.Cells[startRow + i, "E"] = orderedBacklogs[i].ModulesName;
+                sheet.Cells[startRow + i, "G"] = orderedBacklogs[i].FuncName;
+                sheet.Cells[startRow + i, "I"] = orderedBacklogs[i].Title;
+                sheet.Cells[startRow + i, "N"] = orderedBacklogs[i].Category;
+                sheet.Cells[startRow + i, "O"] = Utility.GetPersonName(orderedBacklogs[i].AssignedTo);
+                sheet.Cells[startRow + i, "P"] = orderedBacklogs[i].AcceptanceMeasure;
+                sheet.Cells[startRow + i, "R"] = orderedBacklogs[i].State;
                 sheet.Cells[startRow + i, "S"] = "";
             }
 
-            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + all.Count - 1, "B"]]);
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedBacklogs.Count - 1, "B"]]);
             return nextRow-1;
         }
 
@@ -292,8 +293,8 @@ namespace MonthlyReportTool.API.Office.Excel
                   new List<string>() { "B,B", "C,D", "E,F","G,H", "I,M", "N,N", "O,O","P,Q","R,R"},
                 all.Count);
 
-            var orderedBacklogs = all.OrderBy(backlog => backlog.KeyApplicationName).ThenBy(backlog => backlog.ModulesName).ThenBy(backlog => backlog.FuncName).ToList();
             Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "按关键应用、模块、功能排序");
+            var orderedBacklogs = all.OrderBy(backlog => backlog.KeyApplicationName).ThenBy(backlog => backlog.ModulesName).ThenBy(backlog => backlog.FuncName).ToList();
             startRow += 3;
 
             object[,] arr = new object[orderedBacklogs.Count, 17];
@@ -314,7 +315,7 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.AddNativieResource(range);
             range.Value2 = arr;
 
-            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + all.Count - 1, "B"]]);
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedBacklogs.Count - 1, "B"]]);
 
             return nextRow-1;
         }

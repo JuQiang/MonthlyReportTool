@@ -30,6 +30,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
         public int SubmitNumberOfTime;
         public string TeamProject;
         public int FindedBugCount;
+        public string ParentId;
     }
     //    select[System.Id], [Teld.Scrum.KeyApplication], [Teld.Scrum.ModulesName], [Teld.Scrum.Worklog.SubmitLog.SubmitType], 
     //[System.Title], [System.State], [Teld.Scrum.Worklog.SubmitLog.SubmitUser], [System.AssignedTo], 

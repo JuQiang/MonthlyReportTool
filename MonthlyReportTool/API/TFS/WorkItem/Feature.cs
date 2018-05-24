@@ -1,6 +1,7 @@
 ﻿using MonthlyReportTool.API.TFS.Agile;
 using MonthlyReportTool.API.TFS.TeamProject;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -64,10 +65,11 @@ namespace MonthlyReportTool.API.TFS.WorkItem
             );
 
             string responseBody = Utility.ExecuteQueryBySQL(sql);
-            var features = Utility.ConvertWorkitemFlatQueryResult2Array(responseBody);
+            Hashtable hs = new Hashtable();
+            var features = Utility.ConvertWorkitemQueryResult2Array(responseBody, ref hs);
             foreach (var feature in features)
             {
-                list.Add(
+                var featureEntity =
                     new FeatureEntity()
                     {
                         Id = Convert.ToInt32(feature["fields"]["System.Id"]),
@@ -88,10 +90,11 @@ namespace MonthlyReportTool.API.TFS.WorkItem
                         InitTargetDate = Convert.ToString(feature["fields"]["Teld.Scrum.Scheduling.InitTargetDate"]),
                         IterationTargetDate = Convert.ToString(feature["fields"]["Teld.Scrum.IterationTargetDate"]),
                         TargetDate = Convert.ToString(feature["fields"]["Microsoft.VSTS.Scheduling.TargetDate"]),
-                        NeedRequireDevelop = Convert.ToString(feature["fields"]["Teld.Scrum.NeedRequireDevelop"]),
+                        NeedRequireDevelop = Convert.ToString(feature["fields"]["Teld.Scrum.NeedRequireDevelop"])
                         //IsDevelopment = Convert.ToString(feature["fields"]["Teld.Scrum.IsDevelopment"]),
-                    }
-                );
+                    };
+                featureEntity.ParentId = (hs.ContainsKey(Convert.ToString(featureEntity.Id)) ? Convert.ToString(hs[Convert.ToString(featureEntity.Id)]) : "");
+                list.Add(featureEntity);
             }
 
             return list;

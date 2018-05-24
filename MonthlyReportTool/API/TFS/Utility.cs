@@ -12,6 +12,7 @@ using MonthlyReportTool.API.TFS.WorkItem;
 using System.Runtime.InteropServices;
 using MonthlyReportTool.API.TFS.Agile;
 using System.IO;
+using System.Collections;
 
 namespace MonthlyReportTool.API.TFS
 {
@@ -74,11 +75,11 @@ namespace MonthlyReportTool.API.TFS
         public static JObject RetrieveWorkItems(string columns, string workitems)
         {
             string url = String.Format("http://{0}:8080/{1}/_apis/wit/workitems?ids={2}&fields={3}&?api-version=1.0",
-    "tfs.teld.cn", //t-bj-tfs.chinacloudapp.cn
-    "tfs/teld",
-    workitems,
-    columns
-    );
+                                        "tfs.teld.cn", //t-bj-tfs.chinacloudapp.cn
+                                        "tfs/teld",
+                                        workitems,
+                                        columns
+                                     );
 
             using (HttpClient client = new HttpClient())
             {
@@ -99,7 +100,6 @@ namespace MonthlyReportTool.API.TFS
                     return JsonConvert.DeserializeObject(responseBody) as JObject;
                 }
             }
-
         }
 
         public static string ExecuteQueryBySQL(string sql)
@@ -151,18 +151,41 @@ namespace MonthlyReportTool.API.TFS
             int pos = wiql.IndexOf(prj);
             pos = wiql.IndexOf("'", pos + prj.Length);
             int pos2 = wiql.IndexOf("'", pos + 1);
-            wiql = wiql.Substring(0, pos) + "'{0}'" + wiql.Substring(pos2 + 1);       
-
+            wiql = wiql.Substring(0, pos) + "'{0}'" + wiql.Substring(pos2 + 1);
+            //第二次Project替换
+            pos = wiql.IndexOf(prj, pos2);
+            if(pos > 0) { 
+                pos = wiql.IndexOf("'", pos + prj.Length);
+                pos2 = wiql.IndexOf("'", pos + 1);
+                wiql = wiql.Substring(0, pos) + "'{0}'" + wiql.Substring(pos2 + 1);
+            }
+            //第一次date1替换
             pos = wiql.IndexOf(date1);
             pos = wiql.IndexOf("'", pos + date1.Length);
             pos2 = wiql.IndexOf("'", pos + 1);
             wiql = wiql.Substring(0, pos) + "'{1}'" + wiql.Substring(pos2 + 1);
 
+            //第二次date1替换
+            pos = wiql.IndexOf(date1, pos2);
+            if(pos > 0) { 
+                pos = wiql.IndexOf("'", pos + date1.Length);
+                pos2 = wiql.IndexOf("'", pos + 1);
+                wiql = wiql.Substring(0, pos) + "'{1}'" + wiql.Substring(pos2 + 1);
+            }
+
+            //第一次date2替换
             pos = wiql.IndexOf(date2);
             pos = wiql.IndexOf("'", pos + date2.Length);
             pos2 = wiql.IndexOf("'", pos + 1);
             wiql = wiql.Substring(0, pos) + "'{2}'" + wiql.Substring(pos2 + 1);
 
+            //第二次date2替换
+            pos = wiql.IndexOf(date2, pos2);
+            if(pos > 0) { 
+                pos = wiql.IndexOf("'", pos + date2.Length);
+                pos2 = wiql.IndexOf("'", pos + 1);
+                wiql = wiql.Substring(0, pos) + "'{2}'" + wiql.Substring(pos2 + 1);
+            }
             return wiql;
         }
 
@@ -222,7 +245,7 @@ namespace MonthlyReportTool.API.TFS
                 pos = wiql.IndexOf(date);
                 pos = wiql.IndexOf("'", pos + date.Length);
                 pos2 = wiql.IndexOf("'", pos + 1);
-                wiql = wiql.Substring(0, pos) + "'{"+Convert.ToString(i)+"}'" + wiql.Substring(pos2 + 1);
+                wiql = wiql.Substring(0, pos) + "'{" + Convert.ToString(i) + "}'" + wiql.Substring(pos2 + 1);
             }
 
             return wiql;
@@ -316,7 +339,17 @@ namespace MonthlyReportTool.API.TFS
 
             return testMembers;
         }
-
+        public static List<JToken> ConvertWorkitemQueryResult2Array(string responseBody,ref Hashtable hs)
+        {
+            List<JToken> list = new List<JToken>();
+            if (String.IsNullOrEmpty(responseBody)) return list;
+            var jsonobj = JsonConvert.DeserializeObject(responseBody) as JObject;
+            var queryType = Convert.ToString(jsonobj["queryType"]);
+            if (String.Equals(queryType, "tree") == true)
+                return ConvertWorkitemTreeQueryResult2Array(responseBody,ref hs);
+            else
+                return ConvertWorkitemFlatQueryResult2Array(responseBody);
+        }
         public static List<JToken> ConvertWorkitemFlatQueryResult2Array(string responseBody)
         {
             List<JToken> list = new List<JToken>();
@@ -389,6 +422,73 @@ namespace MonthlyReportTool.API.TFS
             return list;
         }
 
+        public static List<JToken> ConvertWorkitemTreeQueryResult2Array(string responseBody,ref Hashtable hs)
+        {
+            List<JToken> list = new List<JToken>();
+            
+            if (String.IsNullOrEmpty(responseBody)) return list;
+
+            var jsonobj = JsonConvert.DeserializeObject(responseBody) as JObject;
+            StringBuilder sbrefname = new StringBuilder();
+            StringBuilder sbid = new StringBuilder();
+
+            var columns = jsonobj["columns"] as JArray;
+            foreach (var column in columns)
+            {
+                var refname = Convert.ToString(column["referenceName"]);
+                sbrefname.Append(refname).Append(",");
+                var txtname = Convert.ToString(column["name"]);
+            }
+
+            var wiarray = jsonobj["workItemRelations"] as JArray;
+            if (wiarray == null || wiarray.Count < 1) return list;
+            foreach (var id in wiarray)
+            {
+                var wiid = Convert.ToString(id["target"]["id"]);
+                sbid.Append(wiid).Append(",");
+                if (id["source"] != null)
+                {
+                    hs.Add(wiid, Convert.ToString(id["source"]["id"]));
+                }
+                else
+                    hs.Add(wiid, "");
+            }
+
+            sbrefname.Remove(sbrefname.Length - 1, 1);
+            sbid.Remove(sbid.Length - 1, 1);
+
+            List<StringBuilder> sbWorkItems = new List<StringBuilder>();
+
+            //Get work items
+            //After executing a query, get the work items using the IDs that are returned in the query results response. 
+            //You can get up to 200 work items at a time.
+            //https://www.visualstudio.com/en-us/docs/integrate/api/wit/wiql
+            for (int i = 0; i < (wiarray.Count - 1) / 200 + 1; i++)
+            {
+                StringBuilder sbTemp = new StringBuilder();
+                int limit = (i < (wiarray.Count - 1) / 200) ? 200 : (wiarray.Count - (wiarray.Count - 1) / 200 * 200);
+                for (int j = 0; j < limit; j++)
+                {
+                    sbTemp.Append(Convert.ToString(wiarray[200 * i + j]["target"]["id"])).Append(",");
+                }
+                if (sbTemp.Length > 0) sbTemp.Remove(sbTemp.Length - 1, 1);
+
+                sbWorkItems.Add(sbTemp);
+            }
+
+            int total = sbWorkItems.Count;
+            for (int i = 0; i < sbWorkItems.Count; i++)// test only
+            {
+                var buglist = RetrieveWorkItems(sbrefname.ToString(), sbWorkItems[i].ToString())["value"] as JArray;
+                foreach (var bug in buglist)
+                {
+                    list.Add(bug);
+                }
+            }
+
+            return list;
+        }
+
         public static void ReleaseComObject(object com)
         {
             while (Marshal.ReleaseComObject(com) > 0) ;
@@ -435,8 +535,5 @@ namespace MonthlyReportTool.API.TFS
 
             return null;
         }
-
     }
-
-
 }

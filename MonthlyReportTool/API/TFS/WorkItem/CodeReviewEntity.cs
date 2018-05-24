@@ -25,5 +25,6 @@ namespace MonthlyReportTool.API.TFS.WorkItem
         public string DetectionPhase;
         public string Source;
         public string AreaPath;
+        public string ParentId;
     }
 }

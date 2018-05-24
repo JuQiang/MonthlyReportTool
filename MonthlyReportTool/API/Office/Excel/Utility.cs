@@ -143,7 +143,6 @@ namespace MonthlyReportTool.API.Office.Excel
             bigrangeFont.Size = 11;
         }
 
-
         public static void SetCellColor(ExcelInterop.Range range, System.Drawing.Color color)
         {
             var rangeFont = range.Font;
@@ -178,7 +177,7 @@ namespace MonthlyReportTool.API.Office.Excel
         public static void SetCellFontRedColor(ExcelInterop.Range range)
         {
             SetCellColor(range, System.Drawing.Color.Red);
-        }        
+        }
         public static void SetCellDarkGrayColor(ExcelInterop.Range range)
         {
             var interior = range.Interior;
@@ -189,7 +188,7 @@ namespace MonthlyReportTool.API.Office.Excel
         {
             var interior = range.Interior;
             Utility.AddNativieResource(interior);
-            interior.Color = System.Drawing.Color.FromArgb(205,255,202);// System.Drawing.Color.Green.ToArgb();
+            interior.Color = System.Drawing.Color.FromArgb(205, 255, 202);// System.Drawing.Color.Green.ToArgb();
             //#CAFFCE
         }
 
@@ -274,7 +273,7 @@ namespace MonthlyReportTool.API.Office.Excel
             }
             else
             {
-                ExcelInterop.Range tableRange = sheet.Range[sheet.Cells[row, startCol], sheet.Cells[row+rowCount, endCol]];
+                ExcelInterop.Range tableRange = sheet.Range[sheet.Cells[row, startCol], sheet.Cells[row + rowCount, endCol]];
                 Utility.AddNativieResource(tableRange);
                 tableRange.Merge();
                 tableRange.HorizontalAlignment = ExcelInterop.XlHAlign.xlHAlignLeft;
@@ -329,8 +328,5 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.AddNativieResource(colA);
             colA.ColumnWidth = 2;
         }
-
-        
-
     }
 }

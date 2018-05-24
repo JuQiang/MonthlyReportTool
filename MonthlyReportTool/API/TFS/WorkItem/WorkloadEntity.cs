@@ -19,6 +19,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
         public string WorkDate;
         public string InPlaned;
         public string TeamProject;
+        public string ParentId;
 
     }
 }

@@ -7,6 +7,7 @@ using ExcelInterop = Microsoft.Office.Interop.Excel;
 using Microsoft.Office.Core;
 using MonthlyReportTool.API.TFS.WorkItem;
 using MonthlyReportTool.API.TFS.TeamProject;
+using System.Collections;
 
 namespace MonthlyReportTool.API.Office.Excel
 {
@@ -47,7 +48,7 @@ namespace MonthlyReportTool.API.Office.Excel
         }
         private void BuildSubTitle()
         {
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[4, "B"], sheet.Cells[4, "K"]];
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[4, "B"], sheet.Cells[4, "H"]];
             Utility.AddNativieResource(range);
             range.Merge();
             sheet.Cells[4, "B"] = "本迭代系统需求完成情况统计";
@@ -59,7 +60,7 @@ namespace MonthlyReportTool.API.Office.Excel
         }
         private void BuildDescription()
         {
-            ExcelInterop.Range titleRange = sheet.Range[sheet.Cells[5, "B"], sheet.Cells[5, "K"]];
+            ExcelInterop.Range titleRange = sheet.Range[sheet.Cells[5, "B"], sheet.Cells[5, "H"]];
             Utility.AddNativieResource(titleRange);
             titleRange.Merge();
             sheet.Cells[5, "B"] = "说明：统计范围：目标日期在本迭代期间内的所有系统需求；";
@@ -78,13 +79,13 @@ namespace MonthlyReportTool.API.Office.Excel
         }
         private void BuildSummaryTable(int startRow)
         {
-            int nextRow = Utility.BuildFormalTable(sheet, startRow, "本迭代系统需求完成情况统计", "说明：统计范围：目标日期在本迭代期间内的所有系统需求；", "B", "K",
+            int nextRow = Utility.BuildFormalTable(sheet, startRow, "本迭代系统需求完成情况统计", "说明：统计范围：目标日期在本迭代期间内的所有系统需求；", "B", "H",
                 new List<string>() { "分类", "个数", "占比", "说明" },
-                new List<string>() { "B,D", "E,E", "F,F", "G,K" },
+                new List<string>() { "B,B", "C,C", "D,D", "E,H" },
                 5);
 
             string[] cols1 = new string[] { "已完成数", "未完成数", "中止/移除数", "按计划完成数", "应完成总数" };
-            string[] cols2 = new string[] { "=IF(E11<>0,E7/E11,\"\")", "=IF(E11<>0,E8/E11,\"\")", "'--", "=IF(E11<>0,E10/E11,\"\")", "'--" };
+            string[] cols2 = new string[] { "=IF(C11<>0,C7/C11,\"\")", "=IF(C11<>0,C8/C11,\"\")", "'--", "=IF(C11<>0,C10/C11,\"\")", "'--" };
             string[] cols3 = new string[] { "已完成数：目标日期内已发布的需求总数\r\n占比：已完成数/目标日期内应完成总数",
                 "未完成数：目标日期内未完成的需求总数\r\n占比：未完成数/目标日期内应完成总数",
                 "中止/移除数：目标日期内中止或移除的需求总数\r\n占比：中止/移除数/目标日期内应完成总数",
@@ -94,26 +95,26 @@ namespace MonthlyReportTool.API.Office.Excel
             for (int row = 7; row <= 11; row++)
             {
                 sheet.Cells[row, "B"] = cols1[row - 7];
-                sheet.Cells[row, "F"] = cols2[row - 7];
-                sheet.Cells[row, "G"] = cols3[row - 7];
+                sheet.Cells[row, "D"] = cols2[row - 7];
+                sheet.Cells[row, "E"] = cols3[row - 7];
             }
 
-            sheet.Cells[7, "E"] = this.featureList[1].Count;
-            sheet.Cells[8, "E"] = this.featureList[3].Count;
-            sheet.Cells[9, "E"] = this.featureList[2].Count;
-            sheet.Cells[10, "E"] = this.featureList[4].Count;
-            sheet.Cells[11, "E"] = this.featureList[0].Count;
+            sheet.Cells[7, "C"] = this.featureList[1].Count;
+            sheet.Cells[8, "C"] = this.featureList[3].Count;
+            sheet.Cells[9, "C"] = this.featureList[2].Count;
+            sheet.Cells[10, "C"] = this.featureList[4].Count;
+            sheet.Cells[11, "C"] = this.featureList[0].Count;
             //sheet.Cells[12, "E"] = "=SUM(E7: E11)";
 
-            Utility.SetCellPercentFormat(sheet.get_Range("F7:F11"));
-            Utility.SetCellGreenColor(sheet.get_Range("F7:F11"));
+            Utility.SetCellPercentFormat(sheet.get_Range("D7:D11"));
+            Utility.SetCellGreenColor(sheet.get_Range("D7:D11"));
 
             ExcelInterop.Range range = sheet.Range[sheet.Cells[7, "B"], sheet.Cells[12, "B"]];
             Utility.AddNativieResource(range);
             range.RowHeight = 40;
 
-            Utility.SetFormatBigger(sheet.Cells[8, "E"], 0.0001d);
-            Utility.SetFormatBigger(sheet.Cells[9, "E"], 0.0001d);
+            Utility.SetFormatBigger(sheet.Cells[8, "C"], 0.0001d);
+            Utility.SetFormatBigger(sheet.Cells[9, "C"], 0.0001d);
         }
         private int BuildTable(int startRow, List<FeatureEntity> features)
         {
@@ -124,42 +125,51 @@ namespace MonthlyReportTool.API.Office.Excel
 
             Utility.SetCellColor(sheet.Cells[14, "B"], System.Drawing.Color.Red, "按关键应用、模块、功能排序");
 
-            var orderedFeatures = features.OrderBy(feature => feature.KeyApplicationName).ThenBy(feature => feature.ModulesName).ThenBy(feature => feature.FuncName).ToList();
+            //var orderedFeatures = features.OrderBy(feature => feature.KeyApplicationName).ThenBy(feature => feature.ModulesName).ThenBy(feature => feature.FuncName).ToList();
+            var orderedFeatures = features.FindAll(featrue => featrue.ParentId == "").OrderBy(feature => feature.KeyApplicationName).ThenBy(feature => feature.ModulesName).ThenBy(feature => feature.FuncName).ToList();
+
             startRow += 3;
+            int writeRow = startRow;
+
             object[,] arr = new object[orderedFeatures.Count, 15];
             for (int i = 0; i < orderedFeatures.Count; i++)
             {
-                sheet.Cells[startRow + i, "B"] = orderedFeatures[i].Id;
-                sheet.Cells[startRow + i, "C"] = orderedFeatures[i].KeyApplicationName;
-                sheet.Cells[startRow + i, "E"] = orderedFeatures[i].ModulesName;
-                sheet.Cells[startRow + i, "G"] = orderedFeatures[i].ModulesName;
-                sheet.Cells[startRow + i, "I"] = orderedFeatures[i].Title;
-                sheet.Cells[startRow + i, "M"] = orderedFeatures[i].NeedRequireDevelop;
-                sheet.Cells[startRow + i, "N"] = orderedFeatures[i].State;
-                sheet.Cells[startRow + i, "O"] = DateTime.Parse(orderedFeatures[i].TargetDate).AddHours(8).ToString("yyyy-MM-dd");
-                if (String.IsNullOrEmpty(orderedFeatures[i].ReleaseFinishedDate))
+                var feature = orderedFeatures[i];
+                //已经写入，则继续
+                UpdateOneRowForAllFeatures(writeRow, feature, false);
+                writeRow++;
+                //处理下级
+                var childFeatrues = features.FindAll(featrue1 => featrue1.ParentId == Convert.ToString(feature.Id)).OrderBy(feature1 => feature.ParentId).ThenBy(feature1 => feature1.KeyApplicationName).ThenBy(feature1 => feature1.ModulesName).ThenBy(feature1 => feature1.FuncName).ToList();
+                foreach (var feature1 in childFeatrues)
                 {
-                    sheet.Cells[startRow + i, "P"] = "";
+                    UpdateOneRowForAllFeatures(writeRow, feature1, true);
+                    writeRow++;
                 }
-                else
-                {
-                    sheet.Cells[startRow + i, "P"] = DateTime.Parse(orderedFeatures[i].ReleaseFinishedDate).AddHours(8).ToString("yyyy-MM-dd");
-                }                
-
-                sheet.Cells[startRow + i, "Q"] = Utility.GetPersonName(orderedFeatures[i].AssignedTo);
+            }
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + features.Count - 1, "B"]]);
+            return nextRow - 1;
+        }
+        //更新所有系统需求列表写入
+        private void UpdateOneRowForAllFeatures(int currentRow, FeatureEntity feature, bool child)
+        {
+            sheet.Cells[currentRow, "B"] = (child == true) ? "'  " + feature.Id : "" + feature.Id;
+            sheet.Cells[currentRow, "C"] = feature.KeyApplicationName;
+            sheet.Cells[currentRow, "E"] = feature.ModulesName;
+            sheet.Cells[currentRow, "G"] = feature.ModulesName;
+            sheet.Cells[currentRow, "I"] = (child==true)?"  "+feature.Title:feature.Title;
+            sheet.Cells[currentRow, "M"] = feature.NeedRequireDevelop;
+            sheet.Cells[currentRow, "N"] = feature.State;
+            sheet.Cells[currentRow, "O"] = DateTime.Parse(feature.TargetDate).AddHours(8).ToString("yyyy-MM-dd");
+            if (String.IsNullOrEmpty(feature.ReleaseFinishedDate))
+            {
+                sheet.Cells[currentRow, "P"] = "";
+            }
+            else
+            {
+                sheet.Cells[currentRow, "P"] = DateTime.Parse(feature.ReleaseFinishedDate).AddHours(8).ToString("yyyy-MM-dd");
             }
 
-            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedFeatures.Count - 1, "B"]]);
-            return nextRow - 1;
-
-            //ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedFeatures.Count - 1, "O"]];
-            //Utility.AddNativieResource(range);
-            //range.Value2 = arr;
-
-            //Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedFeatures.Count - 1, "B"]]);
-
-            //return nextRow - 1;
-
+            sheet.Cells[currentRow, "Q"] = Utility.GetPersonName(feature.AssignedTo);
         }
 
         private int BuildDelayTable(int startRow, List<FeatureEntity> features)
@@ -171,35 +181,47 @@ namespace MonthlyReportTool.API.Office.Excel
 
             Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "按关键应用、模块、功能排序");
             Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "这个表格很长，请右拉把后面列都填写上。");
-            var orderedFeatures = features.OrderBy(feature => feature.KeyApplicationName).ThenBy(feature => feature.ModulesName).ThenBy(feature => feature.FuncName).ToList();
+
+            //var orderedFeatures = features.OrderBy(feature => feature.KeyApplicationName).ThenBy(feature => feature.ModulesName).ThenBy(feature => feature.FuncName).ToList();
+            var orderedFeatures = features.FindAll(featrue => featrue.ParentId == "").OrderBy(feature => feature.KeyApplicationName).ThenBy(feature => feature.ModulesName).ThenBy(feature => feature.FuncName).ToList();
+
             startRow += 3;
+
+            int writeRow = startRow;
             for (int i = 0; i < orderedFeatures.Count; i++)
             {
-                sheet.Cells[startRow + i, "B"] = orderedFeatures[i].Id;
-                sheet.Cells[startRow + i, "C"] = orderedFeatures[i].KeyApplicationName;
-                sheet.Cells[startRow + i, "E"] = orderedFeatures[i].ModulesName;
-                sheet.Cells[startRow + i, "G"] = orderedFeatures[i].ModulesName;
-                sheet.Cells[startRow + i, "I"] = orderedFeatures[i].Title;
-                sheet.Cells[startRow + i, "M"] = orderedFeatures[i].NeedRequireDevelop;
-                sheet.Cells[startRow + i, "N"] = orderedFeatures[i].State;
-                sheet.Cells[startRow + i, "O"] = DateTime.Parse(orderedFeatures[i].TargetDate).AddHours(8).ToString("yyyy-MM-dd");
-                //if (String.IsNullOrEmpty(orderedFeatures[i].ReleaseFinishedDate))
-                //{
-                //    sheet.Cells[startRow + i, "O"] = "";
-                //}
-                //else
-                //{
-                //    sheet.Cells[startRow + i, "O"] = DateTime.Parse(orderedFeatures[i].ReleaseFinishedDate).AddHours(8).ToString("yyyy-MM-dd");
-                //}
-                
-                sheet.Cells[startRow + i, "P"] = Utility.GetPersonName(orderedFeatures[i].AssignedTo);
-                sheet.Cells[startRow + i, "Q"] = "";
+                var feature = orderedFeatures[i];
+                //已经写入，则继续
+                UpdateOneRowForDelayFeatures(writeRow, feature, false);
+                writeRow++;
+                //处理下级
+                var childFeatrues = features.FindAll(featrue1 => featrue1.ParentId == Convert.ToString(feature.Id)).OrderBy(feature1 => feature.ParentId).ThenBy(feature1 => feature1.KeyApplicationName).ThenBy(feature1 => feature1.ModulesName).ThenBy(feature1 => feature1.FuncName).ToList();
+                foreach (var feature1 in childFeatrues)
+                {
+                    UpdateOneRowForDelayFeatures(writeRow, feature1, true);
+                    writeRow++;
+                }
             }
 
             Utility.SetCellFontRedColor(sheet.Cells[startRow - 1, "Q"]);
-            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedFeatures.Count - 1, "B"]]);
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + features.Count - 1, "B"]]);
 
             return nextRow - 1;
+        }
+
+        //更新所有拖期系统需求列表写入
+        private void UpdateOneRowForDelayFeatures(int currentRow, FeatureEntity feature, bool child)
+        {
+            sheet.Cells[currentRow, "B"] = (child == true) ? "'  " + feature.Id : "" + feature.Id;
+            sheet.Cells[currentRow, "C"] = feature.KeyApplicationName;
+            sheet.Cells[currentRow, "E"] = feature.ModulesName;
+            sheet.Cells[currentRow, "G"] = feature.ModulesName;
+            sheet.Cells[currentRow, "I"] = (child == true) ? "  " + feature.Title : feature.Title;
+            sheet.Cells[currentRow, "M"] = feature.NeedRequireDevelop;
+            sheet.Cells[currentRow, "N"] = feature.State;
+            sheet.Cells[currentRow, "O"] = DateTime.Parse(feature.TargetDate).AddHours(8).ToString("yyyy-MM-dd");
+            sheet.Cells[currentRow, "P"] = Utility.GetPersonName(feature.AssignedTo);
+            sheet.Cells[currentRow, "Q"] = "";
         }
         private int BuildAnadonTable(int startRow, List<FeatureEntity> features)
         {
@@ -211,26 +233,44 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "按关键应用、模块、功能排序");
             Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "这个表格很长，请右拉把后面列都填写上。");
 
-            var orderedFeatures = features.OrderBy(feature => feature.KeyApplicationName).ThenBy(feature => feature.ModulesName).ThenBy(feature => feature.FuncName).ToList();
+           // var orderedFeatures = features.OrderBy(feature => feature.KeyApplicationName).ThenBy(feature => feature.ModulesName).ThenBy(feature => feature.FuncName).ToList();
+            var orderedFeatures = features.FindAll(featrue => featrue.ParentId == "").OrderBy(feature => feature.KeyApplicationName).ThenBy(feature => feature.ModulesName).ThenBy(feature => feature.FuncName).ToList();
+
             startRow += 3;
+            int writeRow = startRow;
             for (int i = 0; i < orderedFeatures.Count; i++)
             {
-                sheet.Cells[startRow + i, "B"] = orderedFeatures[i].Id;
-                sheet.Cells[startRow + i, "C"] = orderedFeatures[i].KeyApplicationName;
-                sheet.Cells[startRow + i, "E"] = orderedFeatures[i].ModulesName;
-                sheet.Cells[startRow + i, "G"] = orderedFeatures[i].ModulesName;
-                sheet.Cells[startRow + i, "I"] = orderedFeatures[i].Title;
-                sheet.Cells[startRow + i, "M"] = orderedFeatures[i].NeedRequireDevelop;
-                sheet.Cells[startRow + i, "N"] = orderedFeatures[i].State;
-                sheet.Cells[startRow + i, "O"] = DateTime.Parse(orderedFeatures[i].TargetDate).AddHours(8).ToString("yyyy-MM-dd");
-                                
-                sheet.Cells[startRow + i, "P"] = Utility.GetPersonName(orderedFeatures[i].AssignedTo);
-                sheet.Cells[startRow + i, "Q"] = "";
+                var feature = orderedFeatures[i];
+                //已经写入，则继续
+                UpdateOneRowForAnadonFeatures(writeRow, feature, false);
+                writeRow++;
+                //处理下级
+                var childFeatrues = features.FindAll(featrue1 => featrue1.ParentId == Convert.ToString(feature.Id)).OrderBy(feature1 => feature.ParentId).ThenBy(feature1 => feature1.KeyApplicationName).ThenBy(feature1 => feature1.ModulesName).ThenBy(feature1 => feature1.FuncName).ToList();
+                foreach (var feature1 in childFeatrues)
+                {
+                    UpdateOneRowForAnadonFeatures(writeRow, feature1, true);
+                    writeRow++;
+                }
             }
 
             Utility.SetCellFontRedColor(sheet.Cells[startRow - 1, "Q"]);
-            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedFeatures.Count - 1, "B"]]);
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + features.Count - 1, "B"]]);
             return nextRow - 1;
+        }
+
+        //更新所有拖期系统需求列表写入
+        private void UpdateOneRowForAnadonFeatures(int currentRow, FeatureEntity feature, bool child)
+        {
+            sheet.Cells[currentRow, "B"] = (child == true) ? "'  " + feature.Id : "" + feature.Id;
+            sheet.Cells[currentRow, "C"] = feature.KeyApplicationName;
+            sheet.Cells[currentRow, "E"] = feature.ModulesName;
+            sheet.Cells[currentRow, "G"] = feature.ModulesName;
+            sheet.Cells[currentRow, "I"] = (child == true) ? "  " + feature.Title : feature.Title;
+            sheet.Cells[currentRow, "M"] = feature.NeedRequireDevelop;
+            sheet.Cells[currentRow, "N"] = feature.State;
+            sheet.Cells[currentRow, "O"] = DateTime.Parse(feature.TargetDate).AddHours(8).ToString("yyyy-MM-dd");
+            sheet.Cells[currentRow, "P"] = Utility.GetPersonName(feature.AssignedTo);
+            sheet.Cells[currentRow, "Q"] = "";
         }
     }
 }

@@ -35,6 +35,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
         public string BelongTeamProject;
         public string Principal;
         public string WarningGrade;
+        public string ParentId;
 
     }
 //    select[System.Id], [Teld.Scrum.KeyApplication], [Teld.Scrum.ModulesName], [System.Title], 

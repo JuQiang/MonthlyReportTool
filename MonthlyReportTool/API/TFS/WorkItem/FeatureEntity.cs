@@ -13,22 +13,16 @@ namespace MonthlyReportTool.API.TFS.WorkItem
         public string ModulesName;
         public string FuncName;
         public string Title;
-        public string AssignedTo;
-        public string MonthState;        
+        public string AssignedTo;        
         public string State;
+        public string NeedRequireDevelop;
+        public string PlanRequireFinishDate;
         public string RequireFinishedDate;
-        public string DesignFinishedDate;
-        public string DevelopmentFinishedDate;
-        public string TestFinishedDate;
-        public string AcceptFinishedDate;
         public string ReleaseFinishedDate;
         public string TeamProject;
         public string InitTargetDate;
         public string TargetDate;
-        public string IterationTargetDate;
-        public string NeedRequireDevelop;
         public string ParentId;
-        //public string IsDevelopment;
     }
 
     //select [System.Id], [System.Title], [System.AssignedTo], [Teld.Scrum.MonthState], [System.State],

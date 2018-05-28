@@ -166,13 +166,14 @@ namespace MonthlyReportTool.API.TFS
             wiql = wiql.Substring(0, pos) + "'{1}'" + wiql.Substring(pos2 + 1);
 
             //第二次date1替换
-            pos = wiql.IndexOf(date1, pos2);
-            if(pos > 0) { 
-                pos = wiql.IndexOf("'", pos + date1.Length);
-                pos2 = wiql.IndexOf("'", pos + 1);
-                wiql = wiql.Substring(0, pos) + "'{1}'" + wiql.Substring(pos2 + 1);
+            if(pos2<= wiql.Length) { 
+                pos = wiql.IndexOf(date1, pos2);
+                if(pos > 0) { 
+                    pos = wiql.IndexOf("'", pos + date1.Length);
+                    pos2 = wiql.IndexOf("'", pos + 1);
+                    wiql = wiql.Substring(0, pos) + "'{1}'" + wiql.Substring(pos2 + 1);
+                }
             }
-
             //第一次date2替换
             pos = wiql.IndexOf(date2);
             pos = wiql.IndexOf("'", pos + date2.Length);
@@ -180,11 +181,15 @@ namespace MonthlyReportTool.API.TFS
             wiql = wiql.Substring(0, pos) + "'{2}'" + wiql.Substring(pos2 + 1);
 
             //第二次date2替换
-            pos = wiql.IndexOf(date2, pos2);
-            if(pos > 0) { 
-                pos = wiql.IndexOf("'", pos + date2.Length);
-                pos2 = wiql.IndexOf("'", pos + 1);
-                wiql = wiql.Substring(0, pos) + "'{2}'" + wiql.Substring(pos2 + 1);
+            if (pos2 <= wiql.Length)
+            {
+                pos = wiql.IndexOf(date2, pos2);
+                if (pos > 0)
+                {
+                    pos = wiql.IndexOf("'", pos + date2.Length);
+                    pos2 = wiql.IndexOf("'", pos + 1);
+                    wiql = wiql.Substring(0, pos) + "'{2}'" + wiql.Substring(pos2 + 1);
+                }
             }
             return wiql;
         }

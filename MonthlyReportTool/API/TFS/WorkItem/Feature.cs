@@ -78,20 +78,14 @@ namespace MonthlyReportTool.API.TFS.WorkItem
                         FuncName = Convert.ToString(feature["fields"]["Teld.Scrum.FuncName"]),
                         Title = Convert.ToString(feature["fields"]["System.Title"]),
                         AssignedTo = Convert.ToString(feature["fields"]["System.AssignedTo"]),
-                        MonthState = Convert.ToString(feature["fields"]["Teld.Scrum.MonthState"]),
+                        NeedRequireDevelop = Convert.ToString(feature["fields"]["Teld.Scrum.NeedRequireDevelop"]),
                         State = Convert.ToString(feature["fields"]["System.State"]),
+                        PlanRequireFinishDate = Convert.ToString(feature["fields"]["Teld.Scrum.PlanRequireFinishedDate"]),
                         RequireFinishedDate = Convert.ToString(feature["fields"]["Teld.Scrum.RequireFinishedDate"]),
-                        DesignFinishedDate = Convert.ToString(feature["fields"]["Teld.Scrum.DesignFinishedDate"]),
-                        TestFinishedDate = Convert.ToString(feature["fields"]["Teld.Scrum.TestFinishedDate"]),
-                        AcceptFinishedDate = Convert.ToString(feature["fields"]["Teld.Scrum.AcceptFinishedDate"]),
-                        DevelopmentFinishedDate = Convert.ToString(feature["fields"]["Teld.Scrum.DevelopmentFinishedDate"]),
                         ReleaseFinishedDate = Convert.ToString(feature["fields"]["Teld.Scrum.ReleaseFinishedDate"]),
                         TeamProject = Convert.ToString(feature["fields"]["System.TeamProject"]),
                         InitTargetDate = Convert.ToString(feature["fields"]["Teld.Scrum.Scheduling.InitTargetDate"]),
-                        IterationTargetDate = Convert.ToString(feature["fields"]["Teld.Scrum.IterationTargetDate"]),
                         TargetDate = Convert.ToString(feature["fields"]["Microsoft.VSTS.Scheduling.TargetDate"]),
-                        NeedRequireDevelop = Convert.ToString(feature["fields"]["Teld.Scrum.NeedRequireDevelop"])
-                        //IsDevelopment = Convert.ToString(feature["fields"]["Teld.Scrum.IsDevelopment"]),
                     };
                 featureEntity.ParentId = (hs.ContainsKey(Convert.ToString(featureEntity.Id)) ? Convert.ToString(hs[Convert.ToString(featureEntity.Id)]) : "");
                 list.Add(featureEntity);

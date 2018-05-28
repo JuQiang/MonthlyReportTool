@@ -126,23 +126,23 @@ namespace MonthlyReportTool.API.Office.Excel
             BuildSummaryTableTitle();
 
             sheet.Cells[7, "D"] = this.backlogList[0].Count;
-            sheet.Cells[7, "E"] = "=IF(D7<>0,D7/D12,\"\")";
+            sheet.Cells[7, "E"] = "=IF(D7<>0,D7/$D$12,\"\")";
             sheet.Cells[8, "D"] = "=D12-D7-D9-D11";
-            sheet.Cells[8, "E"] = "=IF(D8<>0,D8/D12,\"\")";
+            sheet.Cells[8, "E"] = "=IF(D8<>0,D8/$D$12,\"\")";
             sheet.Cells[9, "D"] = this.backlogList[1].Count;
-            sheet.Cells[9, "E"] = "=IF(D9<>0,D9/D12,\"\")";
+            sheet.Cells[9, "E"] = "=IF(D9<>0,D9/$D$12,\"\")";
             sheet.Cells[10, "D"] = "=D12-D7-D11";
-            sheet.Cells[10, "E"] = "=IF(D10<>0,D10/D12,\"\")";
+            sheet.Cells[10, "E"] = "=IF(D10<>0,D10/$D$12,\"\")";
             sheet.Cells[11, "D"] = this.backlogList[2].Count;
-            sheet.Cells[11, "E"] = "=IF(D11<>0,D11/D12,\"\")";
+            sheet.Cells[11, "E"] = "=IF(D11<>0,D11/$D$12,\"\")";
             sheet.Cells[12, "D"] = this.backlogList[3].Count;
             sheet.Cells[12, "E"] = "'--";
             sheet.Cells[13, "D"] = this.backlogList[4].Count;
-            sheet.Cells[13, "E"] = "=IF(D13<>0,D13/D16,\"\")";
+            sheet.Cells[13, "E"] = "=IF(D13<>0,D13/$D$16,\"\")";
             sheet.Cells[14, "D"] = this.backlogList[5].Count;
-            sheet.Cells[14, "E"] = "=IF(D14<>0,D14/D16,\"\")";
+            sheet.Cells[14, "E"] = "=IF(D14<>0,D14/$D$16,\"\")";
             sheet.Cells[15, "D"] = "=D16-D14";
-            sheet.Cells[15, "E"] = "=IF(D15<>0,D15/D16,\"\")";
+            sheet.Cells[15, "E"] = "=IF(D15<>0,D15/$D$16,\"\")";
             sheet.Cells[16, "D"] = this.backlogList[6].Count;
             sheet.Cells[16, "E"] = "'--";
 
@@ -182,7 +182,26 @@ namespace MonthlyReportTool.API.Office.Excel
             colFont.Bold = true;
         }
 
+        private void BuildTestCase(int startRow)
+        {
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "", "测试用例设计及执行统计", "O", "S",
+                new List<string>() { "分类", "个数" },
+                new List<string>() { "O,Q", "R,S" },
+                6);
 
+            startRow += 3;
+            sheet.Cells[startRow, "O"] = "迭代Backlog总数"; sheet.Cells[startRow++, "R"] = "=D12";
+            sheet.Cells[startRow, "O"] = "需编写用例Backlog总数"; sheet.Cells[startRow++, "R"] = this.backlogList[8].Count;
+            sheet.Cells[startRow, "O"] = "实际编写用例Backlog总数"; sheet.Cells[startRow++, "R"] = this.backlogList[9].Count;
+            sheet.Cells[startRow, "O"] = "编写用例总条数"; sheet.Cells[startRow++, "R"] = this.backlogList[10].Count;
+            sheet.Cells[startRow, "O"] = "用例未执行数目"; sheet.Cells[startRow++, "R"] = "不知道哪里找";
+            sheet.Cells[startRow, "O"] = "测试用例覆盖率"; sheet.Cells[startRow++, "R"] = "=IF(R8<>0,R9/R8,\"\")";
+            Utility.SetCellPercentFormat(sheet.Cells[startRow - 1, "R"]);
+
+            Utility.SetCellColor(sheet.Cells[startRow, "O"], System.Drawing.Color.Black, "测试用例设计及执行统计", true);
+            Utility.SetCellGreenColor(sheet.Cells[7, "R"]);
+            Utility.SetCellGreenColor(sheet.Cells[12, "R"]);
+        }
 
         private int BuildDelayedTable(int startRow)
         {
@@ -318,28 +337,6 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedBacklogs.Count - 1, "B"]]);
 
             return nextRow-1;
-        }
-
-        private void BuildTestCase(int startRow)
-        {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "", "测试用例设计及执行统计", "O", "S",
-                new List<string>() { "分类", "个数" },
-                new List<string>() { "O,Q", "R,S" },
-                6);
-
-            startRow += 3;
-            sheet.Cells[startRow, "O"] = "迭代Backlog总数"; sheet.Cells[startRow++, "R"] = "=D12";
-            sheet.Cells[startRow, "O"] = "需编写用例Backlog总数"; sheet.Cells[startRow++, "R"] = this.backlogList[8].Count;
-            sheet.Cells[startRow, "O"] = "实际编写用例Backlog总数"; sheet.Cells[startRow++, "R"] = this.backlogList[9].Count;
-            sheet.Cells[startRow, "O"] = "编写用例总条数"; sheet.Cells[startRow++, "R"] = this.backlogList[10].Count;
-            sheet.Cells[startRow, "O"] = "用例未执行数目"; sheet.Cells[startRow++, "R"] = "不知道哪里找";
-            sheet.Cells[startRow, "O"] = "测试用例覆盖率"; sheet.Cells[startRow++, "R"] = "=IF(R8<>0,R9/R8,\"\")";
-            Utility.SetCellPercentFormat(sheet.Cells[startRow-1, "R"]);
-
-            Utility.SetCellColor(sheet.Cells[startRow, "O"], System.Drawing.Color.Black, "测试用例设计及执行统计", true);
-            Utility.SetCellGreenColor(sheet.Cells[7, "R"]);
-            Utility.SetCellGreenColor(sheet.Cells[12, "R"]);
-
         }
     }
 }

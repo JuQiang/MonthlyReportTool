@@ -12,8 +12,8 @@ namespace MonthlyReportTool
     {
         static void Main(string[] args)
         {
-            //API.TFS.Utility.User = "renlx";
-            //API.TFS.Utility.Pass = "xinxiabinbinr_01";
+            //API.TFS.Utility.User = "juqiang";
+            //API.TFS.Utility.Pass = "Password02!";
             //string wiql = API.TFS.Utility.GetQueryClause("共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F00本迭代_产品特性总数（New）");
             //var ie = API.TFS.Utility.GetBestIteration("PPQA");
             //var list = API.TFS.WorkItem.Feature.GetAll("PPQA", ie);

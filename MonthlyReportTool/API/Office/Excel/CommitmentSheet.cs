@@ -254,16 +254,17 @@ namespace MonthlyReportTool.API.Office.Excel
                 sheet.Cells[i, "F"] = orderedCells[i - startRow].Item5;
                 sheet.Cells[i, "G"] = orderedCells[i - startRow].Item6;
             }
-
+            if(cells.Count > 0) { 
             Utility.SetCellPercentFormat(sheet.Range[sheet.Cells[startRow, "G"], sheet.Cells[startRow + cells.Count - 1, "G"]]);
             Utility.SetFormatSmaller(sheet.Range[sheet.Cells[startRow, "G"], sheet.Cells[startRow + cells.Count - 1, "G"]], 1.00d);
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + cells.Count - 1, "B"]]);
             Utility.SetCellGreenColor(sheet.Range[sheet.Cells[startRow, "G"], sheet.Cells[startRow + cells.Count - 1, "G"]]);
             Utility.SetCellFontRedColor(sheet.Range[sheet.Cells[startRow, "G"], sheet.Cells[startRow + cells.Count - 1, "G"]]);
             Utility.SetCellDarkGrayColor(sheet.Range[sheet.Cells[startRow + cells.Count, "B"], sheet.Cells[startRow + cells.Count, "B"]]);
-
+            
             FillSummaryData(startRow, cells.Count);
-             return nextRow;
+            }
+            return nextRow;
         }
 
         private void FillSummaryData(int startRow, int rowCount)

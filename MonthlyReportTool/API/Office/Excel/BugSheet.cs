@@ -39,7 +39,7 @@ namespace MonthlyReportTool.API.Office.Excel
             startRow = BuildAddedTable(startRow, this.bugList[0]);
             startRow = BuildNotResolvedTable(startRow, this.bugList[2]);
 
-            var range = sheet.get_Range("K1:P1");
+            var range = sheet.get_Range("K1:Q1");
             Utility.AddNativieResource(range);
             range.ColumnWidth = 16;
 
@@ -248,7 +248,7 @@ namespace MonthlyReportTool.API.Office.Excel
            
             return nextRow + 1;
         }
-
+        //1、2级Bug产生原因分析
         private int BuildReasonTable(int startRow, List<BugEntity> list)
         {
             int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "Bug产生原因分析", "说明：主要针对严重级别为1、2级的Bug进行原因分析（不包括关闭原因为不是错误，重复问题的）。这个表格很长，请右拉把后面列都填写上。", "B", "P",
@@ -270,7 +270,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 arr[i, 4] = orderedBugs[i].Type;
                 arr[i, 5] = orderedBugs[i].Severity;
                 arr[i, 6] = orderedBugs[i].Title;
-                arr[i, 7] = Utility.GetPersonName(orderedBugs[i].AssignedTo);
+                arr[i, 9] = Utility.GetPersonName(orderedBugs[i].AssignedTo);
                 arr[i, 10] = Utility.GetPersonName(orderedBugs[i].DiscoveryUser);
                 arr[i, 11] = orderedBugs[i].State;
             }
@@ -284,11 +284,12 @@ namespace MonthlyReportTool.API.Office.Excel
 
             return nextRow-1;
         }
+        //不是错误/不予处理Bug分析
         private int BuildNoneTable(int startRow, List<BugEntity> list)
         {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代处理的不是错误/不予处理Bug分析", "说明：这个表格很长，请右拉把后面列都填写上。", "B", "P",
-                new List<string>() { "BugID", "关键应用", "模块", "功能","关闭原因", "问题类别", "严重级别", "Bug标题", "指派给", "状态", "不是错误/不予处理分析" },
-                new List<string>() { "B,B", "C,C", "D,D", "E,E", "F,F", "G,G", "H,H","I,K", "L,L", "M,M","N,P" },
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代处理的不是错误/不予处理Bug分析", "说明：这个表格很长，请右拉把后面列都填写上。", "B", "Q",
+                new List<string>() { "BugID", "关键应用", "模块", "功能","关闭原因", "问题类别", "严重级别", "Bug标题", "指派给", "发现人","状态", "不是错误/不予处理分析" },
+                new List<string>() { "B,B", "C,C", "D,D", "E,E", "F,F", "G,G", "H,H","I,K", "L,L", "M,M","N,N","O,Q" },
                 list.Count);
 
             Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "这个表格很长，请右拉把后面列都填写上。");
@@ -307,24 +308,25 @@ namespace MonthlyReportTool.API.Office.Excel
                 arr[i, 6] = orderedBugs[i].Severity;
                 arr[i, 7] = orderedBugs[i].Title;
                 arr[i, 10] = Utility.GetPersonName(orderedBugs[i].AssignedTo);
-                arr[i, 11] = orderedBugs[i].State;
-                arr[i, 12] = "";
+                arr[i, 11] = Utility.GetPersonName(orderedBugs[i].DiscoveryUser);
+                arr[i, 12] = orderedBugs[i].State;
+                arr[i, 13] = "";
             }
 
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedBugs.Count - 1, "P"]];
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedBugs.Count - 1, "Q"]];
             Utility.AddNativieResource(range);
             range.Value2 = arr;
 
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedBugs.Count - 1, "B"]]);
-            Utility.SetCellFontRedColor(sheet.Cells[startRow - 1, "N"]);
+            Utility.SetCellFontRedColor(sheet.Cells[startRow - 1, "O"]);
 
             return nextRow - 1;
         }
-
+        //本迭代新增Bug
         private int BuildAddedTable(int startRow, List<BugEntity> list)
         {
             int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代新增Bug数", "说明：", "B", "N",
-                new List<string>() { "BugID", "关键应用", "模块", "问题类别", "严重级别", "Bug标题", "指派给","发现人", "状态" },
+                new List<string>() { "BugID", "关键应用", "模块","功能", "问题类别", "严重级别", "Bug标题", "指派给","发现人", "状态" },
                 new List<string>() { "B,B", "C,C", "D,D", "E,E","F,F","G,G", "H,K", "L,L","M,M","N,N" },
                 list.Count);
 
@@ -354,10 +356,11 @@ namespace MonthlyReportTool.API.Office.Excel
 
             return nextRow-1;
         }
+        //本迭代遗留Bug
         private int BuildNotResolvedTable(int startRow, List<BugEntity> list)
         {
             int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代遗留Bug数", "说明：", "B", "N",
-                new List<string>() { "BugID", "关键应用", "模块", "问题类别", "严重级别", "Bug标题", "指派给", "发现人", "状态" },
+                new List<string>() { "BugID", "关键应用", "模块", "功能","问题类别", "严重级别", "Bug标题", "指派给", "发现人", "状态" },
                 new List<string>() { "B,B", "C,C", "D,D", "E,E", "F,F", "G,G", "H,K", "L,L", "M,M", "N,N" },
                 list.Count);
 

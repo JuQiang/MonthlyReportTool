@@ -31,7 +31,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
             BuildAnalyzeTable(startRow);
 
-            var range = sheet.get_Range("G1:N1");
+            var range = sheet.get_Range("G1:P1");
             Utility.AddNativieResource(range);
             range.ColumnWidth = 16;
 
@@ -122,8 +122,8 @@ namespace MonthlyReportTool.API.Office.Excel
                 arr[i, 8] = orderedBugs[i].Type;
                 arr[i, 9] = orderedBugs[i].Severity;
                 arr[i, 10] = orderedBugs[i].Title;
-                arr[i, 12] = Utility.GetPersonName(orderedBugs[i].AssignedTo);
-                arr[i, 13] = Utility.GetPersonName(orderedBugs[i].DiscoveryUser);
+                arr[i, 13] = Utility.GetPersonName(orderedBugs[i].AssignedTo);
+                arr[i, 14] = Utility.GetPersonName(orderedBugs[i].DiscoveryUser);
             }
 
             ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedBugs.Count - 1, "P"]];

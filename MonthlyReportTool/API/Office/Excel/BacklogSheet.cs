@@ -327,7 +327,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 arr[i, 12] = orderedBacklogs[i].Category;
                 arr[i, 13] = Utility.GetPersonName(orderedBacklogs[i].AssignedTo);
                 arr[i, 14] = orderedBacklogs[i].AcceptanceMeasure;
-                arr[i, 15] = orderedBacklogs[i].State;
+                arr[i, 16] = orderedBacklogs[i].State;
             }
 
             ExcelInterop.Range range = sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + orderedBacklogs.Count - 1, "R"]];

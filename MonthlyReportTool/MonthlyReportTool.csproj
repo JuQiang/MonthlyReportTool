@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API\Office\Excel\WorkReviewSheet.cs" />
     <Compile Include="API\Office\Excel\PerformanceSheet.cs" />
     <Compile Include="API\Office\Excel\SuggestionSheet.cs" />
     <Compile Include="API\Office\Excel\BugSheet.cs" />
@@ -91,6 +92,8 @@
     <Compile Include="API\TFS\WorkItem\Bug.cs" />
     <Compile Include="API\TFS\WorkItem\CodeReview.cs" />
     <Compile Include="API\TFS\WorkItem\CodeReviewEntity.cs" />
+    <Compile Include="API\TFS\WorkItem\WorkReviewEntity.cs" />
+    <Compile Include="API\TFS\WorkItem\WorkReview.cs" />
     <Compile Include="API\TFS\WorkItem\Commitment.cs" />
     <Compile Include="API\TFS\WorkItem\CommitmentEntity.cs" />
     <Compile Include="API\TFS\WorkItem\BugEntity.cs" />

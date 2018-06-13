@@ -64,7 +64,7 @@ namespace MonthlyReportTool.API.Office.Excel
         }
         private void BuildTitle()
         {
-            Utility.BuildFormalSheetTitle(sheet, 2, "B", 2, "AG", "工作量统计分析");
+            Utility.BuildFormalSheetTitle(sheet, 2, "B", 2, "AC", "工作量统计分析");
         }
         private void BuildSubTitle()
         {
@@ -147,11 +147,11 @@ namespace MonthlyReportTool.API.Office.Excel
 
         private void BuildDevelopmentTitle()
         {
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[9, "B"], sheet.Cells[9, "AG"]];
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[9, "B"], sheet.Cells[9, "AI"]];
             Utility.AddNativieResource(range);
             range.RowHeight = 20;
             range.Merge();
-            sheet.Cells[9, "B"] = "开发工作量统计";
+            sheet.Cells[9, "B"] = "工作量统计";
             var titleFont = range.Font;
             Utility.AddNativieResource(titleFont);
             titleFont.Bold = true;

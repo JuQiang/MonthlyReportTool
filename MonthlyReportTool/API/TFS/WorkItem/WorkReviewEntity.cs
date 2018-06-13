@@ -9,6 +9,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
     public class WorkReviewEntity
     {
         public int Id;
+        public string workItemType;
         public string KeyApplicationName;
         public string ModulesName;
         public string FuncName;
@@ -18,28 +19,19 @@ namespace MonthlyReportTool.API.TFS.WorkItem
         public string ParentId;
         public string TeamProject;
 
-        public string SubmitType;
-        public string TestResponsibleMan;
-        public string SubmitUser;
-        public int BackNum;
-        public bool IsNeedPerformanceTest;
-        public string TestFinishedTime;
-        public string SubmitDate;
-        public string PlanTestFinishedTime;
-        public string AcceptTime;
+        public string ReviewBillType;
+        public string ReviewResponsibleMan;
+        public string PlanSubmitDate;
         public string CreatedDate;
-        public string BackType;
+        public string ClosedDate;
         public string IterationPath;
-        public int SubmitNumberOfTime;
         public int FindedBugCount;
+
+        //把Bug的一些信息也设置一下
+        public string Type;
+        public string Severity;
+        public string DetectionMode;
+        public string DiscoveryUser;
+
     }
-    //    select[System.Id], [Teld.Scrum.KeyApplication], [Teld.Scrum.ModulesName], [Teld.Scrum.Worklog.SubmitLog.SubmitType], 
-    //[System.Title], [System.State], [Teld.Scrum.Worklog.SubmitLog.SubmitUser], [System.AssignedTo], 
-    //[Teld.Scrum.Worklog.SubmitLog.BackNum], [Teld.Scrum.Backlog.IsNeedPerformanceTest], [Teld.Scrum.TestFinishedTime], 
-    //[Teld.Scrum.Worklog.SubmitLog.SubmitDate], [Teld.Scrum.Backlog.PlanTestFinishedTime], [Teld.Scrum.Backlog.AcceptTime], 
-    //[System.CreatedDate], [Teld.Scrum.Worklog.SubmitLog.BackType], [System.IterationPath], [Teld.Scrum.SubmitNumberOfTime], 
-    //[Teld.Bug.FunctionMenu], [System.TeamProject],[Teld.Scrum.FindedBugCount]
-    //    from WorkItems where[System.WorkItemType] = '提交单' 
-    //        and[System.TeamProject] = 'TTP' and[System.IterationPath] = 'TTP\FYQ4\Sprint35' 
-    //        and[Teld.Scrum.Worklog.SubmitLog.SubmitType] <> '运维SQL' order by[Teld.Scrum.TestFinishedTime]
 }

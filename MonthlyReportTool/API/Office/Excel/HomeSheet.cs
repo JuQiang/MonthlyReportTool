@@ -35,8 +35,10 @@ namespace MonthlyReportTool.API.Office.Excel
             }
             if (title.Length > 0) title = title.Substring(0, title.Length - 1);
             sheet.Cells[5, "D"] = String.Format("{0} {1} 迭代总结", project.Description, title);
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[5, "C"], sheet.Cells[6, "K"]];
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[5, "C"], sheet.Cells[6, "J"]];
             Utility.AddNativieResource(range);
+            Utility.SetCellAlignAndWrap(range, Microsoft.Office.Interop.Excel.XlHAlign.xlHAlignCenter);
+
             range.Merge();
             var font = range.Font;
             font.Size = 20;

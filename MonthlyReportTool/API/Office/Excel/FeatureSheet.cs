@@ -44,7 +44,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
         private void BuildTitle()
         {
-            Utility.BuildFormalSheetTitle(sheet, 2, "B", 2, "R", "系统需求统计分析");
+            Utility.BuildFormalSheetTitle(sheet, 2, "B", 2, "H", "系统需求统计分析");
         }
         private void BuildSubTitle()
         {
@@ -75,7 +75,7 @@ namespace MonthlyReportTool.API.Office.Excel
             var tmpfont = tmpchar.Font;
             Utility.AddNativieResource(tmpchar);
             Utility.AddNativieResource(tmpfont);
-            tmpfont.Bold = true;
+            //tmpfont.Bold = true;
         }
         private void BuildSummaryTable(int startRow)
         {

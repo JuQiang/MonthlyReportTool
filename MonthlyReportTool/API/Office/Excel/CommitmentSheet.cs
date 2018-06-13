@@ -43,7 +43,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
         private void BuildTitle()
         {
-            Utility.BuildFormalSheetTitle(sheet, 2, "B", 2, "O", "提交单统计分析");
+            Utility.BuildFormalSheetTitle(sheet, 2, "B", 2, "I", "提交单统计分析");
         }
         private void BuildSubTitle()
         {

@@ -34,7 +34,7 @@ namespace MonthlyReportTool.API.Office.Excel
             startRow = BuildRemovedReasonTable(startRow, this.commitmentList[2]);
             BuildExceptionTable(startRow, this.commitmentList[1]);
 
-            var range = sheet.get_Range("K1:M1");
+            var range = sheet.get_Range("J1:M1");
             Utility.AddNativieResource(range);
             range.ColumnWidth = 16;
 

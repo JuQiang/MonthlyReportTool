@@ -35,9 +35,9 @@ namespace MonthlyReportTool.API.Office.Excel
             startRow = BuildDelayTable(startRow, this.featureList[3]);
             startRow = BuildAnadonTable(startRow, this.featureList[2]);
 
-            var colKL = sheet.get_Range("K1:L1");
+            var colKL = sheet.get_Range("B1:W1");
             Utility.AddNativieResource(colKL);
-            colKL.ColumnWidth = 6.27d;
+            colKL.ColumnWidth = 12;//6.27d;
 
             sheet.Cells[1, "A"] = "";
         }

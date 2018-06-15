@@ -118,7 +118,7 @@ namespace MonthlyReportTool.API.Office.Excel
         }
         private int BuildTable(int startRow, List<FeatureEntity> features)
         {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代系统需求列表", "说明：如果一个单元格的内容太多，请考虑换行显示\r\n      按关键应用、模块、功能排序；", "B", "S",
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代所有系统需求列表", "说明：如果一个单元格的内容太多，请考虑换行显示\r\n      按关键应用、模块、功能排序；", "B", "S",
                 new List<string>() { "ID", "关键应用", "模块", "功能", "需求描述", "是否需要需求分析", "当前状态", "目标日期", "计划需求分析完成日期","实际需求分析完成日期","已发布日期", "负责人" },
                 new List<string>() { "B,B", "C,D", "E,F", "G,H", "I,L", "M,M", "N,N", "O,O", "P,P", "Q,Q","R,R","S,S" },
                 features.Count);
@@ -190,7 +190,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
         private int BuildDelayTable(int startRow, List<FeatureEntity> features)
         {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代未完成系统需求分析", "说明：按关键应用、模块、功能排序；这个表格很长，请右拉把后面列都填写上。", "B", "W",
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代未发布系统需求分析（目标日期在本迭代内，但是迭代结束还未发布的系统需求）", "说明：按关键应用、模块、功能排序；这个表格很长，请右拉把后面列都填写上。", "B", "W",
                 new List<string>() { "ID", "关键应用", "模块", "功能", "需求描述", "是否需要需求分析", "当前状态", "目标日期", "计划需求分析完成日期", "实际需求分析完成日期", "负责人", "未完成原因分析" },
                 new List<string>() { "B,B", "C,D", "E,F", "G,H", "I,L", "M,M", "N,N", "O,O", "P,P","Q,Q","R,R", "S,W" },
                 features.Count);

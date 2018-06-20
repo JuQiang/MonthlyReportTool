@@ -16,9 +16,9 @@ namespace MonthlyReportTool.API.TFS.WorkItem
             List<CodeReviewEntity> list = new List<CodeReviewEntity>();
 
             string wiql = API.TFS.Utility.GetQueryClause("共享查询%2F迭代总结数据查询%2F20%20代码审查分析%2F00本迭代_代码审查审查的Bug总数");
-            var tuple = Tuple.Create<string, string, string>("[System.TeamProject] =",
+            var tuple = Tuple.Create<string, string, string,string>("[System.TeamProject] =",
                 "[System.CreatedDate] >=",
-                "[System.CreatedDate] <");
+                "[System.CreatedDate] <","");
             wiql = API.TFS.Utility.ReplacePrjAndDateFromWIQL(wiql, tuple);
 
             string sql = String.Format(wiql,

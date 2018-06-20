@@ -86,11 +86,11 @@ namespace MonthlyReportTool.API.Office.Excel
 
             string[] cols1 = new string[] { "已完成数", "未完成数", "中止/移除数", "按计划完成数", "应完成总数" };
             string[] cols2 = new string[] { "=IF(C11<>0,C7/C11,\"\")", "=IF(C11<>0,C8/C11,\"\")", "'--", "=IF(C11<>0,C10/C11,\"\")", "'--" };
-            string[] cols3 = new string[] { "已完成数：目标日期内已发布的需求总数\r\n占比：已完成数/目标日期内应完成总数",
-                "未完成数：目标日期内未完成的需求总数\r\n占比：未完成数/目标日期内应完成总数",
-                "中止/移除数：目标日期内中止或移除的需求总数\r\n占比：中止/移除数/目标日期内应完成总数",
-                "按计划完成数：按目标日期完成发布的需求总数\r\n占比：按计划完成数/目标日期内应完成总数",
-                "所有应发布需求总数" };
+            string[] cols3 = new string[] { "已完成数：迭代期间内已发布的需求总数\r\n占比：已完成数/迭代期间内应完成总数",
+                "未完成数：迭代期间内未完成的需求总数\r\n占比：未完成数/迭代期间内应完成总数",
+                "中止/移除数：迭代期间内中止或移除的需求总数\r\n占比：中止/移除数/迭代期间内应完成总数",
+                "按计划完成数：按目标日期完成发布的需求总数\r\n占比：按计划完成数/迭代期间内应完成总数",
+                "迭代期间内所有应发布需求总数" };
 
             for (int row = 7; row <= 11; row++)
             {
@@ -109,7 +109,7 @@ namespace MonthlyReportTool.API.Office.Excel
             Utility.SetCellPercentFormat(sheet.get_Range("D7:D11"));
             Utility.SetCellGreenColor(sheet.get_Range("D7:D11"));
 
-            ExcelInterop.Range range = sheet.Range[sheet.Cells[7, "B"], sheet.Cells[12, "B"]];
+            ExcelInterop.Range range = sheet.Range[sheet.Cells[7, "B"], sheet.Cells[11, "B"]];
             Utility.AddNativieResource(range);
             range.RowHeight = 40;
 
@@ -191,8 +191,8 @@ namespace MonthlyReportTool.API.Office.Excel
         private int BuildDelayTable(int startRow, List<FeatureEntity> features)
         {
             int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代未发布系统需求分析（目标日期在本迭代内，但是迭代结束还未发布的系统需求）", "说明：按关键应用、模块、功能排序；这个表格很长，请右拉把后面列都填写上。", "B", "W",
-                new List<string>() { "ID", "关键应用", "模块", "功能", "需求描述", "是否需要需求分析", "当前状态", "目标日期", "计划需求分析完成日期", "实际需求分析完成日期", "负责人", "未完成原因分析" },
-                new List<string>() { "B,B", "C,D", "E,F", "G,H", "I,L", "M,M", "N,N", "O,O", "P,P","Q,Q","R,R", "S,W" },
+                new List<string>() { "ID", "关键应用", "模块", "功能", "需求描述", "是否需要需求分析", "当前状态", "目标日期", "计划需求分析完成日期", "实际需求分析完成日期", "已发布日期","负责人", "未完成原因分析" },
+                new List<string>() { "B,B", "C,D", "E,F", "G,H", "I,L", "M,M", "N,N", "O,O", "P,P","Q,Q","R,R", "S,S","T,W" },
                 features.Count);
 
             Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "按关键应用、模块、功能排序");
@@ -219,7 +219,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 }
             }
 
-            Utility.SetCellFontRedColor(sheet.Cells[startRow - 1, "S"]);
+            Utility.SetCellFontRedColor(sheet.Cells[startRow - 1, "T"]);
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + features.Count - 1, "B"]]);
 
             return nextRow - 1;
@@ -236,30 +236,26 @@ namespace MonthlyReportTool.API.Office.Excel
             sheet.Cells[currentRow, "M"] = feature.NeedRequireDevelop;
             sheet.Cells[currentRow, "N"] = feature.State;
             sheet.Cells[currentRow, "O"] = DateTime.Parse(feature.TargetDate).AddHours(8).ToString("yyyy-MM-dd");
-            if (String.IsNullOrEmpty(feature.PlanRequireFinishDate))
-            {
-                sheet.Cells[currentRow, "P"] = "";
-            }
-            else
+            if (String.IsNullOrEmpty(feature.PlanRequireFinishDate)==false)
             {
                 sheet.Cells[currentRow, "P"] = DateTime.Parse(feature.PlanRequireFinishDate).AddHours(8).ToString("yyyy-MM-dd");
             }
-            if (String.IsNullOrEmpty(feature.RequireFinishedDate))
-            {
-                sheet.Cells[currentRow, "Q"] = "";
-            }
-            else
+            if (String.IsNullOrEmpty(feature.RequireFinishedDate)==false)
             {
                 sheet.Cells[currentRow, "Q"] = DateTime.Parse(feature.RequireFinishedDate).AddHours(8).ToString("yyyy-MM-dd");
             }
-            sheet.Cells[currentRow, "R"] = Utility.GetPersonName(feature.AssignedTo);
-            sheet.Cells[currentRow, "S"] = "";
+            if (String.IsNullOrEmpty(feature.ReleaseFinishedDate) == false)
+            {
+                sheet.Cells[currentRow, "R"] = DateTime.Parse(feature.ReleaseFinishedDate).AddHours(8).ToString("yyyy-MM-dd"); 
+            }
+            sheet.Cells[currentRow, "S"] = Utility.GetPersonName(feature.AssignedTo);
+            sheet.Cells[currentRow, "T"] = "";
         }
         private int BuildAnadonTable(int startRow, List<FeatureEntity> features)
         {
             int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代移除/中止系统需求分析", "说明：按关键应用、模块、功能排序；这个表格很长，请右拉把后面列都填写上。", "B", "W",
-                new List<string>() { "ID", "关键应用", "模块", "功能", "需求描述", "是否需要需求分析", "当前状态", "目标日期", "计划需求分析完成日期", "实际需求分析完成日期", "负责人", "移除/中止原因说明" },
-                new List<string>() { "B,B", "C,D", "E,F", "G,H", "I,L", "M,M", "N,N", "O,O", "P,P","Q,Q","R,R", "S,W" },
+                new List<string>() { "ID", "关键应用", "模块", "功能", "需求描述", "是否需要需求分析", "当前状态", "目标日期", "计划需求分析完成日期", "实际需求分析完成日期","已移除/中止日期", "负责人", "移除/中止原因说明" },
+                new List<string>() { "B,B", "C,D", "E,F", "G,H", "I,L", "M,M", "N,N", "O,O", "P,P","Q,Q","R,R","S,S", "T,W" },
                 features.Count);
 
             Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "按关键应用、模块、功能排序");
@@ -301,24 +297,20 @@ namespace MonthlyReportTool.API.Office.Excel
             sheet.Cells[currentRow, "M"] = feature.NeedRequireDevelop;
             sheet.Cells[currentRow, "N"] = feature.State;
             sheet.Cells[currentRow, "O"] = DateTime.Parse(feature.TargetDate).AddHours(8).ToString("yyyy-MM-dd");
-            if (String.IsNullOrEmpty(feature.PlanRequireFinishDate))
-            {
-                sheet.Cells[currentRow, "P"] = "";
-            }
-            else
+            if (String.IsNullOrEmpty(feature.PlanRequireFinishDate)==false)
             {
                 sheet.Cells[currentRow, "P"] = DateTime.Parse(feature.PlanRequireFinishDate).AddHours(8).ToString("yyyy-MM-dd");
             }
-            if (String.IsNullOrEmpty(feature.RequireFinishedDate))
-            {
-                sheet.Cells[currentRow, "Q"] = "";
-            }
-            else
+            if (String.IsNullOrEmpty(feature.RequireFinishedDate)==false)
             {
                 sheet.Cells[currentRow, "Q"] = DateTime.Parse(feature.RequireFinishedDate).AddHours(8).ToString("yyyy-MM-dd");
             }
-            sheet.Cells[currentRow, "R"] = Utility.GetPersonName(feature.AssignedTo);
-            sheet.Cells[currentRow, "S"] = "";
+            if (String.IsNullOrEmpty(feature.ClosedDate) == false)
+            {
+                sheet.Cells[currentRow, "R"] = DateTime.Parse(feature.ClosedDate).AddHours(8).ToString("yyyy-MM-dd");
+            }
+            sheet.Cells[currentRow, "S"] = Utility.GetPersonName(feature.AssignedTo);
+            sheet.Cells[currentRow, "T"] = "";
         }
     }
 }

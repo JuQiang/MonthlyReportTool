@@ -33,7 +33,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
             var range = sheet.get_Range("B1:Q1");
             Utility.AddNativieResource(range);
-            range.ColumnWidth = 12;
+            range.ColumnWidth = 16;
 
             sheet.Cells[1, "A"] = "";
         }
@@ -129,8 +129,10 @@ namespace MonthlyReportTool.API.Office.Excel
                 {
                     sheet.Cells[i + startRow, "O"] = Utility.GetPersonName(workviews[i].AssignedTo);
                 }
-                sheet.Cells[i + startRow, "P"] = DateTime.Parse(workviews[i].PlanSubmitDate).AddHours(8).ToString("yyyy-MM-dd");
-                sheet.Cells[i + startRow, "Q"] = DateTime.Parse(workviews[i].ClosedDate).AddHours(8).ToString("yyyy-MM-dd");
+                if(workviews[i].PlanSubmitDate.Trim().Length >0)
+                    sheet.Cells[i + startRow, "P"] = DateTime.Parse(workviews[i].PlanSubmitDate).AddHours(8).ToString("yyyy-MM-dd");
+                if (workviews[i].ClosedDate.Trim().Length > 0)
+                    sheet.Cells[i + startRow, "Q"] = DateTime.Parse(workviews[i].ClosedDate).AddHours(8).ToString("yyyy-MM-dd");
             }
 
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + workviews.Count - 1, "B"]]);

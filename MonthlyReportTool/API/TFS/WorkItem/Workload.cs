@@ -17,9 +17,9 @@ namespace MonthlyReportTool.API.TFS.WorkItem
 
             string iterationPath = Utility.GetBestIteration(project).Id;
 
-            var tuple = Tuple.Create<string, string, string>("[System.TeamProject] =",
+            var tuple = Tuple.Create<string, string, string,string>("[System.TeamProject] =",
             "[Teld.Scrum.Worklog.WorkDate] >=",
-            "[Teld.Scrum.Worklog.WorkDate] <");
+            "[Teld.Scrum.Worklog.WorkDate] <","");
 
             string wiql = API.TFS.Utility.GetQueryClause("共享查询%2F迭代总结数据查询%2F10%20工作量统计%2F05本迭代_实际所有的工作日志工作量");
             wiql = API.TFS.Utility.ReplacePrjAndDateFromWIQL(wiql, tuple);

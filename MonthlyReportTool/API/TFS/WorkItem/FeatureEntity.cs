@@ -19,6 +19,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
         public string PlanRequireFinishDate;
         public string RequireFinishedDate;
         public string ReleaseFinishedDate;
+        public string ClosedDate;
         public string TeamProject;
         public string InitTargetDate;
         public string TargetDate;

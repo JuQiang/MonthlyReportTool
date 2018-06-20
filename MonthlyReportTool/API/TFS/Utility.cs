@@ -142,11 +142,12 @@ namespace MonthlyReportTool.API.TFS
             }
         }
 
-        public static string ReplacePrjAndDateFromWIQL(string wiql, Tuple<string, string, string> original)
+        public static string ReplacePrjAndDateFromWIQL(string wiql, Tuple<string, string, string, string> original)
         {
             string prj = original.Item1;
             string date1 = original.Item2;
             string date2 = original.Item3;
+            string date3 = original.Item4;
             //第一次Project替换
             int pos = wiql.IndexOf(prj);
             pos = wiql.IndexOf("'", pos + prj.Length);
@@ -190,6 +191,13 @@ namespace MonthlyReportTool.API.TFS
                     pos2 = wiql.IndexOf("'", pos + 1);
                     wiql = wiql.Substring(0, pos) + "'{2}'" + wiql.Substring(pos2 + 1);
                 }
+            }
+            //第一次date3替换
+            if (String.IsNullOrEmpty(date3) == false) { 
+                pos = wiql.IndexOf(date3);
+                pos = wiql.IndexOf("'", pos + date3.Length);
+                pos2 = wiql.IndexOf("'", pos + 1);
+                wiql = wiql.Substring(0, pos) + "'{3}'" + wiql.Substring(pos2 + 1);
             }
             return wiql;
         }

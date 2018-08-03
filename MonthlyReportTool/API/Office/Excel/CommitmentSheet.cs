@@ -28,10 +28,10 @@ namespace MonthlyReportTool.API.Office.Excel
             BuildTestTable();
             BuildPerformanceTestTable();
 
-            int startRow = BuildFailedTable(12, this.commitmentList[0]);
+            int startRow = BuildFailedTable(12, this.commitmentList[1]);//测试通过的提交单的通过率统计
             startRow = BuildSuccessTable(startRow, this.commitmentList[1]);//测试通过提交单Bug数统计
-            startRow = BuildFailedReasonTable(startRow, this.commitmentList[5]);
-            startRow = BuildRemovedReasonTable(startRow, this.commitmentList[2]);
+            startRow = BuildFailedReasonTable(startRow, this.commitmentList[5]);//打回过提交单原因分析，包括已移除和已中止的
+            startRow = BuildRemovedReasonTable(startRow, this.commitmentList[2]);//已移除或已中止提交单中止原因或移除原因分析
             BuildExceptionTable(startRow, this.commitmentList[1]);
 
             var range = sheet.get_Range("J1:M1");
@@ -219,7 +219,7 @@ namespace MonthlyReportTool.API.Office.Excel
         private int BuildFailedTable(int startRow, List<CommitmentEntity> list)
         {
             var commitments = list.GroupBy(commitment => commitment.AssignedTo);
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "提交单打回次数及一次通过率，按人员统计", "说明：一次通过率=一次通过数/提交单总数\r\n         按一次通过率排序", "B", "G",
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "测试通过提交单通过率统计，按人员统计", "说明：一次通过率=一次通过数/提交单总数\r\n         按一次通过率排序", "B", "G",
                 new List<string>() { "姓名", "一次通过数", "被打回一次数", "被打回两次数", "被打回两次以上数", "一次通过率" },
                 new List<string>() { "B,B", "C,C", "D,D", "E,E", "F,F", "G,G" },
                 commitments.Count());

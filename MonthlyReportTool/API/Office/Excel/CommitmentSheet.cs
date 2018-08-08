@@ -30,6 +30,7 @@ namespace MonthlyReportTool.API.Office.Excel
 
             int startRow = BuildFailedTable(12, this.commitmentList[1]);//测试通过的提交单的通过率统计
             startRow = BuildSuccessTable(startRow, this.commitmentList[1]);//测试通过提交单Bug数统计
+            startRow = BuildLegacyTable(startRow, this.commitmentList[6]);//遗留提交单明细
             startRow = BuildFailedReasonTable(startRow, this.commitmentList[5]);//打回过提交单原因分析，包括已移除和已中止的
             startRow = BuildRemovedReasonTable(startRow, this.commitmentList[2]);//已移除或已中止提交单中止原因或移除原因分析
             BuildExceptionTable(startRow, this.commitmentList[1]);
@@ -290,9 +291,9 @@ namespace MonthlyReportTool.API.Office.Excel
 
             var commitments = list.OrderByDescending(comm => comm.SubmitType).ThenByDescending(comm=>comm.FindedBugCount).ToList();
 
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "测试通过提交单Bug数统计", "说明：按提交单类型，发现的Bug数排序。", "B", "J",
-                new List<string>() { "提交单ID", "提交单类型", "提交单名称", "状态", "发现的Bug数", "功能负责人", "测试负责人"},
-                new List<string>() { "B,B", "C,C", "D,F", "G,G", "H,H", "I,I", "J,J"},
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "测试通过提交单Bug数统计", "说明：按提交单类型，发现的Bug数排序。", "B", "K",
+                new List<string>() { "提交单ID", "提交单类型", "提交单名称", "状态", "发现的Bug数", "功能负责人", "测试负责人","创建日期"},
+                new List<string>() { "B,B", "C,C", "D,F", "G,G", "H,H", "I,I", "J,J","K,K"},
                 commitments.Count);
             
             startRow += 3;
@@ -305,9 +306,43 @@ namespace MonthlyReportTool.API.Office.Excel
                 sheet.Cells[i + startRow, "H"] = commitments[i].FindedBugCount;
                 sheet.Cells[i + startRow, "I"] = Utility.GetPersonName(commitments[i].AssignedTo);
                 sheet.Cells[i + startRow, "J"] = Utility.GetPersonName(commitments[i].TestResponsibleMan);
+                sheet.Cells[i + startRow, "K"] = DateTime.Parse(commitments[i].CreatedDate).AddHours(8).ToString("yyyy-MM-dd");
             }
             
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + commitments.Count - 1, "B"]]);
+
+            return nextRow - 1;
+        }
+
+        private int BuildLegacyTable(int startRow, List<CommitmentEntity> list)
+        {
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "遗留提交单明细", "说明：截止到本迭代结束还未发布的提交单", "B", "M",
+                    new List<string>() { "提交单ID", "提交单类型", "提交单名称", "状态", "遗留原因分析", "功能负责人", "测试负责人","创建日期" },
+                    new List<string>() { "B,B", "C,C", "D,F", "G,G", "H,J", "K,K", "L,L","M,M" },
+                    list.Count);
+
+            startRow += 3;
+            for (int i = 0; i < list.Count; i++)
+            {
+                sheet.Cells[i + startRow, "B"] = list[i].Id;
+                sheet.Cells[i + startRow, "C"] = list[i].SubmitType;
+                sheet.Cells[i + startRow, "D"] = list[i].Title;
+                sheet.Cells[i + startRow, "G"] = list[i].State;
+                sheet.Cells[i + startRow, "H"] = "";
+
+                if (list[i].AssignedTo.Trim().Length > 0)
+                {
+                    sheet.Cells[i + startRow, "K"] = Utility.GetPersonName(list[i].AssignedTo);
+                }
+                if (list[i].TestResponsibleMan.Trim().Length > 0)
+                {
+                    sheet.Cells[i + startRow, "L"] = Utility.GetPersonName(list[i].TestResponsibleMan);
+                }
+                sheet.Cells[i + startRow, "M"] = DateTime.Parse(list[i].CreatedDate).AddHours(8).ToString("yyyy-MM-dd"); 
+            }
+
+            Utility.SetCellFontRedColor(sheet.Cells[startRow - 1, "H"]);
+            Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + list.Count - 1, "B"]]);
 
             return nextRow - 1;
         }
@@ -316,9 +351,9 @@ namespace MonthlyReportTool.API.Office.Excel
 
             var commitments = list.OrderByDescending(comm => comm.BackNum).ToList();
 
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "提交单打回原因分析", "说明：这个表格很长，请右拉把后面列都填写上。", "B", "O",
-                new List<string>() { "提交单ID", "提交单类型", "提交单名称", "状态", "打回次数", "打回原因", "功能负责人", "测试负责人", "后续改进措施" },
-                new List<string>() { "B,B", "C,C", "D,F", "G,G", "H,H", "I,J", "K,K", "L,L", "M,O" },
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "提交单打回原因分析", "说明：这个表格很长，请右拉把后面列都填写上。", "B", "P",
+                new List<string>() { "提交单ID", "提交单类型", "提交单名称", "状态", "打回次数", "打回原因", "功能负责人", "测试负责人","创建日期", "后续改进措施" },
+                new List<string>() { "B,B", "C,C", "D,F", "G,G", "H,H", "I,J", "K,K", "L,L", "M,M","N,P" },
                 commitments.Count);
 
             Utility.SetCellColor(sheet.Cells[startRow + 1, "B"], System.Drawing.Color.Red, "这个表格很长，请右拉把后面列都填写上。");
@@ -341,23 +376,23 @@ namespace MonthlyReportTool.API.Office.Excel
                 {
                     sheet.Cells[i + startRow, "L"] = Utility.GetPersonName(commitments[i].TestResponsibleMan);
                 }
-                sheet.Cells[i + startRow, "M"] = "";
+                sheet.Cells[i + startRow, "M"] = DateTime.Parse(commitments[i].CreatedDate).AddHours(8).ToString("yyyy-MM-dd");
+                sheet.Cells[i + startRow, "N"] = "";
             }
 
             Utility.SetCellFontRedColor(sheet.Cells[startRow - 1, "I"]);
-            Utility.SetCellFontRedColor(sheet.Cells[startRow - 1, "M"]);
+            Utility.SetCellFontRedColor(sheet.Cells[startRow - 1, "N"]);
 
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + commitments.Count - 1, "B"]]);
 
             return nextRow-1;
 
         }
-
         private int BuildRemovedReasonTable(int startRow, List<CommitmentEntity> list)
         {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "移除/中止提交单原因分析", "说明：", "B", "L",
-                new List<string>() { "提交单ID", "提交单类型", "提交单名称", "状态", "原因分析", "功能负责人", "测试负责人" },
-                new List<string>() { "B,B", "C,C", "D,F", "G,G", "H,J", "K,K", "L,L" },
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "移除/中止提交单原因分析", "说明：", "B", "M",
+                new List<string>() { "提交单ID", "提交单类型", "提交单名称", "状态", "原因分析", "功能负责人", "测试负责人","创建日期" },
+                new List<string>() { "B,B", "C,C", "D,F", "G,G", "H,J", "K,K", "L,L","M,M" },
                 list.Count);
 
             startRow += 3;
@@ -377,6 +412,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 {
                     sheet.Cells[i + startRow, "L"] = Utility.GetPersonName(list[i].TestResponsibleMan);
                 }
+                sheet.Cells[i + startRow, "M"] = DateTime.Parse(list[i].CreatedDate).AddHours(8).ToString("yyyy-MM-dd");
             }
 
             Utility.SetCellFontRedColor(sheet.Cells[startRow - 1, "H"]);
@@ -395,9 +431,9 @@ namespace MonthlyReportTool.API.Office.Excel
             )
             ).ToList();
 
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "提交单持续时间超过2周的异常分析", "说明：提交单状态从【提交测试】到【测试通过】这段时间超过2周的\r\n提交日期和测试通过时间比较", "B", "M",
-                new List<string>() { "提交单ID", "提交单类型", "提交单名称", "状态", "持续时间", "原因分析", "功能负责人", "测试负责人" },
-                new List<string>() { "B,B", "C,C", "D,F", "G,G", "H,H", "I,K", "L,L", "M,M" },
+            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "提交单持续时间超过2周的异常分析", "说明：提交单状态从【提交测试】到【测试通过】这段时间超过2周的\r\n提交日期和测试通过时间比较", "B", "N",
+                new List<string>() { "提交单ID", "提交单类型", "提交单名称", "状态", "持续时间", "原因分析", "功能负责人", "测试负责人","创建日期" },
+                new List<string>() { "B,B", "C,C", "D,F", "G,G", "H,H", "I,K", "L,L", "M,M","N,N" },
                 commitments.Count);
 
             startRow += 3;
@@ -419,6 +455,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 {
                     sheet.Cells[i + startRow, "M"] = Utility.GetPersonName(commitments[i].TestResponsibleMan);
                 }
+                sheet.Cells[i + startRow, "N"] = DateTime.Parse(commitments[i].CreatedDate).AddHours(8).ToString("yyyy-MM-dd");
             }
 
             Utility.SetCellFontRedColor(sheet.Cells[startRow - 1, "I"]);

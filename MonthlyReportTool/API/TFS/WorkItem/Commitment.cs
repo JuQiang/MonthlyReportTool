@@ -78,6 +78,14 @@ namespace MonthlyReportTool.API.TFS.WorkItem
                 }
             );
 
+            var legacy = GetCommitmentListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F15%20提交单统计分析%2F10本迭代_遗留提交单明细",
+                new List<string>() { "[System.TeamProject] =", "[System.CreatedDate] <" },
+                new List<string>(){
+                    project,
+                    DateTime.Parse(ite.EndDate).AddDays(1).ToString("yyyy-MM-dd HH:mm:ss.fff"),//最后一天要加一
+                }
+            );
+
             var removed = GetCommitmentListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F15%20提交单统计分析%2F10本迭代_已移除提交单总数",
                 new List<string>() { "[System.TeamProject] =", "[Teld.Scrum.RemovedDate] >=", "[Teld.Scrum.RemovedDate] <"},
                 new List<string>(){
@@ -111,14 +119,6 @@ namespace MonthlyReportTool.API.TFS.WorkItem
                     DateTime.Parse(ite.EndDate).AddDays(1).ToString("yyyy-MM-dd HH:mm:ss.fff"),//最后一天要加一
                 }
             );
-            var longtime = GetCommitmentListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F15%20提交单统计分析%2F30本迭代_提交单持续时间过长总数",
-                new List<string>() { "[System.TeamProject] =", "[Teld.Scrum.TestFinishedTime] >=", "[Teld.Scrum.TestFinishedTime] <" },
-                new List<string>(){
-                    project,
-                    DateTime.Parse(ite.StartDate).AddDays(0).ToString("yyyy-MM-dd HH:mm:ss.fff"),//第一天是大于等于
-                    DateTime.Parse(ite.EndDate).AddDays(1).ToString("yyyy-MM-dd HH:mm:ss.fff"),//最后一天要加一
-                }
-            );
 
             list.Add(all);
             list.Add(testpassed);
@@ -126,7 +126,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
             list.Add(needperf);
             list.Add(perftestpassed);
             list.Add(failed);
-            list.Add(longtime);
+            list.Add(legacy);
 
             return list;
         }

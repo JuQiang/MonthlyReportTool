@@ -281,7 +281,7 @@ namespace MonthlyReportTool.API.Office.Excel
                 }
             }
 
-            Utility.SetCellFontRedColor(sheet.Cells[startRow - 1, "S"]);
+            Utility.SetCellFontRedColor(sheet.Cells[startRow - 1, "T"]);
             Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + features.Count - 1, "B"]]);
             return nextRow - 1;
         }

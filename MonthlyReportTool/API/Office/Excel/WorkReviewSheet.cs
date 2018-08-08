@@ -72,12 +72,12 @@ namespace MonthlyReportTool.API.Office.Excel
                 sheet.Cells[i, "B"] = orderedCells[i - startRow].Item1;
                 sheet.Cells[i, "C"] = orderedCells[i - startRow].Item2;
                 sheet.Cells[i, "D"] = orderedCells[i - startRow].Item3;
-                sheet.Cells[i, "E"] = orderedCells[i - startRow].Item4;
+                sheet.Cells[i, "E"] = String.Format("=ROUND(D{0}/C{0},2)", i); //orderedCells[i - startRow].Item4;
             }
             if (cells.Count > 0)
             {
-                Utility.SetFormatSmaller(sheet.Range[sheet.Cells[startRow, "E"], sheet.Cells[startRow + cells.Count - 1, "E"]], 1.00d);
                 Utility.SetCellAlignAndWrap(sheet.Range[sheet.Cells[startRow, "B"], sheet.Cells[startRow + cells.Count - 1, "B"]]);
+                Utility.SetFormatSmaller(sheet.Range[sheet.Cells[startRow, "E"], sheet.Cells[startRow + cells.Count - 1, "E"]], 1.00d);
                 Utility.SetCellGreenColor(sheet.Range[sheet.Cells[startRow, "E"], sheet.Cells[startRow + cells.Count - 1, "E"]]);
                 Utility.SetCellFontRedColor(sheet.Range[sheet.Cells[startRow, "E"], sheet.Cells[startRow + cells.Count - 1, "E"]]);
                 Utility.SetCellDarkGrayColor(sheet.Range[sheet.Cells[startRow + cells.Count, "B"], sheet.Cells[startRow + cells.Count, "B"]]);

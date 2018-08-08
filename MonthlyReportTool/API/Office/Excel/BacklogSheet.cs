@@ -27,7 +27,7 @@ namespace MonthlyReportTool.API.Office.Excel
             BuildDescription();
 
             int startRow = BuildSummaryTable();
-            BuildTestCase(4);
+            //BuildTestCase(4);//去掉测试相关统计，等待测试部规划
             startRow = BuildDelayedTable(startRow);
             startRow = BuildAbandonTable(startRow);
             BuildTable(startRow);
@@ -91,10 +91,6 @@ namespace MonthlyReportTool.API.Office.Excel
                 { "拖期数", "", "", "拖期数：本迭代计划总数-已完成数-中止数/移除数\r\n占比：拖期数 / 本迭代计划总数" },
                 { "中止/移除数", "", "", "中止/移除数：本迭代已中止或已移除的Backlog总数\r\n占比：移除数 / 本迭代计划总数"},
                 { "本迭代计划总数", "", "", "本迭代规划的所有backlog总数（包括当前已经被移除、中止的）"},
-                { "提交测试数", "", "", "提交测试数：【已完成】、【已发布】、【提交测试】、【测试接收】、【测试通过】状态的Backlog总数\r\n占比：提交测试数 / 应提交数"   },
-                { "测试通过数", "", "", "测试通过数：【已发布】、【测试通过】、【已完成】状态的Backlog总数\r\n占比：测试通过数 / 应提交数"},
-                { "未提交或未测试通过数", "", "", "未提交或未测试通过数：应提交数-提交测试数\r\n占比：未提交或未测试通过数 / 应提交数" },
-                { "应提交数", "", "", "应提交数：本迭代Backlog类别是【开发】、完成标准为【测试通过】及【发布上线】的Backlog总数\r\n未测试及提交数都是以这两个条件为基本过滤"},
                         };
             List<Tuple<string, string>> colsname = new List<Tuple<string, string>>(){
                 Tuple.Create<string,string>("B","C"),
@@ -137,33 +133,33 @@ namespace MonthlyReportTool.API.Office.Excel
             sheet.Cells[11, "E"] = "=IF(D11<>0,D11/$D$12,\"\")";
             sheet.Cells[12, "D"] = this.backlogList[3].Count;
             sheet.Cells[12, "E"] = "'--";
-            sheet.Cells[13, "D"] = this.backlogList[4].Count;
-            sheet.Cells[13, "E"] = "=IF(D13<>0,D13/$D$16,\"\")";
-            sheet.Cells[14, "D"] = this.backlogList[5].Count;
-            sheet.Cells[14, "E"] = "=IF(D14<>0,D14/$D$16,\"\")";
-            sheet.Cells[15, "D"] = "=D16-D14";
-            sheet.Cells[15, "E"] = "=IF(D15<>0,D15/$D$16,\"\")";
-            sheet.Cells[16, "D"] = this.backlogList[6].Count;
-            sheet.Cells[16, "E"] = "'--";
+            //sheet.Cells[13, "D"] = this.backlogList[4].Count;
+            //sheet.Cells[13, "E"] = "=IF(D13<>0,D13/$D$16,\"\")";
+            //sheet.Cells[14, "D"] = this.backlogList[5].Count;
+            //sheet.Cells[14, "E"] = "=IF(D14<>0,D14/$D$16,\"\")";
+            //sheet.Cells[15, "D"] = "=D16-D14";
+            //sheet.Cells[15, "E"] = "=IF(D15<>0,D15/$D$16,\"\")";
+            //sheet.Cells[16, "D"] = this.backlogList[6].Count;
+            //sheet.Cells[16, "E"] = "'--";
 
-            Utility.SetCellPercentFormat(sheet.get_Range("E7:E16"));
-            Utility.SetCellGreenColor(sheet.get_Range("E7:E16"));
+            Utility.SetCellPercentFormat(sheet.get_Range("E7:E12"));
+            Utility.SetCellGreenColor(sheet.get_Range("E7:E12"));
             Utility.SetCellGreenColor(sheet.get_Range("D8:D8"));
             Utility.SetCellGreenColor(sheet.get_Range("D10:D10"));
-            Utility.SetCellGreenColor(sheet.get_Range("D15:D15"));
+            //Utility.SetCellGreenColor(sheet.get_Range("D15:D15"));
 
             sheet.Cells[7, "D"] = this.backlogList[0].Count;
             sheet.Cells[9, "D"] = this.backlogList[1].Count;
             sheet.Cells[11, "D"] = this.backlogList[2].Count;
             sheet.Cells[12, "D"] = this.backlogList[3].Count;
-            sheet.Cells[13, "D"] = this.backlogList[4].Count;
-            sheet.Cells[14, "D"] = this.backlogList[5].Count;
-            sheet.Cells[16, "D"] = this.backlogList[6].Count;
+            //sheet.Cells[13, "D"] = this.backlogList[4].Count;
+            //sheet.Cells[14, "D"] = this.backlogList[5].Count;
+            //sheet.Cells[16, "D"] = this.backlogList[6].Count;
 
             Utility.SetFormatBigger(sheet.Cells[10, "D"], 0.0001d);
             Utility.SetFormatBigger(sheet.Cells[11, "D"], 0.0001d);
             Utility.SetFormatBigger(sheet.Cells[15, "D"], 0.0001d);
-            return 18;
+            return 14;
         }
 
         private void BuildSummaryTableTitle()
@@ -182,63 +178,31 @@ namespace MonthlyReportTool.API.Office.Excel
             colFont.Bold = true;
         }
 
-        private void BuildTestCase(int startRow)
-        {
-            int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "", "测试用例设计及执行统计", "O", "S",
-                new List<string>() { "分类", "个数" },
-                new List<string>() { "O,Q", "R,S" },
-                6);
+        //private void BuildTestCase(int startRow)
+        //{
+        //    int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "", "测试用例设计及执行统计", "O", "S",
+        //        new List<string>() { "分类", "个数" },
+        //        new List<string>() { "O,Q", "R,S" },
+        //        6);
 
-            startRow += 3;
-            sheet.Cells[startRow, "O"] = "迭代Backlog总数"; sheet.Cells[startRow++, "R"] = "=D12";
-            sheet.Cells[startRow, "O"] = "需编写用例Backlog总数"; sheet.Cells[startRow++, "R"] = this.backlogList[8].Count;
-            sheet.Cells[startRow, "O"] = "实际编写用例Backlog总数"; sheet.Cells[startRow++, "R"] = this.backlogList[9].Count;
-            sheet.Cells[startRow, "O"] = "编写用例总条数"; sheet.Cells[startRow++, "R"] = this.backlogList[10].Count;
-            sheet.Cells[startRow, "O"] = "用例未执行数目"; sheet.Cells[startRow++, "R"] = "不知道哪里找";
-            sheet.Cells[startRow, "O"] = "测试用例覆盖率"; sheet.Cells[startRow++, "R"] = "=IF(R8<>0,R9/R8,\"\")";
-            Utility.SetCellPercentFormat(sheet.Cells[startRow - 1, "R"]);
+        //    startRow += 3;
+        //    sheet.Cells[startRow, "O"] = "迭代Backlog总数"; sheet.Cells[startRow++, "R"] = "=D12";
+        //    sheet.Cells[startRow, "O"] = "需编写用例Backlog总数"; sheet.Cells[startRow++, "R"] = this.backlogList[8].Count;
+        //    sheet.Cells[startRow, "O"] = "实际编写用例Backlog总数"; sheet.Cells[startRow++, "R"] = this.backlogList[9].Count;
+        //    sheet.Cells[startRow, "O"] = "编写用例总条数"; sheet.Cells[startRow++, "R"] = this.backlogList[10].Count;
+        //    sheet.Cells[startRow, "O"] = "用例未执行数目"; sheet.Cells[startRow++, "R"] = "不知道哪里找";
+        //    sheet.Cells[startRow, "O"] = "测试用例覆盖率"; sheet.Cells[startRow++, "R"] = "=IF(R8<>0,R9/R8,\"\")";
+        //    Utility.SetCellPercentFormat(sheet.Cells[startRow - 1, "R"]);
 
-            Utility.SetCellColor(sheet.Cells[startRow, "O"], System.Drawing.Color.Black, "测试用例设计及执行统计", true);
-            Utility.SetCellGreenColor(sheet.Cells[7, "R"]);
-            Utility.SetCellGreenColor(sheet.Cells[12, "R"]);
-        }
+        //    Utility.SetCellColor(sheet.Cells[startRow, "O"], System.Drawing.Color.Black, "测试用例设计及执行统计", true);
+        //    Utility.SetCellGreenColor(sheet.Cells[7, "R"]);
+        //    Utility.SetCellGreenColor(sheet.Cells[12, "R"]);
+        //}
 
         private int BuildDelayedTable(int startRow)
         {
             //拖期数：本迭代计划总数-已完成数-中止数-移除数
-            #region 有了查询了，不用自己算了
-            //var all = this.backlogList[3];
-            //var done = this.backlogList[0];
-            //var abandon = this.backlogList[2];
-
-            //for (int i = 0; i < all.Count; i++)
-            //{
-            //    var matched = done.Where(backlog => backlog.Id == all[i].Id);
-            //    if (matched.Count() > 0)
-            //    {                    
-            //        done.Remove(matched.First());
-            //        goto HELLOWORLD;
-
-            //    }
-
-            //    matched = abandon.Where(backlog => backlog.Id == all[i].Id);
-            //    if (matched.Count() > 0)
-            //    {                    
-            //        abandon.Remove(matched.First());
-            //        goto HELLOWORLD;
-            //    }
-
-            //    continue;
-
-            //    HELLOWORLD:
-            //    {
-            //        all.RemoveAt(i);
-            //        i = 0;
-            //    }
-            //}
-            #endregion 有了查询了，不用自己算了
-
-            var all = this.backlogList[7];
+            var all = this.backlogList[4];
             int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "拖期backlog分析", "说明：分析每个拖期Backlog的原因、主要责任人、以及拖期改进措施、改进措施责任人。这个表格很长，请右拉把后面4个列都填写上。", "B", "AB",
                 new List<string>() { "ID", "关键应用", "模块", "功能","backlog名称", "类别", "负责人", "验收标准", "状态", "拖期责任人", "拖期原因", "拖期改进措施", "措施负责人" },
                 //new List<string>() { "B,B", "C,C", "D,E", "F,J", "K,K", "L,L", "M,N", "O,O", "P,P", "Q,T", "U,X", "Y,Y" },

@@ -16,11 +16,9 @@ namespace MonthlyReportTool.API.TFS.WorkItem
             List<List<FeatureEntity>> list = new List<List<FeatureEntity>>();
 
             var all = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F00本迭代_产品特性总数（New）",
-
                 Tuple.Create<string, string, string, string>("[Teld.Scrum.BelongTeamProject] =",
                 "[Microsoft.VSTS.Scheduling.TargetDate] >=",
                 "[Microsoft.VSTS.Scheduling.TargetDate] <", ""));
-
             var completed = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F05本迭代_已完成产品特性总数（New）",
                 Tuple.Create<string, string, string, string>("[Teld.Scrum.BelongTeamProject] =",
                 "[Microsoft.VSTS.Scheduling.TargetDate] >=",
@@ -39,12 +37,41 @@ namespace MonthlyReportTool.API.TFS.WorkItem
                 Tuple.Create<string, string, string, string>("[Teld.Scrum.BelongTeamProject] =",
                 "[Microsoft.VSTS.Scheduling.TargetDate] >=",
                 "[Microsoft.VSTS.Scheduling.TargetDate] <", ""));
+           //明细
+            var alldetail = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F00本迭代_产品特性总数＿明细（New）",
+                            Tuple.Create<string, string, string, string>("[Teld.Scrum.BelongTeamProject] =",
+                            "[Microsoft.VSTS.Scheduling.TargetDate] >=",
+                            "[Microsoft.VSTS.Scheduling.TargetDate] <", ""));
+            var completeddetail = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F05本迭代_已完成产品特性总数＿明细（New）",
+                Tuple.Create<string, string, string, string>("[Teld.Scrum.BelongTeamProject] =",
+                "[Microsoft.VSTS.Scheduling.TargetDate] >=",
+                "[Microsoft.VSTS.Scheduling.TargetDate] <",
+                "[Teld.Scrum.ReleaseFinishedDate] <"));
+            var removeddetail = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F20本迭代_已中止或已移除产品特性总数＿明细（New）",
+                Tuple.Create<string, string, string, string>("[Teld.Scrum.BelongTeamProject] =",
+                "[Microsoft.VSTS.Scheduling.TargetDate] >=",
+                "[Microsoft.VSTS.Scheduling.TargetDate] <", ""));
+            var delayeddetail = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F10本迭代_未完成产品特性总数＿明细（New）",
+                Tuple.Create<string, string, string, string>("[Teld.Scrum.BelongTeamProject] =",
+               "[Microsoft.VSTS.Scheduling.TargetDate] >=",
+                "[Microsoft.VSTS.Scheduling.TargetDate] <",
+                "[Teld.Scrum.ReleaseFinishedDate] >="));
+            var perfectdetail = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F25本迭代_按计划完成产品特性总数＿明细（New）",
+                Tuple.Create<string, string, string, string>("[Teld.Scrum.BelongTeamProject] =",
+                "[Microsoft.VSTS.Scheduling.TargetDate] >=",
+                "[Microsoft.VSTS.Scheduling.TargetDate] <", ""));
 
             list.Add(all);
             list.Add(completed);
             list.Add(removed);
             list.Add(delayed);
             list.Add(perfect);
+
+            list.Add(alldetail);
+            list.Add(completeddetail);
+            list.Add(removeddetail);
+            list.Add(delayeddetail);
+            list.Add(perfectdetail);
 
             return list;
         }

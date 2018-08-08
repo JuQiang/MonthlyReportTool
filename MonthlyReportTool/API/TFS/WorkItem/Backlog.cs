@@ -17,13 +17,13 @@ namespace MonthlyReportTool.API.TFS.WorkItem
             list.Add(GetBacklogListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F05%20Backlog统计分析%2F10本迭代_未启动积压工作项总数"));
             list.Add(GetBacklogListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F05%20Backlog统计分析%2F15本迭代_已中止或已移除积压工作项总数"));
             list.Add(GetBacklogListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F05%20Backlog统计分析%2F00本迭代_积压工作项总数"));
-            list.Add(GetBacklogListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F05%20Backlog统计分析%2F30本迭代_已提交测试积压工作项总数"));
-            list.Add(GetBacklogListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F05%20Backlog统计分析%2F35本迭代_测试通过积压工作项总数"));
-            list.Add(GetBacklogListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F05%20Backlog统计分析%2F40本迭代_应提交测试积压工作项总数"));
             list.Add(GetBacklogListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F05%20Backlog统计分析%2F12本迭代_拖期积压工作项总数"));
-            list.Add(GetBacklogListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F05%20Backlog统计分析%2F50本迭代_需编写用例积压工作项总数"));
-            list.Add(GetBacklogListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F05%20Backlog统计分析%2F60本迭代_实际编写用例积压工作项总数"));
-            list.Add(GetBacklogListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F05%20Backlog统计分析%2F65本迭代_编写用例总数"));
+            //list.Add(GetBacklogListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F05%20Backlog统计分析%2F30本迭代_已提交测试积压工作项总数"));
+            //list.Add(GetBacklogListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F05%20Backlog统计分析%2F35本迭代_测试通过积压工作项总数"));
+            //list.Add(GetBacklogListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F05%20Backlog统计分析%2F40本迭代_应提交测试积压工作项总数"));
+            //list.Add(GetBacklogListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F05%20Backlog统计分析%2F50本迭代_需编写用例积压工作项总数"));
+            //list.Add(GetBacklogListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F05%20Backlog统计分析%2F60本迭代_实际编写用例积压工作项总数"));
+            //list.Add(GetBacklogListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F05%20Backlog统计分析%2F65本迭代_编写用例总数"));
 
             return list;
         }

@@ -79,9 +79,9 @@ namespace MonthlyReportTool.API.Office.Excel
         }
         private void BuildSummaryTable(int startRow)
         {
-            int nextRow = Utility.BuildFormalTable(sheet, startRow, "本迭代系统需求完成情况统计", "说明：统计范围：目标日期在本迭代期间内的所有系统需求；", "B", "H",
+            int nextRow = Utility.BuildFormalTable(sheet, startRow, "本迭代系统需求完成情况统计", "说明：统计范围：目标日期在本迭代期间内的所有明细系统需求（不需要需求分析的产品特性+需求分析工作项）；", "B", "I",
                 new List<string>() { "分类", "个数", "占比", "说明" },
-                new List<string>() { "B,B", "C,C", "D,D", "E,H" },
+                new List<string>() { "B,B", "C,C", "D,D", "E,I" },
                 5);
 
             string[] cols1 = new string[] { "已完成数", "未完成数", "中止/移除数", "按计划完成数", "应完成总数" };
@@ -99,11 +99,11 @@ namespace MonthlyReportTool.API.Office.Excel
                 sheet.Cells[row, "E"] = cols3[row - 7];
             }
 
-            sheet.Cells[7, "C"] = this.featureList[1].Count;
-            sheet.Cells[8, "C"] = this.featureList[3].Count;
-            sheet.Cells[9, "C"] = this.featureList[2].Count;
-            sheet.Cells[10, "C"] = this.featureList[4].Count;
-            sheet.Cells[11, "C"] = this.featureList[0].Count;
+            sheet.Cells[7, "C"] = this.featureList[6].Count;
+            sheet.Cells[8, "C"] = this.featureList[8].Count;
+            sheet.Cells[9, "C"] = this.featureList[7].Count;
+            sheet.Cells[10, "C"] = this.featureList[9].Count;
+            sheet.Cells[11, "C"] = this.featureList[5].Count;
             //sheet.Cells[12, "E"] = "=SUM(E7: E11)";
 
             Utility.SetCellPercentFormat(sheet.get_Range("D7:D11"));

@@ -88,6 +88,7 @@
     <Compile Include="API\TFS\TeamProject\TeamEntity.cs" />
     <Compile Include="API\TFS\Utility.cs" />
     <Compile Include="API\TFS\Agile\Iteration.cs" />
+    <Compile Include="API\TFS\WiqlReplaceColumnEntity.cs" />
     <Compile Include="API\TFS\WorkItem\Backlog.cs" />
     <Compile Include="API\TFS\WorkItem\Bug.cs" />
     <Compile Include="API\TFS\WorkItem\CodeReview.cs" />

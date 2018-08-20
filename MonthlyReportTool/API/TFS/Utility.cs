@@ -141,7 +141,22 @@ namespace MonthlyReportTool.API.TFS
 
             }
         }
+        //替换查询变量，循环替换，对于多个的也都替换了，并且排除不需要替换的。
+        public static string ReplaceInformationFromWIQLByReplaceList(string wiql, List<WiqlReplaceColumnEntity> colvalues)
+        {
+            int pos = -1, pos2 = -1;
+            WiqlReplaceColumnEntity colvalue;
+            for (int i = 0; i < colvalues.Count; i++)
+            {
+                colvalue = colvalues[i];
+                pos = wiql.IndexOf(colvalue.column);
+                pos = wiql.IndexOf("'", pos + colvalue.column.Length);
+                pos2 = wiql.IndexOf("'", pos + 1);
+                wiql = wiql.Substring(0, pos) + "'" + colvalue.replacevalue + "'" + wiql.Substring(pos2 + 1);
+            }
 
+            return wiql;
+        }
         public static string ReplacePrjAndDateFromWIQL(string wiql, Tuple<string, string, string, string> original)
         {
             string prj = original.Item1;
@@ -244,19 +259,13 @@ namespace MonthlyReportTool.API.TFS
 
         public static string ReplaceInformationFromWIQLByProject(string wiql, List<string> columns)
         {
-            //wiql = wiql.Replace("@project", "'{0}'");
-            //int pos = wiql.IndexOf(prj);
-            //pos = wiql.IndexOf("'", pos + prj.Length);
-            //int pos2 = wiql.IndexOf("'", pos + 1);
-            //wiql = wiql.Substring(0, pos) + "'{0}'" + wiql.Substring(pos2 + 1);
-
             int pos = -1, pos2 = -1;
 
             for (int i = 0; i < columns.Count; i++)
             {
-                string date = columns[i];
-                pos = wiql.IndexOf(date);
-                pos = wiql.IndexOf("'", pos + date.Length);
+                string key = columns[i];
+                pos = wiql.IndexOf(key);
+                pos = wiql.IndexOf("'", pos + key.Length);
                 pos2 = wiql.IndexOf("'", pos + 1);
                 wiql = wiql.Substring(0, pos) + "'{" + Convert.ToString(i) + "}'" + wiql.Substring(pos2 + 1);
             }

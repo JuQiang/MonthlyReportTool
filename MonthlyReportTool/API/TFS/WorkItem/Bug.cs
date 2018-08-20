@@ -92,7 +92,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
 
             var notfixed = GetBugListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F25%20Bug统计分析%2F10本迭代_遗留Bug总数",
             Tuple.Create<string, string, string, string>("[System.TeamProject] =",
-                "_FQQ_",
+                "[System.CreatedDate] <",
                 "[Microsoft.VSTS.Common.StateChangeDate] <",
                 "[Teld.Scrum.BelongTeamProject] ="
                 )
@@ -113,20 +113,20 @@ namespace MonthlyReportTool.API.TFS.WorkItem
                 )
             );
 
-            var review = GetBugListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F25%20Bug统计分析%2F35本迭代_新增评审问题总数",
-            Tuple.Create<string, string, string, string>("[System.TeamProject] =",
-                "[System.CreatedDate] >=",
-                "[System.CreatedDate] <",
-                "_FQQ_"
-                )
-            );
+            //var review = GetBugListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F25%20Bug统计分析%2F35本迭代_新增评审问题总数",
+            //Tuple.Create<string, string, string, string>("[System.TeamProject] =",
+            //    "[System.CreatedDate] >=",
+            //    "[System.CreatedDate] <",
+            //    "_FQQ_"
+            //    )
+            //);
 
             list.Add(added);
             list.Add(_fixed);
             list.Add(notfixed);
             list.Add(critical);
             list.Add(ignore);
-            list.Add(review);
+            //list.Add(review);
 
 
             return list;

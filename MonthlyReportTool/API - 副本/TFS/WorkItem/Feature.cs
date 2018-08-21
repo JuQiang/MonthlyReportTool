@@ -22,61 +22,61 @@ namespace MonthlyReportTool.API.TFS.WorkItem
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Teld.Scrum.BelongTeamProject] =", replacevalue = project, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Microsoft.VSTS.Scheduling.TargetDate] >=", replacevalue = start0, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Microsoft.VSTS.Scheduling.TargetDate] <", replacevalue = endAdd1, notinclude = "", exectOder = "1" });
-            var all = GetFeatureListByIteration(project, ite, String.Format(Utility.QueryBaseDirectory, "01%20产品特性统计分析%2F00本迭代_产品特性总数（New）"), listquery);
+            var all = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F00本迭代_产品特性总数（New）", listquery);
 
             listquery.Clear();
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Teld.Scrum.BelongTeamProject] =", replacevalue = project, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Microsoft.VSTS.Scheduling.TargetDate] >=", replacevalue = start0, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Microsoft.VSTS.Scheduling.TargetDate] <", replacevalue = endAdd1, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Teld.Scrum.ReleaseFinishedDate] <", replacevalue = endAdd1, notinclude = "", exectOder = "1" });
-            var completed = GetFeatureListByIteration(project, ite, String.Format(Utility.QueryBaseDirectory, "01%20产品特性统计分析%2F05本迭代_已完成产品特性总数（New）"), listquery);
+            var completed = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F05本迭代_已完成产品特性总数（New）", listquery);
 
             listquery.Clear();
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Teld.Scrum.BelongTeamProject] =", replacevalue = project, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Microsoft.VSTS.Scheduling.TargetDate] >=", replacevalue = start0, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Microsoft.VSTS.Scheduling.TargetDate] <", replacevalue = endAdd1, notinclude = "", exectOder = "1" });
-            var removed = GetFeatureListByIteration(project, ite, String.Format(Utility.QueryBaseDirectory, "01%20产品特性统计分析%2F20本迭代_已中止或已移除产品特性总数（New）"), listquery);
+            var removed = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F20本迭代_已中止或已移除产品特性总数（New）", listquery);
 
             listquery.Clear();
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Teld.Scrum.BelongTeamProject] =", replacevalue = project, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Microsoft.VSTS.Scheduling.TargetDate] >=", replacevalue = start0, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Microsoft.VSTS.Scheduling.TargetDate] <", replacevalue = endAdd1, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Teld.Scrum.ReleaseFinishedDate] >=", replacevalue = endAdd1, notinclude = "", exectOder = "1" });
-            var delayed = GetFeatureListByIteration(project, ite, String.Format(Utility.QueryBaseDirectory, "01%20产品特性统计分析%2F10本迭代_未完成产品特性总数（New）"), listquery);
+            var delayed = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F10本迭代_未完成产品特性总数（New）", listquery);
 
             listquery.Clear();
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Teld.Scrum.BelongTeamProject] =", replacevalue = project, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Microsoft.VSTS.Scheduling.TargetDate] >=", replacevalue = start0, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Microsoft.VSTS.Scheduling.TargetDate] <", replacevalue = endAdd1, notinclude = "", exectOder = "1" });
-            var perfect = GetFeatureListByIteration(project, ite, String.Format(Utility.QueryBaseDirectory, "01%20产品特性统计分析%2F25本迭代_按计划完成产品特性总数（New）"), listquery);
+            var perfect = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F25本迭代_按计划完成产品特性总数（New）", listquery);
             //明细
-            var alldetail = GetFeatureListByIteration(project, ite, String.Format(Utility.QueryBaseDirectory, "01%20产品特性统计分析%2F00本迭代_产品特性总数＿明细（New）"), listquery);
+            var alldetail = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F00本迭代_产品特性总数＿明细（New）", listquery);
             
             listquery.Clear();
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Teld.Scrum.BelongTeamProject] =", replacevalue = project, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Microsoft.VSTS.Scheduling.TargetDate] >=", replacevalue = start0, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Microsoft.VSTS.Scheduling.TargetDate] <", replacevalue = endAdd1, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Teld.Scrum.ReleaseFinishedDate] <", replacevalue = endAdd1, notinclude = "", exectOder = "1" });
-            var completeddetail = GetFeatureListByIteration(project, ite, String.Format(Utility.QueryBaseDirectory, "01%20产品特性统计分析%2F05本迭代_已完成产品特性总数＿明细（New）"), listquery);
+            var completeddetail = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F05本迭代_已完成产品特性总数＿明细（New）", listquery);
 
             listquery.Clear();
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Teld.Scrum.BelongTeamProject] =", replacevalue = project, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Microsoft.VSTS.Scheduling.TargetDate] >=", replacevalue = start0, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Microsoft.VSTS.Scheduling.TargetDate] <", replacevalue = endAdd1, notinclude = "", exectOder = "1" });
-            var removeddetail = GetFeatureListByIteration(project, ite, String.Format(Utility.QueryBaseDirectory, "01%20产品特性统计分析%2F20本迭代_已中止或已移除产品特性总数＿明细（New）"), listquery);
+            var removeddetail = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F20本迭代_已中止或已移除产品特性总数＿明细（New）", listquery);
 
             listquery.Clear();
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Teld.Scrum.BelongTeamProject] =", replacevalue = project, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Microsoft.VSTS.Scheduling.TargetDate] >=", replacevalue = start0, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Microsoft.VSTS.Scheduling.TargetDate] <", replacevalue = endAdd1, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Teld.Scrum.ReleaseFinishedDate] >=", replacevalue = endAdd1, notinclude = "", exectOder = "1" });
-            var delayeddetail = GetFeatureListByIteration(project, ite, String.Format(Utility.QueryBaseDirectory, "01%20产品特性统计分析%2F10本迭代_未完成产品特性总数＿明细（New）"), listquery);
+            var delayeddetail = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F10本迭代_未完成产品特性总数＿明细（New）", listquery);
 
             listquery.Clear();
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Teld.Scrum.BelongTeamProject] =", replacevalue = project, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Microsoft.VSTS.Scheduling.TargetDate] >=", replacevalue = start0, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Microsoft.VSTS.Scheduling.TargetDate] <", replacevalue = endAdd1, notinclude = "", exectOder = "1" });
-            var perfectdetail = GetFeatureListByIteration(project, ite, String.Format(Utility.QueryBaseDirectory, "01%20产品特性统计分析%2F25本迭代_按计划完成产品特性总数＿明细（New）"), listquery);
+            var perfectdetail = GetFeatureListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F01%20产品特性统计分析%2F25本迭代_按计划完成产品特性总数＿明细（New）", listquery);
             
             list.Add(all);
             list.Add(completed);

@@ -22,7 +22,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Teld.Scrum.Worklog.WorkDate] >=", replacevalue = start0, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Teld.Scrum.Worklog.WorkDate] <", replacevalue = endAdd1, notinclude = "", exectOder = "1" });
             
-            string wiql = API.TFS.Utility.GetQueryClause(String.Format(Utility.QueryBaseDirectory, "10%20工作量统计%2F05本迭代_实际所有的工作日志工作量"));
+            string wiql = API.TFS.Utility.GetQueryClause("共享查询%2F迭代总结数据查询%2F10%20工作量统计%2F05本迭代_实际所有的工作日志工作量");
             string sql = API.TFS.Utility.ReplaceInformationFromWIQLByReplaceList(wiql, listquery);
             
             return GetWorkloadsToEntityBySql(sql);
@@ -59,7 +59,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
         {
             List<WorkloadEntity> list = new List<WorkloadEntity>();
 
-            string wiql = API.TFS.Utility.GetQueryClause(String.Format(Utility.QueryBaseDirectory, "10%20工作量统计%2F00本迭代_任务评估工作量以及实际工作量"));
+            string wiql = API.TFS.Utility.GetQueryClause("共享查询%2F迭代总结数据查询%2F10%20工作量统计%2F00本迭代_任务评估工作量以及实际工作量");
             List<WiqlReplaceColumnEntity> listquery = new List<WiqlReplaceColumnEntity>();
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[System.TeamProject] =", replacevalue = project, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[System.IterationPath] =", replacevalue = ite.Path, notinclude = "", exectOder = "1" });

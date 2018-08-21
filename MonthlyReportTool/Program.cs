@@ -35,14 +35,14 @@ namespace MonthlyReportTool
                 {
                     GenerateIterationReport(proj, path);
                 }
-                else if (type == "quality")
-                {
-                    GenerateMonthQualityReport(proj, path, date);
-                }
-                else if (type == "month")
-                {
-                    GenerateMonthReport(path, date);
-                }
+                //else if (type == "quality")
+                //{
+                //    GenerateMonthQualityReport(proj, path, date);
+                //}
+                //else if (type == "month")
+                //{
+                //    GenerateMonthReport(path, date);
+                //}
                 else
                 {
                     ShowHelp();
@@ -66,72 +66,72 @@ namespace MonthlyReportTool
 
         }
 
-        private static void GenerateMonthReport(string path, string date)
-        {
-            var today = DateTime.Now;
-            var lastMonth = today.AddMonths(-1);
+        //private static void GenerateMonthReport(string path, string date)
+        //{
+        //    var today = DateTime.Now;
+        //    var lastMonth = today.AddMonths(-1);
 
-            string fname = string.Format("{0}\\云平台月度经营报告（{1}）.pptx", new object[]
-                    {
-                            path,
-                            lastMonth.ToString("yyyy年MM月")
-                    });
-            try
-            {
-                File.Delete(fname);
-            }
-            catch (Exception ex)
-            {
-                if (ex.TargetSite.Name == "WinIOError")
-                {
-                    Console.WriteLine("=============================================");
-                    Console.WriteLine("!!! 文件 《" + fname + "》 正在被使用 ，请关闭PowerPoint再重新运行本程序！！！");
-                    Console.WriteLine("=============================================");
-                    return;
-                }
-            }
+        //    string fname = string.Format("{0}\\云平台月度经营报告（{1}）.pptx", new object[]
+        //            {
+        //                    path,
+        //                    lastMonth.ToString("yyyy年MM月")
+        //            });
+        //    try
+        //    {
+        //        File.Delete(fname);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        if (ex.TargetSite.Name == "WinIOError")
+        //        {
+        //            Console.WriteLine("=============================================");
+        //            Console.WriteLine("!!! 文件 《" + fname + "》 正在被使用 ，请关闭PowerPoint再重新运行本程序！！！");
+        //            Console.WriteLine("=============================================");
+        //            return;
+        //        }
+        //    }
 
-            Console.WriteLine("");
-            Console.WriteLine("！！！注意！！！程序运行时，不要使用剪贴板！！！");
-            Console.WriteLine("！！！一分钟左右就能出来结果，别着急！！！");
-            Console.WriteLine("");
-            Console.WriteLine(string.Format("正在生成 云平台月度经营报告（{0}）.pptx", lastMonth.ToString("yyyy年MM月")));
+        //    Console.WriteLine("");
+        //    Console.WriteLine("！！！注意！！！程序运行时，不要使用剪贴板！！！");
+        //    Console.WriteLine("！！！一分钟左右就能出来结果，别着急！！！");
+        //    Console.WriteLine("");
+        //    Console.WriteLine(string.Format("正在生成 云平台月度经营报告（{0}）.pptx", lastMonth.ToString("yyyy年MM月")));
 
-            API.Office.PowerPoint.Utility.BuildMonthReport(lastMonth.Year, lastMonth.Month);
-        }
+        //    API.Office.PowerPoint.Utility.BuildMonthReport(lastMonth.Year, lastMonth.Month);
+        //}
 
-        private static void GenerateMonthQualityReport(string proj, string path, string date)
-        {
-            var project = API.TFS.TeamProject.Project.RetrieveProjectList().Where(prj => prj.Name.ToLower() == proj.ToLower()).ToList()[0];
+        //private static void GenerateMonthQualityReport(string proj, string path, string date)
+        //{
+        //    var project = API.TFS.TeamProject.Project.RetrieveProjectList().Where(prj => prj.Name.ToLower() == proj.ToLower()).ToList()[0];
 
-            string fname = string.Format("{0}\\{1}总结.pptx", new object[]
-                    {
-                            path,
-                            project.Description,
-                    });
-            try
-            {
-                File.Delete(fname);
-            }
-            catch (Exception ex)
-            {
-                if (ex.TargetSite.Name == "WinIOError")
-                {
-                    Console.WriteLine("=============================================");
-                    Console.WriteLine("!!! 文件 《" + fname + "》 正在被使用 ，请关闭PowerPoint再重新运行本程序！！！");
-                    Console.WriteLine("=============================================");
-                    return;
-                }
-            }
+        //    string fname = string.Format("{0}\\{1}总结.pptx", new object[]
+        //            {
+        //                    path,
+        //                    project.Description,
+        //            });
+        //    try
+        //    {
+        //        File.Delete(fname);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        if (ex.TargetSite.Name == "WinIOError")
+        //        {
+        //            Console.WriteLine("=============================================");
+        //            Console.WriteLine("!!! 文件 《" + fname + "》 正在被使用 ，请关闭PowerPoint再重新运行本程序！！！");
+        //            Console.WriteLine("=============================================");
+        //            return;
+        //        }
+        //    }
 
-            Console.WriteLine("");
-            Console.WriteLine("！！！注意！！！程序运行时，不要使用剪贴板！！！");
-            Console.WriteLine("！！！一分钟左右就能出来结果，别着急！！！");
-            Console.WriteLine("");
-            Console.WriteLine("正在生成 《" + project.Description + "》 质量分析报告...");
+        //    Console.WriteLine("");
+        //    Console.WriteLine("！！！注意！！！程序运行时，不要使用剪贴板！！！");
+        //    Console.WriteLine("！！！一分钟左右就能出来结果，别着急！！！");
+        //    Console.WriteLine("");
+        //    Console.WriteLine("正在生成 《" + project.Description + "》 质量分析报告...");
 
-            API.Office.PowerPoint.Utility.BuildQualityReport(project, date);
-        }
+        //    API.Office.PowerPoint.Utility.BuildQualityReport(project, date);
+        //}
 
         private static void GenerateIterationReport(string proj, string path)
         {

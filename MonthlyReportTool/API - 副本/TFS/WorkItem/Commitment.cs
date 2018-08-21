@@ -67,42 +67,42 @@ namespace MonthlyReportTool.API.TFS.WorkItem
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Teld.Scrum.TestFinishedTime] >=", replacevalue = start0, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Teld.Scrum.TestFinishedTime] <", replacevalue = endAdd1, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[System.CreatedDate] <", replacevalue = endAdd1, notinclude = "", exectOder = "1" });
-            var all = GetCommitmentListByIteration(project, ite, String.Format(Utility.QueryBaseDirectory, "15%20提交单统计分析%2F00本迭代_提交单总数"), listquery);
+            var all = GetCommitmentListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F15%20提交单统计分析%2F00本迭代_提交单总数", listquery);
 
             listquery.Clear();
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[System.TeamProject] =", replacevalue = project, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Teld.Scrum.TestFinishedTime] >=", replacevalue = start0, notinclude = "", exectOder = "1" }); //第一天是大于等于
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Teld.Scrum.TestFinishedTime] <", replacevalue = endAdd1, notinclude = "", exectOder = "1" }); //最后一天要加一
-            var testpassed = GetCommitmentListByIteration(project, ite, String.Format(Utility.QueryBaseDirectory, "15%20提交单统计分析%2F05本迭代_提交单测试通过总数"), listquery);
+            var testpassed = GetCommitmentListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F15%20提交单统计分析%2F05本迭代_提交单测试通过总数", listquery);
 
             listquery.Clear();
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[System.TeamProject] =", replacevalue = project, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Teld.Scrum.RemovedDate] >=", replacevalue = start0, notinclude = "", exectOder = "1" }); //第一天是大于等于
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Teld.Scrum.RemovedDate] <", replacevalue = endAdd1, notinclude = "", exectOder = "1" }); //最后一天要加一
-            var removed = GetCommitmentListByIteration(project, ite, String.Format(Utility.QueryBaseDirectory, "15%20提交单统计分析%2F10本迭代_已移除提交单总数"), listquery);
+            var removed = GetCommitmentListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F15%20提交单统计分析%2F10本迭代_已移除提交单总数", listquery);
 
             listquery.Clear();
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[System.TeamProject] =", replacevalue = project, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Teld.Scrum.TestFinishedTime] >=", replacevalue = start0, notinclude = "", exectOder = "1" }); //第一天是大于等于
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[System.CreatedDate] <", replacevalue = endAdd1, notinclude = "", exectOder = "1" }); //最后一天要加一
-            var needperf = GetCommitmentListByIteration(project, ite, String.Format(Utility.QueryBaseDirectory, "15%20提交单统计分析%2F15本迭代_需性能测试提交单总数"), listquery);
+            var needperf = GetCommitmentListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F15%20提交单统计分析%2F15本迭代_需性能测试提交单总数", listquery);
 
             listquery.Clear();
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[System.TeamProject] =", replacevalue = project, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Teld.Scrum.TestFinishedTime] >=", replacevalue = start0, notinclude = "", exectOder = "1" }); //第一天是大于等于
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Teld.Scrum.TestFinishedTime] <", replacevalue = endAdd1, notinclude = "", exectOder = "1" }); //最后一天要加一
-            var perftestpassed = GetCommitmentListByIteration(project, ite, String.Format(Utility.QueryBaseDirectory, "15%20提交单统计分析%2F20本迭代_性能测试通过提交单总数"), listquery);
+            var perftestpassed = GetCommitmentListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F15%20提交单统计分析%2F20本迭代_性能测试通过提交单总数", listquery);
 
             listquery.Clear();
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[System.TeamProject] =", replacevalue = project, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Teld.Scrum.TestFinishedTime] >=", replacevalue = start0, notinclude = "", exectOder = "1" }); //第一天是大于等于
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Teld.Scrum.TestFinishedTime] <", replacevalue = endAdd1, notinclude = "", exectOder = "1" }); //最后一天要加一
-            var failed = GetCommitmentListByIteration(project, ite, String.Format(Utility.QueryBaseDirectory, "15%20提交单统计分析%2F30本迭代_打回过提交单总数"), listquery);
+            var failed = GetCommitmentListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F15%20提交单统计分析%2F30本迭代_打回过提交单总数", listquery);
 
             listquery.Clear();
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[System.TeamProject] =", replacevalue = project, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[System.CreatedDate] <", replacevalue = endAdd1, notinclude = "", exectOder = "1" }); //最后一天要加一
-            var legacy = GetCommitmentListByIteration(project, ite, String.Format(Utility.QueryBaseDirectory, "15%20提交单统计分析%2F10本迭代_遗留提交单明细"), listquery);
+            var legacy = GetCommitmentListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F15%20提交单统计分析%2F10本迭代_遗留提交单明细", listquery);
 
             list.Add(all);
             list.Add(testpassed);

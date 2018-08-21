@@ -66,9 +66,9 @@ namespace MonthlyReportTool.API.TFS.WorkItem
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Microsoft.VSTS.Common.ClosedDate] >=", replacevalue = start0, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Microsoft.VSTS.Common.ClosedDate] <", replacevalue = endAdd1, notinclude = "", exectOder = "1" }); 
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Teld.Scrum.BelongTeamProject] =", replacevalue = project, notinclude = "", exectOder = "1" });
-            var all = GetWorkReviewListByIteration(project, ite, String.Format(Utility.QueryBaseDirectory, "20%20代码审查分析%2F00本迭代_审查记录单总数"), listquery);
+            var all = GetWorkReviewListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F20%20代码审查分析%2F00本迭代_审查记录单总数", listquery);
 
-            var bugall = GetWorkReviewListByIteration(project, ite, String.Format(Utility.QueryBaseDirectory, "20%20代码审查分析%2F01本迭代_审查记录单审查出Bug总数"), listquery);
+            var bugall = GetWorkReviewListByIteration(project, ite, "共享查询%2F迭代总结数据查询%2F20%20代码审查分析%2F01本迭代_审查记录单审查出Bug总数", listquery);
 
             list.Add(all);
             list.Add(bugall);

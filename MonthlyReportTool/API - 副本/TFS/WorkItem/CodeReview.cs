@@ -13,7 +13,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
     {
         public static List<CodeReviewEntity> GetAll(string prj, IterationEntity ite)
         {
-            string wiql = API.TFS.Utility.GetQueryClause(String.Format(Utility.QueryBaseDirectory, "20%20代码审查分析%2F00本迭代_代码审查审查的Bug总数"));
+            string wiql = API.TFS.Utility.GetQueryClause("共享查询%2F迭代总结数据查询%2F20%20代码审查分析%2F00本迭代_代码审查审查的Bug总数");
             List<WiqlReplaceColumnEntity> listquery = new List<WiqlReplaceColumnEntity>();
             String start0 = DateTime.Parse(ite.StartDate).AddDays(0).ToString("yyyy-MM-dd HH:mm:ss.fff");
             String endAdd1 = DateTime.Parse(ite.EndDate).AddDays(1).ToString("yyyy-MM-dd HH:mm:ss.fff");

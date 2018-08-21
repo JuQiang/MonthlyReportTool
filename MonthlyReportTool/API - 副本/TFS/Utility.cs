@@ -20,7 +20,6 @@ namespace MonthlyReportTool.API.TFS
     {
         public static string User = "";
         public static string Pass = "";
-        public static string QueryBaseDirectory = "共享查询%2F迭代总结数据查询%2F{0}";
 
         public static string GetHttpResponseByUrl(string url)
         {
@@ -175,6 +174,142 @@ namespace MonthlyReportTool.API.TFS
                     pos = wiql.IndexOf(colvalue.column, pos2 + 1);
                 }
             }
+
+            return wiql;
+        }
+        public static string ReplacePrjAndDateFromWIQL(string wiql, Tuple<string, string, string, string> original)
+        {
+            string prj = original.Item1;
+            string date1 = original.Item2;
+            string date2 = original.Item3;
+            string date3 = original.Item4;
+            //第一次Project替换
+            int pos = wiql.IndexOf(prj);
+            pos = wiql.IndexOf("'", pos + prj.Length);
+            int pos2 = wiql.IndexOf("'", pos + 1);
+            wiql = wiql.Substring(0, pos) + "'{0}'" + wiql.Substring(pos2 + 1);
+            //第二次Project替换
+            pos = wiql.IndexOf(prj, pos2);
+            if (pos > 0)
+            {
+                pos = wiql.IndexOf("'", pos + prj.Length);
+                pos2 = wiql.IndexOf("'", pos + 1);
+                wiql = wiql.Substring(0, pos) + "'{0}'" + wiql.Substring(pos2 + 1);
+            }
+            //第一次date1替换
+            pos = wiql.IndexOf(date1);
+            pos = wiql.IndexOf("'", pos + date1.Length);
+            pos2 = wiql.IndexOf("'", pos + 1);
+            wiql = wiql.Substring(0, pos) + "'{1}'" + wiql.Substring(pos2 + 1);
+
+            //第二次date1替换
+            if (pos2 <= wiql.Length)
+            {
+                pos = wiql.IndexOf(date1, pos2);
+                if (pos > 0)
+                {
+                    pos = wiql.IndexOf("'", pos + date1.Length);
+                    pos2 = wiql.IndexOf("'", pos + 1);
+                    wiql = wiql.Substring(0, pos) + "'{1}'" + wiql.Substring(pos2 + 1);
+                }
+            }
+            //第一次date2替换
+            pos = wiql.IndexOf(date2);
+            pos = wiql.IndexOf("'", pos + date2.Length);
+            pos2 = wiql.IndexOf("'", pos + 1);
+            wiql = wiql.Substring(0, pos) + "'{2}'" + wiql.Substring(pos2 + 1);
+
+            //第二次date2替换
+            if (pos2 <= wiql.Length)
+            {
+                pos = wiql.IndexOf(date2, pos2);
+                if (pos > 0)
+                {
+                    pos = wiql.IndexOf("'", pos + date2.Length);
+                    pos2 = wiql.IndexOf("'", pos + 1);
+                    wiql = wiql.Substring(0, pos) + "'{2}'" + wiql.Substring(pos2 + 1);
+                }
+            }
+            //第一次date3替换
+            if (String.IsNullOrEmpty(date3) == false)
+            {
+                pos = wiql.IndexOf(date3);
+                pos = wiql.IndexOf("'", pos + date3.Length);
+                pos2 = wiql.IndexOf("'", pos + 1);
+                wiql = wiql.Substring(0, pos) + "'{3}'" + wiql.Substring(pos2 + 1);
+            }
+            return wiql;
+        }
+
+        public static string ReplacePrjAndDateAndPrjFromWIQL(string wiql, Tuple<string, string, string, string> original)
+        {
+            string prj = original.Item1;
+            string date1 = original.Item2;
+            string date2 = original.Item3;
+            string prj2 = original.Item4;
+
+            wiql = wiql.Replace("@project", "'{0}'");
+            int pos = wiql.IndexOf(prj);
+            pos = wiql.IndexOf("'", pos + prj.Length);
+            int pos2 = wiql.IndexOf("'", pos + 1);
+            wiql = wiql.Substring(0, pos) + "'{0}'" + wiql.Substring(pos2 + 1);
+
+            if (date1 != "_FQQ_")
+            {
+                pos = wiql.IndexOf(date1);
+                pos = wiql.IndexOf("'", pos + date1.Length);
+                pos2 = wiql.IndexOf("'", pos + 1);
+                wiql = wiql.Substring(0, pos) + "'{1}'" + wiql.Substring(pos2 + 1);
+            }
+
+            if (date2 != "_FQQ_")
+            {
+                pos = wiql.IndexOf(date2);
+                pos = wiql.IndexOf("'", pos + date2.Length);
+                pos2 = wiql.IndexOf("'", pos + 1);
+                wiql = wiql.Substring(0, pos) + "'{2}'" + wiql.Substring(pos2 + 1);
+            }
+
+            if (prj2 != "_FQQ_")
+            {
+                pos = wiql.IndexOf(prj2);
+                pos = wiql.IndexOf("'", pos + prj2.Length);
+                pos2 = wiql.IndexOf("'", pos + 1);
+                wiql = wiql.Substring(0, pos) + "'{0}'" + wiql.Substring(pos2 + 1);
+            }
+
+            return wiql;
+        }
+
+        public static string ReplaceInformationFromWIQLByProject(string wiql, List<string> columns)
+        {
+            int pos = -1, pos2 = -1;
+
+            for (int i = 0; i < columns.Count; i++)
+            {
+                string key = columns[i];
+                pos = wiql.IndexOf(key);
+                pos = wiql.IndexOf("'", pos + key.Length);
+                pos2 = wiql.IndexOf("'", pos + 1);
+                wiql = wiql.Substring(0, pos) + "'{" + Convert.ToString(i) + "}'" + wiql.Substring(pos2 + 1);
+            }
+
+            return wiql;
+        }
+
+        public static string ReplaceProjectAndIterationFromWIQL(string wiql)
+        {
+            string prj = "[System.TeamProject] =";
+            int pos = wiql.IndexOf(prj);
+            pos = wiql.IndexOf("'", pos + prj.Length);
+            int pos2 = wiql.IndexOf("'", pos + 1);
+            wiql = wiql.Substring(0, pos) + "'{0}'" + wiql.Substring(pos2 + 1);
+
+            string ite = "[System.IterationPath] =";
+            pos = wiql.IndexOf(ite);
+            pos = wiql.IndexOf("'", pos + ite.Length);
+            pos2 = wiql.IndexOf("'", pos + 1);
+            wiql = wiql.Substring(0, pos) + "'{1}'" + wiql.Substring(pos2 + 1);
 
             return wiql;
         }

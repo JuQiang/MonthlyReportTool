@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Collections;
 
 namespace MonthlyReportTool.API.TFS.WorkItem
 {
@@ -20,7 +21,8 @@ namespace MonthlyReportTool.API.TFS.WorkItem
         private static List<CommitmentEntity> GetCommitsToEntityBySql(string sql) {
             List<CommitmentEntity> list = new List<CommitmentEntity>();
             string responseBody = Utility.ExecuteQueryBySQL(sql);
-            var commitments = Utility.ConvertWorkitemFlatQueryResult2Array(responseBody);
+            Hashtable hs = new Hashtable();
+            var commitments = Utility.ConvertWorkitemQueryResult2Array(responseBody, ref hs);
             foreach (var commitment in commitments)
             {
                 list.Add(

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Collections;
 
 namespace MonthlyReportTool.API.TFS.WorkItem
 {
@@ -31,7 +32,8 @@ namespace MonthlyReportTool.API.TFS.WorkItem
             List<WorkloadEntity> list = new List<WorkloadEntity>();
 
             string responseBody = Utility.ExecuteQueryBySQL(sql);
-            var workloads = Utility.ConvertWorkitemFlatQueryResult2Array(responseBody);
+            Hashtable hs = new Hashtable();
+            var workloads = Utility.ConvertWorkitemQueryResult2Array(responseBody, ref hs);
             foreach (var workload in workloads)
             {
                 list.Add(
@@ -48,7 +50,6 @@ namespace MonthlyReportTool.API.TFS.WorkItem
                                 WorkDate = Convert.ToString(workload["fields"]["Teld.Scrum.Worklog.WorkDate"]),
                                 InPlaned = Convert.ToString(workload["fields"]["Teld.Scrum.InPlaned"]),
                                 TeamProject = Convert.ToString(workload["fields"]["System.TeamProject"]),
-
                             }
                         );
             }
@@ -66,7 +67,8 @@ namespace MonthlyReportTool.API.TFS.WorkItem
             string sql = API.TFS.Utility.ReplaceInformationFromWIQLByReplaceList(wiql,listquery);
             
             string responseBody = Utility.ExecuteQueryBySQL(sql);
-            var workloads = Utility.ConvertWorkitemFlatQueryResult2Array(responseBody);
+            Hashtable hs = new Hashtable();
+            var workloads = Utility.ConvertWorkitemQueryResult2Array(responseBody, ref hs);
             
             double esthour = 0.0d;
             double acthour = 0.0d;

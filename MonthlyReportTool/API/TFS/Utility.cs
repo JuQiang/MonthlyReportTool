@@ -22,27 +22,6 @@ namespace MonthlyReportTool.API.TFS
         public static string Pass = "";
         public static string QueryBaseDirectory = "共享查询%2F迭代总结数据查询%2F{0}";
 
-        public static string GetHttpResponseByUrl(string url)
-        {
-            using (HttpClient client = new HttpClient())
-            {
-                client.DefaultRequestHeaders.Accept.Add(
-                    new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
-                    Convert.ToBase64String(
-                        System.Text.ASCIIEncoding.ASCII.GetBytes(
-                            string.Format("{0}:{1}", User, Pass))));
-
-                string detailsUrl = String.Empty;
-                using (HttpResponseMessage response = client.GetAsync(url).Result)
-                {
-                    response.EnsureSuccessStatusCode();
-                    return response.Content.ReadAsStringAsync().Result;
-                }
-            }
-        }
-
         public static string GetBurndownPictureFile(string projectName)
         {
             string url = String.Format("http://tfs.teld.cn:8080/tfs/Teld/{0}/_api/_teamChart/Burndown?chartOptions=%7B%22Width%22%3A1248%2C%22Height%22%3A616%2C%22" +
@@ -69,6 +48,135 @@ namespace MonthlyReportTool.API.TFS
                     string fname = Environment.GetEnvironmentVariable("temp") + "\\" + Guid.NewGuid().ToString() + ".png";
                     File.WriteAllBytes(fname, img);
                     return fname;
+                }
+            }
+        }
+
+        private static Dictionary<string, string> memberCache = new Dictionary<string, string>();
+        private void FlushTeamMemberList()
+        {
+            memberCache = new Dictionary<string, string>();
+
+            //http://tfs.teld.cn:8080/tfs/teld/_apis/projects/2edbf3dd-f4d4-4ff9-9cd8-cadda5bdc21a/teams/be7ae25c-0fc2-429a-8759-ef84675fc028/members?api-version=2.0
+
+            List<ProjectEntity> prjlist = new List<ProjectEntity>();
+            //http://tfs.teld.cn:8080/tfs/teld/_apis/projects?api-version=2.0
+            string url = String.Format("http://{0}:8080/{1}/_apis/projects/2edbf3dd-f4d4-4ff9-9cd8-cadda5bdc21a/teams/be7ae25c-0fc2-429a-8759-ef84675fc028/members?api-version=2.0",
+                    "tfs.teld.cn",
+                    "tfs/teld"
+                    );
+
+
+            string responseBody = GetHttpResponseByUrl(url);
+
+            foreach (var person in (JsonConvert.DeserializeObject(responseBody) as JObject)["value"] as JArray)
+            {
+                string dispname = Convert.ToString(person["displayName"]);
+                string uniquename = Convert.ToString(person["uniqueName"]);
+                memberCache.Add(dispname, String.Format("{0} <{1}>", dispname, uniquename));
+            }
+
+        }
+
+        private static List<string> testMembers = new List<string>();
+        public static List<string> GetTestMembers(bool forceRefresh)
+        {
+            if ((false == forceRefresh) && (testMembers.Count > 0)) return testMembers;
+
+            testMembers.Clear();
+            var list = API.TFS.TeamProject.Member.RetrieveMemberListByTeam("orgportal", "TestManager");
+            foreach (var me in list)
+            {
+                testMembers.Add(me.FullName);
+            }
+
+            return testMembers;
+        }
+
+        //替换查询变量，循环替换，对于多个的也都替换了，并且排除不需要替换的。
+        public static string ReplaceInformationFromWIQLByReplaceList(string wiql, List<WiqlReplaceColumnEntity> colvalues)
+        {
+            int pos = -1, pos2 = -1;
+            WiqlReplaceColumnEntity colvalue;
+            for (int i = 0; i < colvalues.Count; i++)
+            {
+                colvalue = colvalues[i];
+                //1、先搜索包含column的内容，如果搜索到，再搜索包含排除的内容，如果两者的index一样，则跳过继续下一次搜索
+                //2、如果是顺序的话，则找到一个就停止，如果是循环，则继续ｗｈｉｌｅ执行
+                //pos = wiql.IndexOf(colvalue.column);
+                //pos = wiql.IndexOf("'", pos + colvalue.column.Length);
+                //pos2 = wiql.IndexOf("'", pos + 1);
+                //wiql = wiql.Substring(0, pos) + "'" + colvalue.replacevalue + "'" + wiql.Substring(pos2 + 1);
+                pos = wiql.IndexOf(colvalue.column);
+                while (pos >= 0)
+                {
+                    if (!String.IsNullOrEmpty(colvalue.notinclude))//不为空,判断是否是要排除的,是就继续
+                    {
+                        int tmppos = wiql.IndexOf(colvalue.notinclude, pos2 + 1);
+                        if (tmppos == pos)
+                        {
+                            pos2 = pos2 + colvalue.notinclude.Length;
+                            pos = wiql.IndexOf(colvalue.column, pos2 + 1);
+                            continue;
+                        }
+                    }
+                    pos = wiql.IndexOf("'", pos + colvalue.column.Length);
+                    pos2 = wiql.IndexOf("'", pos + 1);
+                    wiql = wiql.Substring(0, pos) + "'" + colvalue.replacevalue + "'" + wiql.Substring(pos2 + 1);
+                    pos = wiql.IndexOf(colvalue.column, pos2 + 1);
+                }
+            }
+
+            return wiql;
+        }
+        
+        public static string GetQueryClause(string queryID)
+        {
+            string url = String.Format("http://{0}:8080/{1}/_apis/wit/queries/{2}?$expand=clauses&api-version=1.0",
+                "tfs.teld.cn", //t-bj-tfs.chinacloudapp.cn
+                "tfs/teld/orgportal",
+                queryID
+                );
+
+
+            using (HttpClient client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Accept.Add(
+                    new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
+                    Convert.ToBase64String(
+                        System.Text.ASCIIEncoding.ASCII.GetBytes(
+                            string.Format("{0}:{1}", User, Pass))));
+
+                string detailsUrl = String.Empty;
+                using (HttpResponseMessage response = client.GetAsync(url).Result)
+                {
+                    response.EnsureSuccessStatusCode();
+                    string responseBody = response.Content.ReadAsStringAsync().Result;
+
+                    return Convert.ToString((JsonConvert.DeserializeObject(responseBody) as JObject)["wiql"]);
+                }
+            }
+        }
+        
+        public static string GetHttpResponseByUrl(string url)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Accept.Add(
+                    new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
+                    Convert.ToBase64String(
+                        System.Text.ASCIIEncoding.ASCII.GetBytes(
+                            string.Format("{0}:{1}", User, Pass))));
+
+                string detailsUrl = String.Empty;
+                using (HttpResponseMessage response = client.GetAsync(url).Result)
+                {
+                    response.EnsureSuccessStatusCode();
+                    return response.Content.ReadAsStringAsync().Result;
                 }
             }
         }
@@ -142,113 +250,7 @@ namespace MonthlyReportTool.API.TFS
 
             }
         }
-        //替换查询变量，循环替换，对于多个的也都替换了，并且排除不需要替换的。
-        public static string ReplaceInformationFromWIQLByReplaceList(string wiql, List<WiqlReplaceColumnEntity> colvalues)
-        {
-            int pos = -1, pos2 = -1;
-            WiqlReplaceColumnEntity colvalue;
-            for (int i = 0; i < colvalues.Count; i++)
-            {
-                colvalue = colvalues[i];
-                //1、先搜索包含column的内容，如果搜索到，再搜索包含排除的内容，如果两者的index一样，则跳过继续下一次搜索
-                //2、如果是顺序的话，则找到一个就停止，如果是循环，则继续ｗｈｉｌｅ执行
-                //pos = wiql.IndexOf(colvalue.column);
-                //pos = wiql.IndexOf("'", pos + colvalue.column.Length);
-                //pos2 = wiql.IndexOf("'", pos + 1);
-                //wiql = wiql.Substring(0, pos) + "'" + colvalue.replacevalue + "'" + wiql.Substring(pos2 + 1);
-                pos = wiql.IndexOf(colvalue.column);
-                while (pos >= 0)
-                {
-                    if(!String.IsNullOrEmpty(colvalue.notinclude))//不为空,判断是否是要排除的,是就继续
-                    {
-                        int tmppos = wiql.IndexOf(colvalue.notinclude, pos2 + 1);
-                        if (tmppos == pos)
-                        {
-                            pos2 = pos2 + colvalue.notinclude.Length;
-                            pos = wiql.IndexOf(colvalue.column, pos2 + 1);
-                            continue;
-                        }
-                    }
-                    pos = wiql.IndexOf("'", pos + colvalue.column.Length);
-                    pos2 = wiql.IndexOf("'", pos + 1);
-                    wiql = wiql.Substring(0, pos) + "'" + colvalue.replacevalue + "'" + wiql.Substring(pos2 + 1);
-                    pos = wiql.IndexOf(colvalue.column, pos2 + 1);
-                }
-            }
-
-            return wiql;
-        }
-        public static string GetQueryClause(string queryID)
-        {
-            string url = String.Format("http://{0}:8080/{1}/_apis/wit/queries/{2}?$expand=clauses&api-version=1.0",
-                "tfs.teld.cn", //t-bj-tfs.chinacloudapp.cn
-                "tfs/teld/orgportal",
-                queryID
-                );
-
-
-            using (HttpClient client = new HttpClient())
-            {
-                client.DefaultRequestHeaders.Accept.Add(
-                    new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
-                    Convert.ToBase64String(
-                        System.Text.ASCIIEncoding.ASCII.GetBytes(
-                            string.Format("{0}:{1}", User, Pass))));
-
-                string detailsUrl = String.Empty;
-                using (HttpResponseMessage response = client.GetAsync(url).Result)
-                {
-                    response.EnsureSuccessStatusCode();
-                    string responseBody = response.Content.ReadAsStringAsync().Result;
-
-                    return Convert.ToString((JsonConvert.DeserializeObject(responseBody) as JObject)["wiql"]);
-                }
-            }
-        }
-
-        private static Dictionary<string, string> memberCache = new Dictionary<string, string>();
-        private void FlushTeamMemberList()
-        {
-            memberCache = new Dictionary<string, string>();
-
-            //http://tfs.teld.cn:8080/tfs/teld/_apis/projects/2edbf3dd-f4d4-4ff9-9cd8-cadda5bdc21a/teams/be7ae25c-0fc2-429a-8759-ef84675fc028/members?api-version=2.0
-
-            List<ProjectEntity> prjlist = new List<ProjectEntity>();
-            //http://tfs.teld.cn:8080/tfs/teld/_apis/projects?api-version=2.0
-            string url = String.Format("http://{0}:8080/{1}/_apis/projects/2edbf3dd-f4d4-4ff9-9cd8-cadda5bdc21a/teams/be7ae25c-0fc2-429a-8759-ef84675fc028/members?api-version=2.0",
-                    "tfs.teld.cn",
-                    "tfs/teld"
-                    );
-
-
-            string responseBody = GetHttpResponseByUrl(url);
-
-            foreach (var person in (JsonConvert.DeserializeObject(responseBody) as JObject)["value"] as JArray)
-            {
-                string dispname = Convert.ToString(person["displayName"]);
-                string uniquename = Convert.ToString(person["uniqueName"]);
-                memberCache.Add(dispname, String.Format("{0} <{1}>", dispname, uniquename));
-            }
-
-        }
-
-        private static List<string> testMembers = new List<string>();
-
-        public static List<string> GetTestMembers(bool forceRefresh)
-        {
-            if ((false == forceRefresh) && (testMembers.Count > 0)) return testMembers;
-
-            testMembers.Clear();
-            var list = API.TFS.TeamProject.Member.RetrieveMemberListByTeam("orgportal", "TestManager");
-            foreach (var me in list)
-            {
-                testMembers.Add(me.FullName);
-            }
-
-            return testMembers;
-        }
+                
         public static List<JToken> ConvertWorkitemQueryResult2Array(string responseBody, ref Hashtable hs)
         {
             List<JToken> list = new List<JToken>();
@@ -260,7 +262,7 @@ namespace MonthlyReportTool.API.TFS
             else
                 return ConvertWorkitemFlatQueryResult2Array(responseBody);
         }
-        public static List<JToken> ConvertWorkitemFlatQueryResult2Array(string responseBody)
+        private static List<JToken> ConvertWorkitemFlatQueryResult2Array(string responseBody)
         {
             List<JToken> list = new List<JToken>();
             if (String.IsNullOrEmpty(responseBody)) return list;
@@ -331,8 +333,7 @@ namespace MonthlyReportTool.API.TFS
 
             return list;
         }
-
-        public static List<JToken> ConvertWorkitemTreeQueryResult2Array(string responseBody, ref Hashtable hs)
+        private static List<JToken> ConvertWorkitemTreeQueryResult2Array(string responseBody, ref Hashtable hs)
         {
             List<JToken> list = new List<JToken>();
 
@@ -427,6 +428,7 @@ namespace MonthlyReportTool.API.TFS
 
             return standardWorkingDays;
         }
+
         public static IterationEntity GetBestIteration(string project)
         {
             DateTime now = DateTime.Now;

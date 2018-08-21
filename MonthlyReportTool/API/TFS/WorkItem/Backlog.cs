@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Collections;
 
 namespace MonthlyReportTool.API.TFS.WorkItem
 {
@@ -42,7 +43,8 @@ namespace MonthlyReportTool.API.TFS.WorkItem
         {
             List<BacklogEntity> list = new List<BacklogEntity>();
             string responseBody = Utility.ExecuteQueryBySQL(sql);
-            var backlogs = Utility.ConvertWorkitemFlatQueryResult2Array(responseBody);
+            Hashtable hs = new Hashtable();
+            var backlogs = Utility.ConvertWorkitemQueryResult2Array(responseBody, ref hs);
             foreach (var backlog in backlogs)
             {
                 list.Add(

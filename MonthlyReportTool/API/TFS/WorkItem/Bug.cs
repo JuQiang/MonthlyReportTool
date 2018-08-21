@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Collections;
 
 namespace MonthlyReportTool.API.TFS.WorkItem
 {
@@ -21,7 +22,8 @@ namespace MonthlyReportTool.API.TFS.WorkItem
         {
             List<BugEntity> list = new List<BugEntity>();
             string responseBody = Utility.ExecuteQueryBySQL(sql);
-            var bugs = Utility.ConvertWorkitemFlatQueryResult2Array(responseBody);
+            Hashtable hs = new Hashtable();
+            var bugs = Utility.ConvertWorkitemQueryResult2Array(responseBody, ref hs);
             foreach (var bug in bugs)
             {
                 list.Add(

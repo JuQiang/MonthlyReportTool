@@ -42,21 +42,11 @@ namespace MonthlyReportTool.API.TFS
             {
                 using (BinaryReader reader = new BinaryReader(response.GetResponseStream()))
                 {
-                    byte[] img = reader.ReadBytes(10000);
+                    byte[] img = reader.ReadBytes(100000);
                     string fname = Environment.GetEnvironmentVariable("temp") + "\\" + Guid.NewGuid().ToString() + ".png";
                     File.WriteAllBytes(fname, img);
                     return fname;
                 }
-                //using (StreamReader reader = new StreamReader(response.GetResponseStream()))
-                //{
-                //    string responseMsg = reader.ReadToEnd();
-                //    string fname = Environment.GetEnvironmentVariable("temp") + "\\" + Guid.NewGuid().ToString() + ".png";
-                //    using (FileStream fs = new FileStream(pluginFileName, FileMode.Create, FileAccess.Write))
-                //    {
-                //        var bytes = Convert.FromBase64String(plugin.FileContent);
-                //        fs.Write(bytes, 0, bytes.Length);
-                //    }
-                //}
             }
         }
 
@@ -122,26 +112,25 @@ namespace MonthlyReportTool.API.TFS
             string responseBody = GetHttpResponseByUrl(url);
             return Convert.ToString((JsonConvert.DeserializeObject(responseBody) as JObject)["wiql"]);
         }
-        public static string GetHttpResponseByUrl(string url, string queryParamter="", string requestMethod = "GET")
+        public static string GetHttpResponseByUrl(string url, string queryParameter="", string requestMethod="GET")
         {
             HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
             request.ContentType = "application/json";
             request.Accept = "text/html, application/xhtml+xml, */*";
-            request.Method = requestMethod;
+            request.Method = requestMethod;// "POST","GET";
             request.Timeout = 30000;
             request.Credentials = new NetworkCredential(User, Pass); //credential;
 
             if (requestMethod == "POST")
             {
-                if (queryParamter.Length > 0)
-                {
-                    //转换输入参数的编码类型，获取bytep[]数组             
-                    byte[] byteArray = Encoding.UTF8.GetBytes(queryParamter);
-                    request.ContentLength = byteArray.Length;
-                    Stream newStream = request.GetRequestStream();//创建一个Stream,赋值是写入HttpWebRequest对象提供的一个stream里面
-                    newStream.Write(byteArray, 0, byteArray.Length);
-                }
+                string data = JsonConvert.SerializeObject(queryParameter);
+                //转换输入参数的编码类型，获取bytep[]数组 
+                byte[] byteArray = Encoding.UTF8.GetBytes(data);
+                request.ContentLength = byteArray.Length;
+                Stream newStream = request.GetRequestStream();//创建一个Stream,赋值是写入HttpWebRequest对象提供的一个stream里面
+                newStream.Write(byteArray, 0, byteArray.Length);
             }
+
             using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
             {
                 using (StreamReader reader = new StreamReader(response.GetResponseStream()))
@@ -160,8 +149,7 @@ namespace MonthlyReportTool.API.TFS
 
             string data = JsonConvert.SerializeObject(new Dictionary<string, string>() { { "query", sql.Replace("\\", "\\\\") } });
 
-            String responseBody = GetHttpResponseByUrl(url, data, "POST");
-            return responseBody;
+            return GetHttpResponseByUrl(url, data, "POST");
         }
         public static JObject RetrieveWorkItems(string columns, string workitems)
         {

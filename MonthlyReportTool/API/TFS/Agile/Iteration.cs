@@ -14,9 +14,9 @@ namespace MonthlyReportTool.API.TFS.Agile
         {
             List<IterationEntity> list = new List<IterationEntity>();
 
-            string ret = TFS.Utility.GetHttpResponseByUrl(
-                String.Format("http://tfs.teld.cn:8080/tfs/teld/{0}/_apis/work/teamsettings/iterations?api-version=v2.0-preview", prj)
-            );
+            string url = String.Format("http://tfs.teld.cn:8080/tfs/teld/{0}/_apis/work/teamsettings/iterations?api-version=v4.1-preview.1",prj);
+
+            string ret = TFS.Utility.GetHttpResponseByUrl(url);
 
             var jarray = (JsonConvert.DeserializeObject(ret) as JObject)["value"] as JArray;
             foreach (var jo in jarray)
@@ -40,7 +40,7 @@ namespace MonthlyReportTool.API.TFS.Agile
             List<string> daysOff = new List<string>();
 
             string ret = TFS.Utility.GetHttpResponseByUrl(
-                String.Format("http://tfs.teld.cn:8080/tfs/teld/{0}/_apis/work/teamsettings/iterations/{1}?api-version=v2.0-preview", prj,iteration)
+                String.Format("http://tfs.teld.cn:8080/tfs/teld/{0}/_apis/work/teamsettings/iterations/{1}?api-version=v4.1-preview.1", prj,iteration)
             );
 
             string url = (JsonConvert.DeserializeObject(ret) as JObject)["_links"]["teamDaysOff"]["href"].ToString().Trim();

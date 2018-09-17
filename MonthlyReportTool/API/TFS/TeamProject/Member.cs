@@ -13,7 +13,7 @@ namespace MonthlyReportTool.API.TFS.TeamProject
         public static List<MemberEntity> RetrieveMemberListByTeam(string prjname,string teamname)
         {
             List<MemberEntity> memberlist = new List<MemberEntity>();
-            string url = String.Format("http://{0}:8080/{1}/_apis/projects/{2}/teams/{3}/members?api-version=1.0",
+            string url = String.Format("http://{0}:8080/{1}/_apis/projects/{2}/teams/{3}/members?api-version=4.1",
                     "tfs.teld.cn",
                     "tfs/teld",
                     prjname,
@@ -25,16 +25,14 @@ namespace MonthlyReportTool.API.TFS.TeamProject
 
             foreach (var prj in (JsonConvert.DeserializeObject(responseBody) as JObject)["value"] as JArray)
             {
-                memberlist.Add(new MemberEntity()
-                {
-                    Id = Convert.ToString(prj["id"]),
-                    DisplayName = Convert.ToString(prj["displayName"]),
-                    UniqueName = Convert.ToString(prj["uniqueName"]),
-                    URL = Convert.ToString(prj["url"]),
-                    ImageURL = Convert.ToString(prj["imageUrl"]),
-                    FullName= Convert.ToString(prj["displayName"])+" <" + Convert.ToString(prj["uniqueName"])+">",
-                }
-                );
+                MemberEntity me = new MemberEntity();
+                me.Id = Convert.ToString(prj["identity"]["id"]);
+                me.DisplayName = Convert.ToString(prj["identity"]["displayName"]);
+                me.UniqueName = Convert.ToString(prj["identity"]["uniqueName"]);
+                me.URL = Convert.ToString(prj["identity"]["url"]);
+                me.ImageURL = Convert.ToString(prj["identity"]["imageUrl"]);
+                me.FullName = Convert.ToString(prj["identity"]["displayName"]) + " <" + Convert.ToString(prj["identity"]["uniqueName"]) + ">";
+                memberlist.Add(me);
             }
 
             return memberlist;
@@ -45,7 +43,7 @@ namespace MonthlyReportTool.API.TFS.TeamProject
             List<MemberEntity> list = new List<MemberEntity>();
 
             string ret = TFS.Utility.GetHttpResponseByUrl(
-                String.Format("http://tfs.teld.cn:8080/tfs/teld/{0}/_apis/work/teamsettings/iterations/{1}?api-version=v2.0-preview", prj, iterationId)
+                String.Format("http://tfs.teld.cn:8080/tfs/teld/{0}/_apis/work/teamsettings/iterations/{1}?api-version=v4.1-preview.1", prj, iterationId)
             );
 
 

@@ -75,8 +75,8 @@ namespace MonthlyReportTool.API.TFS.WorkItem
             double lefthour = 0.0d;
             foreach (var workload in workloads)
             {
-                esthour += Convert.ToDouble(workload["fields"]["Teld.Scrum.WorkItem.Task.EstimateHours"]);
-                acthour += Convert.ToDouble(workload["fields"]["Teld.Scrum.WorkItem.Task.ActualHours"]);
+                esthour += Convert.ToDouble(workload["fields"]["Microsoft.VSTS.Scheduling.OriginalEstimate"]);
+                acthour += Convert.ToDouble(workload["fields"]["Microsoft.VSTS.Scheduling.CompletedWork"]);
                 lefthour += Convert.ToDouble(workload["fields"]["Microsoft.VSTS.Scheduling.RemainingWork"]);
             }
 

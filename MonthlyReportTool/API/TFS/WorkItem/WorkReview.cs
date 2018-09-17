@@ -15,7 +15,8 @@ namespace MonthlyReportTool.API.TFS.WorkItem
 
             return GetWorkloadsToEntityBySql(sql);
         }
-        private static List<WorkReviewEntity> GetWorkloadsToEntityBySql(string sql) {
+        private static List<WorkReviewEntity> GetWorkloadsToEntityBySql(string sql)
+        {
             List<WorkReviewEntity> list = new List<WorkReviewEntity>();
             string responseBody = Utility.ExecuteQueryBySQL(sql);
             Hashtable hs = new Hashtable();
@@ -39,6 +40,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
                         ReviewBillType = Convert.ToString(workreview["fields"]["Teld.Scrum.ReviewBillType"]),
                         ReviewResponsibleMan = Convert.ToString(workreview["fields"]["Teld.Scrum.ReviewResponsibleMan"]),
                         PlanSubmitDate = Convert.ToString(workreview["fields"]["Teld.Scrum.PlanSubmitDate"]),
+                        ActionDate = Convert.ToString(workreview["fields"]["Teld.Scrum.ActionDate"]),
                         CreatedDate = Convert.ToString(workreview["fields"]["System.CreatedDate"]),
                         ClosedDate = Convert.ToString(workreview["fields"]["Microsoft.VSTS.Common.ClosedDate"]),
                         IterationPath = Convert.ToString(workreview["fields"]["System.IterationPath"]),
@@ -64,7 +66,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
             List<WiqlReplaceColumnEntity> listquery = new List<WiqlReplaceColumnEntity>();
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[System.TeamProject] =", replacevalue = project, notinclude = "[System.TeamProject] = 'OrgPortal'", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Microsoft.VSTS.Common.ClosedDate] >=", replacevalue = start0, notinclude = "", exectOder = "1" });
-            listquery.Add(new WiqlReplaceColumnEntity() { column = "[Microsoft.VSTS.Common.ClosedDate] <", replacevalue = endAdd1, notinclude = "", exectOder = "1" }); 
+            listquery.Add(new WiqlReplaceColumnEntity() { column = "[Microsoft.VSTS.Common.ClosedDate] <", replacevalue = endAdd1, notinclude = "", exectOder = "1" });
             listquery.Add(new WiqlReplaceColumnEntity() { column = "[Teld.Scrum.BelongTeamProject] =", replacevalue = project, notinclude = "", exectOder = "1" });
             var all = GetWorkReviewListByIteration(project, ite, String.Format(Utility.QueryBaseDirectory, "20%20代码审查分析%2F00本迭代_审查记录单总数"), listquery);
 

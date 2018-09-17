@@ -13,7 +13,7 @@ namespace MonthlyReportTool.API.TFS.TeamProject
         public static List<TeamEntity> RetrieveTeamList(string prjname)
         {
             List<TeamEntity> teamlist = new List<TeamEntity>();
-            string url = String.Format("http://{0}:8080/{1}/_apis/projects/{2}/teams?api-version=1.0",
+            string url = String.Format("http://{0}:8080/{1}/_apis/projects/{2}/teams?api-version=4.1",
                     "tfs.teld.cn",
                     "tfs/teld",
                     prjname

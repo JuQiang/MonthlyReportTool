@@ -57,7 +57,7 @@ namespace MonthlyReportTool.API.TFS
                 //        fs.Write(bytes, 0, bytes.Length);
                 //    }
                 //}
-            }
+            }            
         }
 
         private static List<string> testMembers = new List<string>();
@@ -122,26 +122,47 @@ namespace MonthlyReportTool.API.TFS
             string responseBody = GetHttpResponseByUrl(url);
             return Convert.ToString((JsonConvert.DeserializeObject(responseBody) as JObject)["wiql"]);
         }
-        public static string GetHttpResponseByUrl(string url, string queryParamter="", string requestMethod = "GET")
+        public static string GetHttpResponseByUrl(string uri)
         {
-            HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
+            HttpWebRequest request = WebRequest.Create(uri) as HttpWebRequest;
             request.ContentType = "application/json";
             request.Accept = "text/html, application/xhtml+xml, */*";
-            request.Method = requestMethod;
+            request.Method = "GET";
             request.Timeout = 30000;
             request.Credentials = new NetworkCredential(User, Pass); //credential;
 
-            if (requestMethod == "POST")
+            using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
             {
-                if (queryParamter.Length > 0)
+                using (StreamReader reader = new StreamReader(response.GetResponseStream()))
                 {
-                    //转换输入参数的编码类型，获取bytep[]数组             
-                    byte[] byteArray = Encoding.UTF8.GetBytes(queryParamter);
-                    request.ContentLength = byteArray.Length;
-                    Stream newStream = request.GetRequestStream();//创建一个Stream,赋值是写入HttpWebRequest对象提供的一个stream里面
-                    newStream.Write(byteArray, 0, byteArray.Length);
+                    string responseMsg = reader.ReadToEnd();
+                    return responseMsg;
                 }
             }
+        }
+        public static string GetHttpResponseByUrl(string uri, string sql, string requestMethod = "POST")
+        {
+            //var url = "http://t-bj-tfs.chinacloudapp.cn:56283/GetWorkItemsBySql";
+            string url = String.Format("http://{0}:8080/{1}/_apis/wit/wiql?api-version=4.1",
+                    "tfs.teld.cn",
+                    "tfs/teld"
+                    );
+
+            string data = JsonConvert.SerializeObject(new Dictionary<string, string>() { { "query", sql.Replace("\\", "\\\\") } });
+
+            //转换输入参数的编码类型，获取bytep[]数组 
+            byte[] byteArray = Encoding.UTF8.GetBytes(data);
+            HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
+            request.ContentType = "application/json";
+            request.Accept = "text/html, application/xhtml+xml, */*";
+            request.Method = "POST";
+            request.Timeout = 30000;
+            request.ContentLength = byteArray.Length;
+            request.Credentials = new NetworkCredential(User, Pass); //credential;
+
+            Stream newStream = request.GetRequestStream();//创建一个Stream,赋值是写入HttpWebRequest对象提供的一个stream里面
+            newStream.Write(byteArray, 0, byteArray.Length);
+
             using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
             {
                 using (StreamReader reader = new StreamReader(response.GetResponseStream()))
@@ -158,9 +179,7 @@ namespace MonthlyReportTool.API.TFS
                     "tfs/teld"
                     );
 
-            string data = JsonConvert.SerializeObject(new Dictionary<string, string>() { { "query", sql.Replace("\\", "\\\\") } });
-
-            String responseBody = GetHttpResponseByUrl(url, data, "POST");
+            String responseBody = GetHttpResponseByUrl(url, sql);
             return responseBody;
         }
         public static JObject RetrieveWorkItems(string columns, string workitems)
@@ -284,7 +303,6 @@ namespace MonthlyReportTool.API.TFS
                 sbid.Append(wiid).Append(",");
                 if (id["source"] != null && Convert.ToString(id["source"]) != "")
                 {
-                    if (hs.ContainsKey(wiid)) continue;
                     hs.Add(wiid, Convert.ToString(id["source"]["id"]));
                 }
                 else

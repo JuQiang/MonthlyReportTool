@@ -99,7 +99,7 @@ namespace MonthlyReportTool.API.Office.Excel
         private int BuildSummaryTable()
         {
             int featuresCount = 1;
-            string[] cols = new string[] { "团队成员标准工时\r\n（迭代天数*人数×8）", "实际投入总工时", "工作\r\n饱和度", "研发投入总工时", "研发投入\r\n占比", "容量投入总工时\r\n（迭代天数×人数×容量）", "评估总工时\r\n（迭代任务的评估工时）", "迭代任务的实际工时", "计划偏差", "剩余工时" };
+            string[] cols = new string[] { "团队成员标准工时\r\n（迭代天数*人数×8）", "实际投入总工时", "工作\r\n饱和度", "研发投入总工时", "研发投入\r\n占比", "容量投入总工时\r\n（迭代天数×人数×容量）", "初始估计总工时\r\n（迭代任务的初始估计工时）", "迭代任务的实际工时\r\n（已完成工作工时）", "计划偏差", "剩余工时" };
             List<Tuple<string, string>> colsname = new List<Tuple<string, string>>(){
                 Tuple.Create<string,string>("B","E"),
                 Tuple.Create<string,string>("F","H"),

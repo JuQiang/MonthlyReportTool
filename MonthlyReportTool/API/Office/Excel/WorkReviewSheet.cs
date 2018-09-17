@@ -106,7 +106,7 @@ namespace MonthlyReportTool.API.Office.Excel
             var workviews = list.OrderBy(work => work.KeyApplicationName).OrderBy(work=>work.ModulesName).OrderBy(work=>work.FuncName).ToList();
             //OrderBy(backlog => backlog.KeyApplicationName).ThenBy(backlog => backlog.ModulesName).ThenBy(backlog => backlog.FuncName).ToList();
             int nextRow = Utility.BuildFormalTable(this.sheet, startRow, "本迭代审查记录单明细", "说明：都是以本迭代已关闭了的记录单为统计依据\r\n         按关键应用、模块、功能排序", "B", "Q",
-                new List<string>() { "记录单ID", "关键应用", "模块", "功能","记录单标题", "发现的Bug数", "记录单类型", "评审负责人","指派给","计划完成日期","关闭日期" },
+                new List<string>() { "记录单ID", "关键应用", "模块", "功能","记录单标题", "发现的Bug数", "记录单类型", "评审负责人","指派给","活动发生日期","关闭日期" },
                 new List<string>() {     "B,B",      "C,D", "E,F",  "G,H",      "I,K",        "L,L",        "M,M",      "N,N",   "O,O",        "P,P",    "Q,Q" },
                 workviews.Count);
 
@@ -129,8 +129,8 @@ namespace MonthlyReportTool.API.Office.Excel
                 {
                     sheet.Cells[i + startRow, "O"] = Utility.GetPersonName(workviews[i].AssignedTo);
                 }
-                if(workviews[i].PlanSubmitDate.Trim().Length >0)
-                    sheet.Cells[i + startRow, "P"] = DateTime.Parse(workviews[i].PlanSubmitDate).AddHours(8).ToString("yyyy-MM-dd");
+                if(workviews[i].ActionDate.Trim().Length >0)
+                    sheet.Cells[i + startRow, "P"] = DateTime.Parse(workviews[i].ActionDate).AddHours(8).ToString("yyyy-MM-dd");
                 if (workviews[i].ClosedDate.Trim().Length > 0)
                     sheet.Cells[i + startRow, "Q"] = DateTime.Parse(workviews[i].ClosedDate).AddHours(8).ToString("yyyy-MM-dd");
             }

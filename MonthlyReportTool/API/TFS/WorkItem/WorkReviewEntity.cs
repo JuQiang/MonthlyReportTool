@@ -22,6 +22,7 @@ namespace MonthlyReportTool.API.TFS.WorkItem
         public string ReviewBillType;
         public string ReviewResponsibleMan;
         public string PlanSubmitDate;
+        public string ActionDate;
         public string CreatedDate;
         public string ClosedDate;
         public string IterationPath;

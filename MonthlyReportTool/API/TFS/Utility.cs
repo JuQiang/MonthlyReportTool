@@ -42,7 +42,7 @@ namespace MonthlyReportTool.API.TFS
             {
                 using (BinaryReader reader = new BinaryReader(response.GetResponseStream()))
                 {
-                    byte[] img = reader.ReadBytes(10000);
+                    byte[] img = reader.ReadBytes(100000);
                     string fname = Environment.GetEnvironmentVariable("temp") + "\\" + Guid.NewGuid().ToString() + ".png";
                     File.WriteAllBytes(fname, img);
                     return fname;

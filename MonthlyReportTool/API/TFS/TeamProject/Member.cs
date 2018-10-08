@@ -13,9 +13,8 @@ namespace MonthlyReportTool.API.TFS.TeamProject
         public static List<MemberEntity> RetrieveMemberListByTeam(string prjname,string teamname)
         {
             List<MemberEntity> memberlist = new List<MemberEntity>();
-            string url = String.Format("http://{0}:8080/{1}/_apis/projects/{2}/teams/{3}/members?api-version=4.1",
-                    "tfs.teld.cn",
-                    "tfs/teld",
+            string url = String.Format("{0}/_apis/projects/{1}/teams/{2}/members?api-version=4.1",
+                   Utility.BaseUrl,//"tfs.teld.cn", "tfs/teld",
                     prjname,
                     teamname
                     );
@@ -43,7 +42,7 @@ namespace MonthlyReportTool.API.TFS.TeamProject
             List<MemberEntity> list = new List<MemberEntity>();
 
             string ret = TFS.Utility.GetHttpResponseByUrl(
-                String.Format("http://tfs.teld.cn:8080/tfs/teld/{0}/_apis/work/teamsettings/iterations/{1}?api-version=v4.1-preview.1", prj, iterationId)
+                String.Format("{0}/{1}/_apis/work/teamsettings/iterations/{2}?api-version=v4.1-preview.1", Utility.BaseUrl,prj, iterationId)
             );
 
 

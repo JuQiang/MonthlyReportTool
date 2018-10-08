@@ -2,9 +2,6 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MonthlyReportTool.API.TFS.Agile
 {
@@ -26,7 +23,7 @@ namespace MonthlyReportTool.API.TFS.Agile
         {
             Dictionary<string, double> list = new Dictionary<string, double>();
             string ret = TFS.Utility.GetHttpResponseByUrl(
-                String.Format("http://tfs.teld.cn:8080/tfs/teld/{0}/_apis/work/teamsettings/iterations/{1}?api-version=v4.1-preview.1", prj, iterationId)
+                String.Format("{0}/{1}/_apis/work/teamsettings/iterations/{2}?api-version=v4.1-preview.1",Utility.BaseUrl, prj, iterationId)
             );
 
             string url = (JsonConvert.DeserializeObject(ret) as JObject)["_links"]["capacity"]["href"].ToString().Trim();

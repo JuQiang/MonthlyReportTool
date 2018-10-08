@@ -22,11 +22,13 @@ namespace MonthlyReportTool.API.TFS
         public static string User = "";
         public static string Pass = "";
         public static string QueryBaseDirectory = "共享查询%2F迭代总结数据查询%2F{0}";
+        public static string BaseUrl = "http://tfs.teld.cn:8080/tfs/Teld";
 
         public static string GetBurndownPictureFile(string projectName)
         {
-            string url = String.Format("http://tfs.teld.cn:8080/tfs/Teld/{0}/_api/_teamChart/Burndown?chartOptions=%7B%22Width%22%3A1248%2C%22Height%22%3A616%2C%22" +
-                "ShowDetails%22%3Atrue%2C%22Title%22%3A%22%22%7D&counter=2&iterationPath={1}&__v=5",
+            string url = String.Format("{0}/{1}/_api/_teamChart/Burndown?chartOptions=%7B%22Width%22%3A1248%2C%22Height%22%3A616%2C%22" +
+                "ShowDetails%22%3Atrue%2C%22Title%22%3A%22%22%7D&counter=2&iterationPath={2}&__v=5",
+                BaseUrl,
                     projectName,
                     Utility.GetBestIteration(projectName).Path
                     );
@@ -114,9 +116,9 @@ namespace MonthlyReportTool.API.TFS
 
         public static string GetQueryClause(string queryID)
         {
-            string url = String.Format("http://{0}:8080/{1}/_apis/wit/queries/{2}?$expand=clauses&api-version=4.1",
-                "tfs.teld.cn", //t-bj-tfs.chinacloudapp.cn
-                "tfs/teld/orgportal",
+            string url = String.Format("{0}/{1}/_apis/wit/queries/{2}?$expand=clauses&api-version=4.1",
+                BaseUrl,/*http://tfs.teld.cn:8080/tfs/teld --//"tfs.teld.cn", //t-bj-tfs.chinacloudapp.cn*/
+                "orgportal",
                 queryID
                 );
             string responseBody = GetHttpResponseByUrl(url);
@@ -153,9 +155,8 @@ namespace MonthlyReportTool.API.TFS
         }
         public static string ExecuteQueryBySQL(string sql)
         {
-            string url = String.Format("http://{0}:8080/{1}/_apis/wit/wiql?api-version=4.1",
-                    "tfs.teld.cn",
-                    "tfs/teld"
+            string url = String.Format("{0}/_apis/wit/wiql?api-version=4.1",
+                    BaseUrl
                     );
 
             string data = JsonConvert.SerializeObject(new Dictionary<string, string>() { { "query", sql.Replace("\\", "\\\\") } });
@@ -165,9 +166,8 @@ namespace MonthlyReportTool.API.TFS
         }
         public static JObject RetrieveWorkItems(string columns, string workitems)
         {
-            string url = String.Format("http://{0}:8080/{1}/_apis/wit/workitems?ids={2}&fields={3}&?api-version=4.1",
-                                        "tfs.teld.cn", //t-bj-tfs.chinacloudapp.cn
-                                        "tfs/teld",
+            string url = String.Format("{0}/_apis/wit/workitems?ids={1}&fields={2}&?api-version=4.1",
+                                        BaseUrl,// //t-bj-tfs.chinacloudapp.cn "tfs/teld",
                                         workitems,
                                         columns
                                      );

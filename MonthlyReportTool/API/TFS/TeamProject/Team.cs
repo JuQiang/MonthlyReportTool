@@ -14,7 +14,7 @@ namespace MonthlyReportTool.API.TFS.TeamProject
         {
             List<TeamEntity> teamlist = new List<TeamEntity>();
             string url = String.Format("{0}/_apis/projects/{1}/teams?api-version=4.1",
-                    Utility.BaseUrl,//"tfs.teld.cn", s"tfs/teld",
+                    Utility.BaseUrl,
                     prjname
                     );
 

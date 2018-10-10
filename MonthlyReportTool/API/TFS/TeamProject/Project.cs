@@ -13,9 +13,8 @@ namespace MonthlyReportTool.API.TFS.TeamProject
         public static List<ProjectEntity> RetrieveProjectList()
         {
             List<ProjectEntity> prjlist = new List<ProjectEntity>();
-            //http://tfs.teld.cn:8080/tfs/teld/_apis/projects?api-version
             string url = String.Format("{0}/_apis/projects?api-version=4.1",//=2.0",
-                   Utility.BaseUrl// "tfs.teld.cn","tfs/teld"
+                   Utility.BaseUrl
                     );
 
             string responseBody = TFS.Utility.GetHttpResponseByUrl(url);

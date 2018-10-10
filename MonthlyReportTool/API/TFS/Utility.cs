@@ -117,7 +117,7 @@ namespace MonthlyReportTool.API.TFS
         public static string GetQueryClause(string queryID)
         {
             string url = String.Format("{0}/{1}/_apis/wit/queries/{2}?$expand=clauses&api-version=4.1",
-                BaseUrl,/*http://tfs.teld.cn:8080/tfs/teld --//"tfs.teld.cn", //t-bj-tfs.chinacloudapp.cn*/
+                BaseUrl,
                 "orgportal",
                 queryID
                 );
@@ -215,18 +215,7 @@ namespace MonthlyReportTool.API.TFS
 
             sbrefname.Remove(sbrefname.Length - 1, 1);
             sbid.Remove(sbid.Length - 1, 1);
-
-            //    string detailsUrl = String.Format("http://{0}:8080/{1}/_apis/wit/workitems?ids={2}&fields={3}&api-version=4.1",
-            //"tfs.teld.cn",
-            //"tfs/teld",
-            //sbid.ToString(),
-            //sbrefname.ToString()
-            //);
-
-            //    responseBody = Utility.GetHttpResponseByUrl(detailsUrl);
-
-            //var wiarray = (JsonConvert.DeserializeObject(responseBody) as JObject)["value"] as JArray;
-
+                        
             List<StringBuilder> sbWorkItems = new List<StringBuilder>();
 
             //Get work items

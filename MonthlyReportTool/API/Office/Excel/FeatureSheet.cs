@@ -155,7 +155,7 @@ namespace MonthlyReportTool.API.Office.Excel
             sheet.Cells[currentRow, "B"] = (child == true) ? "'  " + feature.Id : "" + feature.Id;
             sheet.Cells[currentRow, "C"] = feature.KeyApplicationName;
             sheet.Cells[currentRow, "E"] = feature.ModulesName;
-            sheet.Cells[currentRow, "G"] = feature.ModulesName;
+            sheet.Cells[currentRow, "G"] = feature.FuncName;
             sheet.Cells[currentRow, "I"] = (child==true)?"  "+feature.Title:feature.Title;
             sheet.Cells[currentRow, "M"] = feature.NeedRequireDevelop;
             sheet.Cells[currentRow, "N"] = feature.State;
@@ -231,7 +231,7 @@ namespace MonthlyReportTool.API.Office.Excel
             sheet.Cells[currentRow, "B"] = (child == true) ? "'  " + feature.Id : "" + feature.Id;
             sheet.Cells[currentRow, "C"] = feature.KeyApplicationName;
             sheet.Cells[currentRow, "E"] = feature.ModulesName;
-            sheet.Cells[currentRow, "G"] = feature.ModulesName;
+            sheet.Cells[currentRow, "G"] = feature.FuncName;
             sheet.Cells[currentRow, "I"] = (child == true) ? "  " + feature.Title : feature.Title;
             sheet.Cells[currentRow, "M"] = feature.NeedRequireDevelop;
             sheet.Cells[currentRow, "N"] = feature.State;
@@ -292,7 +292,7 @@ namespace MonthlyReportTool.API.Office.Excel
             sheet.Cells[currentRow, "B"] = (child == true) ? "'  " + feature.Id : "" + feature.Id;
             sheet.Cells[currentRow, "C"] = feature.KeyApplicationName;
             sheet.Cells[currentRow, "E"] = feature.ModulesName;
-            sheet.Cells[currentRow, "G"] = feature.ModulesName;
+            sheet.Cells[currentRow, "G"] = feature.FuncName;
             sheet.Cells[currentRow, "I"] = (child == true) ? "  " + feature.Title : feature.Title;
             sheet.Cells[currentRow, "M"] = feature.NeedRequireDevelop;
             sheet.Cells[currentRow, "N"] = feature.State;
